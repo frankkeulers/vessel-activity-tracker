@@ -1,0 +1,386 @@
+{
+  "meta": {
+    "limit": 3,
+    "offset": 0,
+    "request_id": "8680e40b-c5ad-44a5-ba1a-500d59175f9a",
+    "request_timestamp": "2026-04-09T16:15:23Z",
+    "total_count": 14
+  },
+  "data": {
+    "events": [
+      {
+        "has_ended": true,
+        "duration_hours": 696,
+        "event_type": "BOX_FORMATION",
+        "mmsi": "306197000",
+        "started": {
+          "timestamp": "2025-08-03T00:00:00Z",
+          "draught": null,
+          "latitude": 24.550167,
+          "longitude": 56.849995,
+          "zones": [
+            {
+              "centroid": {
+                "latitude": 26.04036636407392,
+                "longitude": 54.29464475549781
+              },
+              "id": "440996e2-e738-4b49-a8db-6f1bdf59fe6d",
+              "name": "(IZ-JWC) Persian Gulf",
+              "type": "JWC War Zones",
+              "sub_type": "",
+              "description": "This polygon is based on a Pole Star interpretation ofthe \"Hull War, Strikes, Terrorism and Related PerilsListed Areas\" circular, published by the Joint WarCommittee (JWC). Refer to the circular for full details."
+            },
+            {
+              "centroid": {
+                "latitude": 20.78181869093555,
+                "longitude": 57.28186037759102
+              },
+              "id": "e621969f-f65d-4cbe-8dab-ba23aafa9b29",
+              "name": "(IZ-JWC) Oman",
+              "type": "JWC War Zones",
+              "sub_type": "",
+              "description": "This polygon is based on a Pole Star interpretation ofthe \"Hull War, Strikes, Terrorism and Related PerilsListed Areas\" circular, published by the Joint WarCommittee (JWC). Refer to the circular for full details."
+            },
+            {
+              "centroid": {
+                "latitude": 18.950482007730766,
+                "longitude": 58.6686196567098
+              },
+              "id": "6d63129d-bdf8-4df2-a4ee-c15cf7d8904e",
+              "name": "Omani Exclusive Economic Zone",
+              "type": "Jurisdictional",
+              "sub_type": "Exclusive Economic Zones (EEZ)",
+              "description": ""
+            },
+            {
+              "centroid": {
+                "latitude": 21.03896198236794,
+                "longitude": 57.34495486939442
+              },
+              "id": "d672b362-2e0b-4d1d-9041-35144cf550c8",
+              "name": "Omani 12 NM",
+              "type": "Jurisdictional",
+              "sub_type": "Territorial Sea",
+              "description": ""
+            }
+          ],
+          "ports": [
+            {
+              "centroid": {
+                "latitude": 24.597198864204685,
+                "longitude": 56.72551094883621
+              },
+              "country_code": "OMN",
+              "country_common_name": "Oman",
+              "country_official_name": "Sultanate of Oman",
+              "description": "",
+              "sub_division_code": "",
+              "sub_division_name": "",
+              "unlocode": "",
+              "wpi_number": "",
+              "id": "f088d4d3-a865-49d1-8517-21af704e023f",
+              "name": "Anchorage Area No.1 near Sohar (OM)",
+              "sub_type": "Anchorage Area",
+              "type": "Ports"
+            }
+          ]
+        },
+        "stopped": {
+          "timestamp": "2025-08-31T23:59:59Z",
+          "draught": null,
+          "latitude": 25.660423,
+          "longitude": 55.036503,
+          "zones": [
+            {
+              "centroid": {
+                "latitude": 26.04036636407392,
+                "longitude": 54.29464475549781
+              },
+              "id": "440996e2-e738-4b49-a8db-6f1bdf59fe6d",
+              "name": "(IZ-JWC) Persian Gulf",
+              "type": "JWC War Zones",
+              "sub_type": "",
+              "description": "This polygon is based on a Pole Star interpretation ofthe \"Hull War, Strikes, Terrorism and Related PerilsListed Areas\" circular, published by the Joint WarCommittee (JWC). Refer to the circular for full details."
+            },
+            {
+              "centroid": {
+                "latitude": 26.011225604319677,
+                "longitude": 55.170945450012084
+              },
+              "id": "8be13b6e-b5bf-4a36-96fd-d875428656fa",
+              "name": "Overlapping claim Abu musa, Greater and Lesser Tunb: United Arab Emirates / Iran",
+              "type": "Jurisdictional",
+              "sub_type": "Exclusive Economic Zones (EEZ)",
+              "description": ""
+            }
+          ],
+          "ports": [
+            {
+              "centroid": {
+                "latitude": 25.655726109618147,
+                "longitude": 54.95467212560595
+              },
+              "country_code": "XXZ",
+              "country_common_name": "",
+              "country_official_name": "",
+              "description": "",
+              "sub_division_code": "",
+              "sub_division_name": "",
+              "unlocode": "",
+              "wpi_number": "",
+              "id": "56752176-f121-4676-913b-4f918896cdb5",
+              "name": "International Waters Anchorage Area No.1 near Mubarek Oil Terminal",
+              "sub_type": "Anchorage Area",
+              "type": "Ports"
+            }
+          ]
+        }
+      },
+      {
+        "has_ended": true,
+        "duration_hours": 144,
+        "event_type": "BOX_FORMATION",
+        "mmsi": "306197000",
+        "started": {
+          "timestamp": "2025-07-23T00:00:00Z",
+          "draught": null,
+          "latitude": 29.640078,
+          "longitude": 48.734276,
+          "zones": [
+            {
+              "centroid": {
+                "latitude": 26.04036636407392,
+                "longitude": 54.29464475549781
+              },
+              "id": "440996e2-e738-4b49-a8db-6f1bdf59fe6d",
+              "name": "(IZ-JWC) Persian Gulf",
+              "type": "JWC War Zones",
+              "sub_type": "",
+              "description": "This polygon is based on a Pole Star interpretation ofthe \"Hull War, Strikes, Terrorism and Related PerilsListed Areas\" circular, published by the Joint WarCommittee (JWC). Refer to the circular for full details."
+            },
+            {
+              "centroid": {
+                "latitude": 29.78995811000512,
+                "longitude": 48.53041636538412
+              },
+              "id": "2450c779-b892-4653-9320-c191096016d6",
+              "name": "Iraqi 12 NM",
+              "type": "Jurisdictional",
+              "sub_type": "Territorial Sea",
+              "description": ""
+            },
+            {
+              "centroid": {
+                "latitude": 29.761875518437375,
+                "longitude": 48.574089723637414
+              },
+              "id": "afc532cf-1d03-4e9e-b029-8275a9ff49bb",
+              "name": "Iraqi Exclusive Economic Zone",
+              "type": "Jurisdictional",
+              "sub_type": "Exclusive Economic Zones (EEZ)",
+              "description": ""
+            }
+          ],
+          "ports": [
+            {
+              "centroid": {
+                "latitude": 29.664853351296532,
+                "longitude": 48.69968569071951
+              },
+              "country_code": "IRQ",
+              "country_common_name": "Iraq",
+              "country_official_name": "Republic of Iraq",
+              "description": "",
+              "sub_division_code": "",
+              "sub_division_name": "",
+              "unlocode": "",
+              "wpi_number": "",
+              "id": "186f5406-5150-4ec5-9b6d-4590c67dbc79",
+              "name": "Anchorage Area No.1 near Basrah Oil Terminal (IQ)",
+              "sub_type": "Anchorage Area",
+              "type": "Ports"
+            }
+          ]
+        },
+        "stopped": {
+          "timestamp": "2025-07-28T23:59:59Z",
+          "draught": null,
+          "latitude": 29.640062,
+          "longitude": 48.734264,
+          "zones": [
+            {
+              "centroid": {
+                "latitude": 26.04036636407392,
+                "longitude": 54.29464475549781
+              },
+              "id": "440996e2-e738-4b49-a8db-6f1bdf59fe6d",
+              "name": "(IZ-JWC) Persian Gulf",
+              "type": "JWC War Zones",
+              "sub_type": "",
+              "description": "This polygon is based on a Pole Star interpretation ofthe \"Hull War, Strikes, Terrorism and Related PerilsListed Areas\" circular, published by the Joint WarCommittee (JWC). Refer to the circular for full details."
+            },
+            {
+              "centroid": {
+                "latitude": 29.78995811000512,
+                "longitude": 48.53041636538412
+              },
+              "id": "2450c779-b892-4653-9320-c191096016d6",
+              "name": "Iraqi 12 NM",
+              "type": "Jurisdictional",
+              "sub_type": "Territorial Sea",
+              "description": ""
+            },
+            {
+              "centroid": {
+                "latitude": 29.761875518437375,
+                "longitude": 48.574089723637414
+              },
+              "id": "afc532cf-1d03-4e9e-b029-8275a9ff49bb",
+              "name": "Iraqi Exclusive Economic Zone",
+              "type": "Jurisdictional",
+              "sub_type": "Exclusive Economic Zones (EEZ)",
+              "description": ""
+            }
+          ],
+          "ports": [
+            {
+              "centroid": {
+                "latitude": 29.664853351296532,
+                "longitude": 48.69968569071951
+              },
+              "country_code": "IRQ",
+              "country_common_name": "Iraq",
+              "country_official_name": "Republic of Iraq",
+              "description": "",
+              "sub_division_code": "",
+              "sub_division_name": "",
+              "unlocode": "",
+              "wpi_number": "",
+              "id": "186f5406-5150-4ec5-9b6d-4590c67dbc79",
+              "name": "Anchorage Area No.1 near Basrah Oil Terminal (IQ)",
+              "sub_type": "Anchorage Area",
+              "type": "Ports"
+            }
+          ]
+        }
+      },
+      {
+        "has_ended": true,
+        "duration_hours": 840,
+        "event_type": "BOX_FORMATION",
+        "mmsi": "306197000",
+        "started": {
+          "timestamp": "2025-05-11T00:00:00Z",
+          "draught": null,
+          "latitude": 25.735922,
+          "longitude": 56.94057,
+          "zones": [
+            {
+              "centroid": {
+                "latitude": 26.04036636407392,
+                "longitude": 54.29464475549781
+              },
+              "id": "440996e2-e738-4b49-a8db-6f1bdf59fe6d",
+              "name": "(IZ-JWC) Persian Gulf",
+              "type": "JWC War Zones",
+              "sub_type": "",
+              "description": "This polygon is based on a Pole Star interpretation ofthe \"Hull War, Strikes, Terrorism and Related PerilsListed Areas\" circular, published by the Joint WarCommittee (JWC). Refer to the circular for full details."
+            },
+            {
+              "centroid": {
+                "latitude": 29.757791443176508,
+                "longitude": 53.87832155034814
+              },
+              "id": "10f4ac86-a6ae-475c-989a-e2131686021e",
+              "name": "Iranian Exclusive Economic Zone",
+              "type": "Jurisdictional",
+              "sub_type": "Exclusive Economic Zones (EEZ)",
+              "description": ""
+            }
+          ],
+          "ports": [
+            {
+              "centroid": {
+                "latitude": 25.75652084105454,
+                "longitude": 56.94495629322907
+              },
+              "country_code": "XXZ",
+              "country_common_name": "",
+              "country_official_name": "",
+              "description": "",
+              "sub_division_code": "",
+              "sub_division_name": "",
+              "unlocode": "",
+              "wpi_number": "",
+              "id": "7a9e64c2-6ba9-415e-9729-a4c58bf18ab8",
+              "name": "International Waters Anchorage Area No.1 near Jask Oil Terminal",
+              "sub_type": "Anchorage Area",
+              "type": "Ports"
+            }
+          ]
+        },
+        "stopped": {
+          "timestamp": "2025-06-14T23:59:59Z",
+          "draught": null,
+          "latitude": 25.735918,
+          "longitude": 56.9406,
+          "zones": [
+            {
+              "centroid": {
+                "latitude": 26.04036636407392,
+                "longitude": 54.29464475549781
+              },
+              "id": "440996e2-e738-4b49-a8db-6f1bdf59fe6d",
+              "name": "(IZ-JWC) Persian Gulf",
+              "type": "JWC War Zones",
+              "sub_type": "",
+              "description": "This polygon is based on a Pole Star interpretation ofthe \"Hull War, Strikes, Terrorism and Related PerilsListed Areas\" circular, published by the Joint WarCommittee (JWC). Refer to the circular for full details."
+            },
+            {
+              "centroid": {
+                "latitude": 29.757791443176508,
+                "longitude": 53.87832155034814
+              },
+              "id": "10f4ac86-a6ae-475c-989a-e2131686021e",
+              "name": "Iranian Exclusive Economic Zone",
+              "type": "Jurisdictional",
+              "sub_type": "Exclusive Economic Zones (EEZ)",
+              "description": ""
+            }
+          ],
+          "ports": [
+            {
+              "centroid": {
+                "latitude": 25.75652084105454,
+                "longitude": 56.94495629322907
+              },
+              "country_code": "XXZ",
+              "country_common_name": "",
+              "country_official_name": "",
+              "description": "",
+              "sub_division_code": "",
+              "sub_division_name": "",
+              "unlocode": "",
+              "wpi_number": "",
+              "id": "7a9e64c2-6ba9-415e-9729-a4c58bf18ab8",
+              "name": "International Waters Anchorage Area No.1 near Jask Oil Terminal",
+              "sub_type": "Anchorage Area",
+              "type": "Ports"
+            }
+          ]
+        }
+      }
+    ],
+    "vessel_information": {
+      "asset_id": "1e95d350-f116-4844-a212-30d1af62464c",
+      "callsign": "EPA6042",
+      "flag": "Iran",
+      "flag_code": "IRN",
+      "imo": "9215103",
+      "mmsi": "422963400",
+      "name": "MAOMING",
+      "vessel_type": "Chemical/Products Tanker",
+      "stat_code5": "120AA"
+    }
+  }
+}

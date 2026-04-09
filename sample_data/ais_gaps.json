@@ -1,0 +1,110 @@
+{
+  "meta": {
+    "limit": 3,
+    "offset": 0,
+    "total_count": 101,
+    "request_id": "382eb643-6f16-44a3-92d4-f36daa29ba7a",
+    "request_timestamp": "2026-01-14T13:28:22Z"
+  },
+  "data": {
+    "events": [
+      {
+        "event_id": "b9c5fa0a-c4d1-4037-9b88-6781e0c50540",
+        "gap_duration_hours": 34.48,
+        "draught_change": 0,
+        "stopped": {
+          "course": 298.7,
+          "draught": 4.8,
+          "latitude": 49.08257,
+          "longitude": 140.31357,
+          "navigational_status": {
+            "status": "UNDER WAY USING ENGINE",
+            "code": "1"
+          },
+          "speed": 2.5,
+          "timestamp": "2026-01-13T00:35:50Z"
+        },
+        "resumed": {
+          "course": 111.5,
+          "draught": 4.8,
+          "latitude": 49.074425,
+          "longitude": 140.3326,
+          "navigational_status": {
+            "status": "AT ANCHOR",
+            "code": "2"
+          },
+          "speed": 0,
+          "timestamp": "2026-01-14T11:04:53Z"
+        }
+      },
+      {
+        "event_id": "6c108780-75a8-47eb-99b4-b2dccb77a828",
+        "gap_duration_hours": 14.78,
+        "draught_change": 0,
+        "stopped": {
+          "course": 28,
+          "draught": 6.1,
+          "latitude": 43.085,
+          "longitude": 132,
+          "navigational_status": {
+            "status": "AT ANCHOR",
+            "code": "2"
+          },
+          "speed": 0,
+          "timestamp": "2025-12-21T01:16:15Z"
+        },
+        "resumed": {
+          "course": 55.2,
+          "draught": 6.1,
+          "latitude": 43.08632,
+          "longitude": 132.00081,
+          "navigational_status": {
+            "status": "AT ANCHOR",
+            "code": "2"
+          },
+          "speed": 0.1,
+          "timestamp": "2025-12-21T16:03:04Z"
+        }
+      },
+      {
+        "event_id": "669890a7-0e33-4c2d-8370-b674b374eb64",
+        "gap_duration_hours": 19.55,
+        "draught_change": 0,
+        "stopped": {
+          "course": 214.3,
+          "draught": 6.1,
+          "latitude": 43.079754,
+          "longitude": 131.85614,
+          "navigational_status": {
+            "status": "MOORED",
+            "code": "6"
+          },
+          "speed": 0,
+          "timestamp": "2025-12-17T00:42:31Z"
+        },
+        "resumed": {
+          "course": 48.3,
+          "draught": 6.1,
+          "latitude": 43.079777,
+          "longitude": 131.85617,
+          "navigational_status": {
+            "status": "MOORED",
+            "code": "6"
+          },
+          "speed": 0,
+          "timestamp": "2025-12-17T20:15:25Z"
+        }
+      }
+    ],
+    "vessel_information": {
+      "asset_id": "551acc0d-e138-4d1f-9475-57b7310abc84",
+      "callsign": "UBZI5",
+      "imo": "9217321",
+      "mmsi": "273359970",
+      "name": "NIKOLAY SHALAVIN",
+      "flag_code": "RUS",
+      "flag": "Russia",
+      "vessel_type": "Oil products tanker"
+    }
+  }
+}

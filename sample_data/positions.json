@@ -1,0 +1,88 @@
+{
+  "meta": {
+    "limit": 100,
+    "offset": 0,
+    "request_id": "0c151657-b0d2-45c4-a4fb-f7f9326350b1",
+    "request_timestamp": "2026-04-09T16:16:30Z"
+  },
+  "data": [
+    {
+      "mmsi": "636025640",
+      "timestamp": "2026-01-22T23:55:48",
+      "asset_id": "5a8e9c60-434b-4b59-b8e0-fb90ae9a3890",
+      "navigational_status": {
+        "status": "Moored",
+        "code": 6
+      },
+      "latitude": 47.29767,
+      "longitude": -2.148648,
+      "speed": 0.0,
+      "course": 317,
+      "source": "T-AIS",
+      "heading": 244.0,
+      "callsign": "D5SH8",
+      "destination": "FR MTX",
+      "matched_destination": {
+        "unlocode": null
+      },
+      "draught": 6.3,
+      "eta": "1970-01-21T11:20:56Z",
+      "imo_number": "9832509",
+      "name": "LADY ANDRIANE",
+      "ship_type": "Cargo",
+      "transceiver_class": "A"
+    },
+    {
+      "mmsi": "636025640",
+      "timestamp": "2026-01-22T23:43:48",
+      "asset_id": "5a8e9c60-434b-4b59-b8e0-fb90ae9a3890",
+      "navigational_status": {
+        "status": "Moored",
+        "code": 6
+      },
+      "latitude": 47.297676,
+      "longitude": -2.148705,
+      "speed": 0.0,
+      "course": 317,
+      "source": "T-AIS",
+      "heading": 244.0,
+      "callsign": "D5SH8",
+      "destination": "FR MTX",
+      "matched_destination": {
+        "unlocode": null
+      },
+      "draught": 6.3,
+      "eta": "1970-01-21T11:20:56Z",
+      "imo_number": "9832509",
+      "name": "LADY ANDRIANE",
+      "ship_type": "Cargo",
+      "transceiver_class": "A"
+    },
+    {
+      "mmsi": "636025640",
+      "timestamp": "2026-01-22T23:37:51",
+      "asset_id": "5a8e9c60-434b-4b59-b8e0-fb90ae9a3890",
+      "navigational_status": {
+        "status": "Moored",
+        "code": 6
+      },
+      "latitude": 47.297665,
+      "longitude": -2.148693,
+      "speed": 0.0,
+      "course": 317,
+      "source": "T-AIS",
+      "heading": 244.0,
+      "callsign": "D5SH8",
+      "destination": "FR MTX",
+      "matched_destination": {
+        "unlocode": null
+      },
+      "draught": 6.3,
+      "eta": "1970-01-21T11:20:56Z",
+      "imo_number": "9832509",
+      "name": "LADY ANDRIANE",
+      "ship_type": "Cargo",
+      "transceiver_class": "A"
+    }
+  ]
+}

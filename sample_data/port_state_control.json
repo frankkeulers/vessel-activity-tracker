@@ -1,0 +1,247 @@
+{
+  "meta": {
+    "limit": 100,
+    "offset": 0,
+    "request_id": "b5010e02-0b94-4a3e-adbc-51b075281b10",
+    "request_timestamp": "2026-01-14T15:13:42Z",
+    "total_count": 14
+  },
+  "data": {
+    "inspections": [
+      {
+        "authority": "Tokyo MOU",
+        "detained": false,
+        "expanded_inspection": false,
+        "follow_up_inspection": "Y",
+        "inspection_date": "2025-12-17T00:00:00",
+        "inspection_type": "Remote Follow-Up Inspection",
+        "no_days_detained": null,
+        "no_defects": 2,
+        "port_information": {
+          "country_code": null,
+          "country_common_name": "Russian Federation",
+          "name": "Korsakov"
+        },
+        "release_date": null
+      },
+      {
+        "authority": "Tokyo MOU",
+        "detained": false,
+        "expanded_inspection": false,
+        "follow_up_inspection": "N",
+        "inspection_date": "2025-12-17T00:00:00",
+        "inspection_type": "Initial Inspection",
+        "no_days_detained": null,
+        "no_defects": 3,
+        "port_information": {
+          "country_code": null,
+          "country_common_name": "Russian Federation",
+          "name": "Korsakov"
+        },
+        "release_date": null
+      },
+      {
+        "authority": "Tokyo MOU",
+        "detained": false,
+        "expanded_inspection": false,
+        "follow_up_inspection": "N",
+        "inspection_date": "2025-06-27T00:00:00",
+        "inspection_type": "Initial Inspection",
+        "no_days_detained": null,
+        "no_defects": 5,
+        "port_information": {
+          "country_code": null,
+          "country_common_name": "Japan",
+          "name": "Otaru"
+        },
+        "release_date": null
+      },
+      {
+        "authority": "Tokyo MOU",
+        "detained": false,
+        "expanded_inspection": false,
+        "follow_up_inspection": "Y",
+        "inspection_date": "2025-03-12T00:00:00",
+        "inspection_type": "Remote Follow-Up Inspection",
+        "no_days_detained": null,
+        "no_defects": 13,
+        "port_information": {
+          "country_code": null,
+          "country_common_name": "Russian Federation",
+          "name": "Korsakov"
+        },
+        "release_date": null
+      },
+      {
+        "authority": "Tokyo MOU",
+        "detained": true,
+        "expanded_inspection": false,
+        "follow_up_inspection": "N",
+        "inspection_date": "2025-03-06T00:00:00",
+        "inspection_type": "Initial Inspection",
+        "no_days_detained": 0,
+        "no_defects": 13,
+        "port_information": {
+          "country_code": null,
+          "country_common_name": "Russian Federation",
+          "name": "Korsakov"
+        },
+        "release_date": null
+      },
+      {
+        "authority": "Tokyo MOU",
+        "detained": true,
+        "expanded_inspection": false,
+        "follow_up_inspection": "N",
+        "inspection_date": "2025-03-06T00:00:00",
+        "inspection_type": "Initial Inspection",
+        "no_days_detained": 0,
+        "no_defects": 13,
+        "port_information": {
+          "country_code": null,
+          "country_common_name": "Russian Federation",
+          "name": "Korsakov"
+        },
+        "release_date": null
+      },
+      {
+        "authority": "Tokyo MOU",
+        "detained": true,
+        "expanded_inspection": false,
+        "follow_up_inspection": "N",
+        "inspection_date": "2025-03-06T00:00:00",
+        "inspection_type": "Initial Inspection",
+        "no_days_detained": 7,
+        "no_defects": 13,
+        "port_information": {
+          "country_code": null,
+          "country_common_name": "Russian Federation",
+          "name": "Korsakov"
+        },
+        "release_date": "2025-03-12T00:00:00"
+      },
+      {
+        "authority": "Tokyo MOU",
+        "detained": false,
+        "expanded_inspection": false,
+        "follow_up_inspection": "Y",
+        "inspection_date": "2024-12-06T00:00:00",
+        "inspection_type": "Remote Follow-Up Inspection",
+        "no_days_detained": null,
+        "no_defects": 1,
+        "port_information": {
+          "country_code": null,
+          "country_common_name": "Russian Federation",
+          "name": "Korsakov"
+        },
+        "release_date": null
+      },
+      {
+        "authority": "Tokyo MOU",
+        "detained": false,
+        "expanded_inspection": false,
+        "follow_up_inspection": "Y",
+        "inspection_date": "2024-10-25T00:00:00",
+        "inspection_type": "Remote Follow-Up Inspection",
+        "no_days_detained": null,
+        "no_defects": 17,
+        "port_information": {
+          "country_code": null,
+          "country_common_name": "Russian Federation",
+          "name": "Korsakov"
+        },
+        "release_date": null
+      },
+      {
+        "authority": "Tokyo MOU",
+        "detained": false,
+        "expanded_inspection": false,
+        "follow_up_inspection": "Y",
+        "inspection_date": "2024-10-24T00:00:00",
+        "inspection_type": "Remote Follow-Up Inspection",
+        "no_days_detained": null,
+        "no_defects": 5,
+        "port_information": {
+          "country_code": null,
+          "country_common_name": "Russian Federation",
+          "name": "Korsakov"
+        },
+        "release_date": null
+      },
+      {
+        "authority": "Tokyo MOU",
+        "detained": false,
+        "expanded_inspection": false,
+        "follow_up_inspection": "N",
+        "inspection_date": "2024-10-24T00:00:00",
+        "inspection_type": "Initial Inspection",
+        "no_days_detained": null,
+        "no_defects": 15,
+        "port_information": {
+          "country_code": null,
+          "country_common_name": "Russian Federation",
+          "name": "Korsakov"
+        },
+        "release_date": null
+      },
+      {
+        "authority": "Tokyo MOU",
+        "detained": true,
+        "expanded_inspection": false,
+        "follow_up_inspection": "N",
+        "inspection_date": "2024-10-01T00:00:00",
+        "inspection_type": "Initial Inspection",
+        "no_days_detained": 8,
+        "no_defects": 10,
+        "port_information": {
+          "country_code": null,
+          "country_common_name": "Japan",
+          "name": "Otaru"
+        },
+        "release_date": "2024-10-08T00:00:00"
+      },
+      {
+        "authority": "Tokyo MOU",
+        "detained": false,
+        "expanded_inspection": false,
+        "follow_up_inspection": "Y",
+        "inspection_date": "2024-07-31T00:00:00",
+        "inspection_type": "Remote Follow-Up Inspection",
+        "no_days_detained": null,
+        "no_defects": 3,
+        "port_information": {
+          "country_code": null,
+          "country_common_name": "Russian Federation",
+          "name": "Korsakov"
+        },
+        "release_date": null
+      },
+      {
+        "authority": "Tokyo MOU",
+        "detained": false,
+        "expanded_inspection": false,
+        "follow_up_inspection": "Y",
+        "inspection_date": "2024-07-03T00:00:00",
+        "inspection_type": "Remote Follow-Up Inspection",
+        "no_days_detained": null,
+        "no_defects": 9,
+        "port_information": {
+          "country_code": null,
+          "country_common_name": "Russian Federation",
+          "name": "Korsakov"
+        },
+        "release_date": null
+      }
+    ],
+    "vessel_information": {
+      "asset_id": "8e7ec3fe-7a60-4dbf-be8c-c71cc6af2764",
+      "callsign": "TJM0120",
+      "flag": "Cameroon",
+      "flag_code": "CMR",
+      "imo": "9771834",
+      "mmsi": "613569706",
+      "name": "PANFILOVO",
+      "vessel_type": "Fishing Vessel"
+    }
+  }
+}

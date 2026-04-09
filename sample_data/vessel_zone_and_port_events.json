@@ -1,0 +1,126 @@
+{
+  "meta": {
+    "limit": 3,
+    "offset": 0,
+    "total_count": 79,
+    "request_id": "ecc76942-083a-4f98-b82f-7a89b7c8e944",
+    "request_timestamp": "2026-01-14T15:04:20Z",
+    "zone_version": "0.8.0"
+  },
+  "data": {
+    "vessel_information": {
+      "asset_id": "ea2eac05-a542-4fc3-869a-d318057e3781",
+      "callsign": "D5PE9",
+      "flag": "Liberia",
+      "flag_code": "LBR",
+      "imo": "9169055",
+      "mmsi": "636018321",
+      "name": "MSC ADRIANA II",
+      "vessel_type": "Container (FC)"
+    },
+    "events": [
+      {
+        "zone_information": {
+          "centroid": {
+            "longitude": 22.90742846813909,
+            "latitude": 40.6329673095048
+          },
+          "country_official_name": "Hellenic Republic",
+          "country_code": "GRC",
+          "description": "",
+          "id": "4fde7749-ded0-4786-b764-3d8824aea1b8",
+          "name": "Thessaloniki",
+          "sub_type": "Port",
+          "type": "Ports",
+          "unlocode": "GRSKG",
+          "country_common_name": "Greece",
+          "sub_division_code": "GR-B",
+          "sub_division_name": "Kentriki Makedonia",
+          "wpi_number": null
+        },
+        "event_details": {
+          "course": 165.6,
+          "draught": 10.5,
+          "event_id": "3bc460e6-9a94-44c1-b667-8742dcb7c94f",
+          "event_timestamp": "2026-01-14T04:55:49Z",
+          "event_type": "PORT_DEPARTURE",
+          "heading": 511,
+          "latitude": 40.62363,
+          "longitude": 22.903954,
+          "navigational_status": "Under way using engine",
+          "reported_destination": "GRSKG-GRPIR",
+          "reported_eta": "2026-01-15T03:00:00Z",
+          "speed": 5.5
+        }
+      },
+      {
+        "zone_information": {
+          "centroid": {
+            "longitude": 22.90742846813909,
+            "latitude": 40.6329673095048
+          },
+          "country_official_name": "Hellenic Republic",
+          "country_code": "GRC",
+          "description": "",
+          "id": "4fde7749-ded0-4786-b764-3d8824aea1b8",
+          "name": "Thessaloniki",
+          "sub_type": "Port",
+          "type": "Ports",
+          "unlocode": "GRSKG",
+          "country_common_name": "Greece",
+          "sub_division_code": "GR-B",
+          "sub_division_name": "Kentriki Makedonia",
+          "wpi_number": null
+        },
+        "event_details": {
+          "course": 165.6,
+          "draught": 10.5,
+          "event_id": "dfa024f9-8991-459b-a5d2-503feb86b8bf",
+          "event_timestamp": "2026-01-14T04:55:49Z",
+          "event_type": "PORT_AREA_DEPARTURE",
+          "heading": 511,
+          "latitude": 40.62363,
+          "longitude": 22.903954,
+          "navigational_status": "Under way using engine",
+          "reported_destination": "GRSKG-GRPIR",
+          "reported_eta": "2026-01-15T03:00:00Z",
+          "speed": 5.5
+        }
+      },
+      {
+        "zone_information": {
+          "centroid": {
+            "longitude": 22.90742846813909,
+            "latitude": 40.6329673095048
+          },
+          "country_official_name": "Hellenic Republic",
+          "country_code": "GRC",
+          "description": "",
+          "id": "4fde7749-ded0-4786-b764-3d8824aea1b8",
+          "name": "Thessaloniki",
+          "sub_type": "Port",
+          "type": "Ports",
+          "unlocode": "GRSKG",
+          "country_common_name": "Greece",
+          "sub_division_code": "GR-B",
+          "sub_division_name": "Kentriki Makedonia",
+          "wpi_number": null
+        },
+        "event_details": {
+          "course": 48.6,
+          "draught": 10.3,
+          "event_id": "c2d4e166-3e4a-4042-aedf-ac29cb67e826",
+          "event_timestamp": "2026-01-13T19:50:03Z",
+          "event_type": "PORT_ARRIVAL",
+          "heading": 2,
+          "latitude": 40.633842,
+          "longitude": 22.904976,
+          "navigational_status": "Under way using engine",
+          "reported_destination": "TRALI-GRSKG",
+          "reported_eta": "2026-01-12T15:00:00Z",
+          "speed": 0.4
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,83 @@
+{
+  "meta": {
+    "limit": 3,
+    "offset": 0,
+    "request_id": "6f162755-23ee-49ce-a417-76d1c59e8303",
+    "request_timestamp": "2026-01-14T15:10:04Z",
+    "total_count": 6
+  },
+  "data": {
+    "events": [
+      {
+        "location": {
+          "latitude": 51.883446,
+          "longitude": 4.26879
+        },
+        "duration_hours": 7,
+        "paired_vessel": {
+          "asset_id": "77c4dd98-58b2-489c-bf25-308bd57f386b",
+          "callsign": "OT3793",
+          "flag": "Belgium",
+          "flag_code": "BEL",
+          "imo": "9253636",
+          "mmsi": "205058100",
+          "name": "LAILA-M",
+          "vessel_type": "General cargo"
+        },
+        "started": "2024-02-12T07:01:21Z",
+        "stopped": "2024-02-12T14:15:05Z",
+        "sts_type": "Bunkering"
+      },
+      {
+        "location": {
+          "latitude": 51.88327,
+          "longitude": 4.270437
+        },
+        "duration_hours": 7,
+        "paired_vessel": {
+          "asset_id": "b5593328-b957-4e05-b45f-c9c76d69bfe4",
+          "callsign": "OT2179",
+          "flag": "Belgium",
+          "flag_code": "BEL",
+          "imo": "9668219",
+          "mmsi": "205217990",
+          "name": "NEGRONI",
+          "vessel_type": "Oil (inland) tanker"
+        },
+        "started": "2024-02-15T18:17:25Z",
+        "stopped": "2024-02-16T01:43:44Z",
+        "sts_type": "Bunkering"
+      },
+      {
+        "location": {
+          "latitude": 51.268593,
+          "longitude": 4.3603
+        },
+        "duration_hours": 10,
+        "paired_vessel": {
+          "asset_id": "8fc2d86c-5817-450c-bb5e-15d3fcc09095",
+          "callsign": "HE7316",
+          "flag": "Switzerland",
+          "flag_code": "CHE",
+          "imo": "9546277",
+          "mmsi": "269057316",
+          "name": "NANCY",
+          "vessel_type": "Oil (inland) tanker"
+        },
+        "started": "2024-04-28T18:27:05Z",
+        "stopped": "2024-04-29T04:30:27Z",
+        "sts_type": "Bunkering"
+      }
+    ],
+    "vessel_information": {
+      "asset_id": "5a8e9c60-434b-4b59-b8e0-fb90ae9a3890",
+      "callsign": "D5SH8",
+      "flag": "Liberia",
+      "flag_code": "LBR",
+      "imo": "9832509",
+      "mmsi": "636025640",
+      "name": "LADY ANDRIANE",
+      "vessel_type": "Bulk carrier"
+    }
+  }
+}
