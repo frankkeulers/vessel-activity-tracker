@@ -1,6 +1,7 @@
 import { create } from "zustand"
 import { subDays, startOfDay } from "date-fns"
 import type { VesselSearchResult, FilterState, EventCategory, ActivityEvent } from "@/types"
+import { getApiKey as readApiKey, setApiKey as writeApiKey } from "@/lib/api"
 
 interface DateRange {
   from: Date
@@ -8,6 +9,10 @@ interface DateRange {
 }
 
 interface AppState {
+  // API key
+  apiKey: string
+  saveApiKey: (key: string) => void
+
   // Vessel selection
   selectedVessel: VesselSearchResult | null
   setSelectedVessel: (vessel: VesselSearchResult | null) => void
@@ -54,6 +59,12 @@ const DEFAULT_FILTERS: FilterState = {
 const DEFAULT_VESSEL_STATUS_FILTER = "In Service/Commission"
 
 export const useAppStore = create<AppState>((set) => ({
+  apiKey: readApiKey(),
+  saveApiKey: (key) => {
+    writeApiKey(key)
+    set({ apiKey: key })
+  },
+
   selectedVessel: null,
   setSelectedVessel: (vessel) => set({ selectedVessel: vessel }),
 

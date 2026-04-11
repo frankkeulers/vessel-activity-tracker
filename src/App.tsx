@@ -18,7 +18,8 @@ import { DateRangePicker } from "@/components/DateRangePicker"
 import { DataOrchestrator, useDataStatus } from "@/components/DataOrchestrator"
 import { GanttTimeline } from "@/components/GanttTimeline"
 import { MapView } from "@/components/MapView"
-import { getApiKey, setApiKey } from "@/lib/api"
+import { getApiKey } from "@/lib/api"
+import { useAppStore } from "@/store/useAppStore"
 import { ErrorBoundary } from "@/components/ErrorBoundary"
 import { useToast } from "@/components/Toaster"
 
@@ -42,9 +43,10 @@ function ThemeToggle() {
 function ApiKeyInput() {
   const [value, setValue] = React.useState(getApiKey)
   const [saved, setSaved] = React.useState(false)
+  const saveApiKey = useAppStore((s) => s.saveApiKey)
 
   function handleSave() {
-    setApiKey(value.trim())
+    saveApiKey(value.trim())
     setSaved(true)
     setTimeout(() => setSaved(false), 2000)
   }

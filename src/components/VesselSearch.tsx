@@ -4,7 +4,6 @@ import { useVesselSearch } from "@/lib/hooks"
 import { useAppStore } from "@/store/useAppStore"
 import { Input } from "@/components/ui/input"
 import { cn } from "@/lib/utils"
-import { getApiKey } from "@/lib/api"
 import type { VesselSearchResult } from "@/types"
 
 export function VesselSearch() {
@@ -12,9 +11,8 @@ export function VesselSearch() {
   const [open, setOpen] = React.useState(false)
   const inputRef = React.useRef<HTMLInputElement>(null)
   const listRef = React.useRef<HTMLUListElement>(null)
-  const { selectedVessel, setSelectedVessel, vesselStatusFilter, toggleVesselStatusFilter, triggerFetch } = useAppStore()
+  const { selectedVessel, setSelectedVessel, vesselStatusFilter, toggleVesselStatusFilter, triggerFetch, apiKey } = useAppStore()
 
-  const apiKey = getApiKey()
   const hasApiKey = Boolean(apiKey.trim())
   
   const { data, isFetching, error } = useVesselSearch(query, vesselStatusFilter)
