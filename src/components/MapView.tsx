@@ -104,23 +104,49 @@ const CATEGORY_ICON_PATHS: Record<EventCategory, string> = {
 }
 
 function createEventIcon(category: EventCategory, colour: string, isHighlighted: boolean): L.DivIcon {
-  const size = isHighlighted ? 28 : 22
-  const strokeWidth = isHighlighted ? 2.5 : 2
-  const iconAnchor = size / 2
+  if (isHighlighted) {
+    const outer = 42
+    const inner = 26
+    return L.divIcon({
+      className: `event-marker event-marker-${category}`,
+      html: `
+        <div style="
+          width: ${outer}px; height: ${outer}px;
+          border-radius: 50%;
+          background: ${colour}30;
+          border: 2.5px solid ${colour};
+          display: flex; align-items: center; justify-content: center;
+        ">
+          <div style="
+            width: ${inner}px; height: ${inner}px;
+            background: ${colour};
+            border-radius: 50%;
+            border: 2.5px solid #fff;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.45);
+            display: flex; align-items: center; justify-content: center;
+          ">
+            <svg width="${inner * 0.52}" height="${inner * 0.52}" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="${CATEGORY_ICON_PATHS[category]}"/>
+            </svg>
+          </div>
+        </div>
+      `,
+      iconSize: [outer, outer],
+      iconAnchor: [outer / 2, outer / 2],
+    })
+  }
 
+  const size = 22
   return L.divIcon({
     className: `event-marker event-marker-${category}`,
     html: `
       <div style="
-        width: ${size}px;
-        height: ${size}px;
+        width: ${size}px; height: ${size}px;
         background: ${colour};
         border-radius: 50%;
-        border: ${strokeWidth}px solid #fff;
+        border: 2px solid #fff;
         box-shadow: 0 2px 4px rgba(0,0,0,0.3);
-        display: flex;
-        align-items: center;
-        justify-content: center;
+        display: flex; align-items: center; justify-content: center;
       ">
         <svg width="${size * 0.55}" height="${size * 0.55}" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <path d="${CATEGORY_ICON_PATHS[category]}"/>
@@ -128,7 +154,7 @@ function createEventIcon(category: EventCategory, colour: string, isHighlighted:
       </div>
     `,
     iconSize: [size, size],
-    iconAnchor: [iconAnchor, iconAnchor],
+    iconAnchor: [size / 2, size / 2],
   })
 }
 

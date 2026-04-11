@@ -38,6 +38,10 @@ interface AppState {
   highlightedEventId: string | null
   setHighlightedEventId: (id: string | null) => void
 
+  // Events timeline sidepanel open/collapsed state
+  timelinePanelOpen: boolean
+  setTimelinePanelOpen: (open: boolean) => void
+
   // All resolved events (set by data layer after fetching)
   events: ActivityEvent[]
   setEvents: (events: ActivityEvent[]) => void
@@ -92,6 +96,9 @@ export const useAppStore = create<AppState>((set) => ({
 
   highlightedEventId: null,
   setHighlightedEventId: (id) => set({ highlightedEventId: id }),
+
+  timelinePanelOpen: true,
+  setTimelinePanelOpen: (open) => set({ timelinePanelOpen: open }),
 
   events: [],
   setEvents: (events) => set({ events }),

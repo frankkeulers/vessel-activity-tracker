@@ -12,6 +12,7 @@ export interface ActivityEvent {
   longitude: number | null
   label: string            // port name, zone name, paired vessel, etc.
   raw: unknown
+  sourceIds?: string[]     // individual event IDs that make up this (paired) event
   children?: ActivityEvent[] // nested: berth ⊂ port ⊂ port_area
 }
 

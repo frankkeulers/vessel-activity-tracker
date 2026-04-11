@@ -19,7 +19,7 @@ import type {
 } from "@/types"
 
 const PAGE_SIZE = 500
-const POSITIONS_PAGE_SIZE = 500
+const POSITIONS_PAGE_SIZE = 100
 
 // ─── Vessel search ─────────────────────────────────────────────────────────
 
@@ -137,6 +137,7 @@ async function fetchAllPositionPages(
     const pages = await Promise.all(fetches)
     pages.forEach((p) => items.push(...p))
   }
+  items.sort((a, b) => a.timestamp.localeCompare(b.timestamp))
   return items
 }
 

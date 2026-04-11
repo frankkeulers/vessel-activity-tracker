@@ -22,6 +22,7 @@ import { getApiKey } from "@/lib/api"
 import { useAppStore } from "@/store/useAppStore"
 import { ErrorBoundary } from "@/components/ErrorBoundary"
 import { useToast } from "@/components/Toaster"
+import { EventsTimelineSidepanel } from "@/components/EventsTimelineSidepanel"
 
 function ThemeToggle() {
   const { theme, setTheme } = useTheme()
@@ -196,7 +197,7 @@ export default function App() {
             <DataStatusBar />
           </aside>
 
-          {/* Right pane: map + Gantt stacked */}
+          {/* Centre pane: map + Gantt stacked */}
           <main className="flex flex-1 flex-col overflow-hidden">
             {/* Map */}
             <div className="flex-1 overflow-hidden">
@@ -214,6 +215,9 @@ export default function App() {
               </ErrorBoundary>
             </div>
           </main>
+
+          {/* Right sidepanel: events timeline */}
+          <EventsTimelineSidepanel />
         </div>
       </div>
     </>

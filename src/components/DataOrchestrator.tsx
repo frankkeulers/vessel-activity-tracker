@@ -118,6 +118,7 @@ function createGanttEvents(
           longitude: arrival.lng,
           label: arrival.location_name,
           raw: { arrival, departure: ev },
+          sourceIds: [`${category}-${arrival.event_id}`, `${category}-${ev.event_id}`],
         })
       }
       // Unpaired departure — ignore (covered by the paired arrival or a gap)
@@ -136,6 +137,7 @@ function createGanttEvents(
       longitude: arrival.lng,
       label: arrival.location_name,
       raw: arrival,
+      sourceIds: [`${category}-${arrival.event_id}`],
     })
   }
 

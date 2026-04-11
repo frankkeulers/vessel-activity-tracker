@@ -344,23 +344,34 @@ export function GanttTimeline() {
       <div className="flex flex-1 overflow-hidden" style={{ display: 'grid', gridTemplateColumns: `${SIDEBAR_W}px 1fr` }}>
         {/* Sidebar */}
         <div className="border-r border-border" style={{ minHeight: totalH }}>
-          {rows.map((row) => (
-            <div
-              key={row.id}
-              title={row.label}
-              className="flex items-center truncate border-b border-border/30 text-xs"
-              style={{
-                height: ROW_H,
-                paddingLeft: 8,
-                fontWeight: 600,
-                color: CATEGORY_COLOURS[row.category],
-                borderLeft: `3px solid ${CATEGORY_COLOURS[row.category]}`,
-                background: `${CATEGORY_COLOURS[row.category]}12`,
-              }}
-            >
-              {row.label}
-            </div>
-          ))}
+          {rows.map((row) => {
+            const isRowHighlighted = bars.some(
+              (b) =>
+                b.rowId === row.id &&
+                highlightedEventId != null &&
+                (b.eventId === highlightedEventId ||
+                  (b.event.sourceIds?.includes(highlightedEventId) ?? false)),
+            )
+            return (
+              <div
+                key={row.id}
+                title={row.label}
+                className="flex items-center truncate border-b border-border/30 text-xs"
+                style={{
+                  height: ROW_H,
+                  paddingLeft: 8,
+                  fontWeight: isRowHighlighted ? 700 : 600,
+                  color: CATEGORY_COLOURS[row.category],
+                  borderLeft: `3px solid ${CATEGORY_COLOURS[row.category]}`,
+                  background: isRowHighlighted
+                    ? `${CATEGORY_COLOURS[row.category]}30`
+                    : `${CATEGORY_COLOURS[row.category]}12`,
+                }}
+              >
+                {row.label}
+              </div>
+            )
+          })}
         </div>
 
         {/* Canvas */}
@@ -384,12 +395,40 @@ export function GanttTimeline() {
             />
           ))}
 
+          {/* Highlighted row strip */}
+          {bars.map((bar) => {
+            const isHighlightedBar =
+              highlightedEventId != null &&
+              (bar.eventId === highlightedEventId ||
+                (bar.event.sourceIds?.includes(highlightedEventId) ?? false))
+            if (!isHighlightedBar) return null
+            const rowIndex = rows.findIndex((r) => r.id === bar.rowId)
+            if (rowIndex === -1) return null
+            return (
+              <div
+                key={`hl-row-${bar.eventId}`}
+                className="absolute left-0 right-0 pointer-events-none"
+                style={{
+                  top: rowIndex * ROW_H,
+                  height: ROW_H,
+                  background: `${bar.colour}22`,
+                  borderTop: `1px solid ${bar.colour}80`,
+                  borderBottom: `1px solid ${bar.colour}80`,
+                  zIndex: 0,
+                }}
+              />
+            )
+          })}
+
           {/* Bars and tick marks */}
           {bars.map((bar) => {
             const rowIndex = rows.findIndex((r) => r.id === bar.rowId)
             if (rowIndex === -1) return null
             const x1 = xOf(bar.startMs)
-            const isHighlighted = highlightedEventId === bar.eventId
+            const isHighlighted =
+              highlightedEventId != null &&
+              (bar.eventId === highlightedEventId ||
+                (bar.event.sourceIds?.includes(highlightedEventId) ?? false))
             const top = rowIndex * ROW_H
 
             const tooltipContent = <EventTooltipContent bar={bar} />
@@ -408,11 +447,11 @@ export function GanttTimeline() {
                         top: top + 3,
                         left: x1 - Math.floor(TICK_W / 2),
                         width: TICK_W,
-                        height: ROW_H - 6,
-                        background: bar.colour,
-                        borderRadius: 1,
-                        opacity: isHighlighted ? 1 : 0.9,
-                        boxShadow: isHighlighted ? `0 0 0 2px white, 0 0 0 3px ${bar.colour}` : undefined,
+                      height: ROW_H - 6,
+                        background: isHighlighted ? `#fff` : bar.colour,
+                        borderRadius: 2,
+                        opacity: 1,
+                        border: isHighlighted ? `2px solid ${bar.colour}` : undefined,
                         zIndex: isHighlighted ? 10 : 2,
                       }}
                     />
@@ -447,10 +486,12 @@ export function GanttTimeline() {
                       width: barW,
                       height: ROW_H - 8,
                       lineHeight: `${ROW_H - 8}px`,
-                      background: bar.colour,
+                      background: isHighlighted ? `repeating-linear-gradient(45deg, #fff, #fff 2px, ${bar.colour} 2px, ${bar.colour} 4px)` : bar.colour,
                       borderRadius: 3,
-                      opacity: isHighlighted ? 1 : 0.82,
-                      boxShadow: isHighlighted ? `0 0 0 2px white, 0 0 0 3px ${bar.colour}` : undefined,
+                      opacity: 1,
+                      border: isHighlighted ? `2px solid ${bar.colour}` : undefined,
+                      color: isHighlighted ? bar.colour : "#fff",
+                      fontWeight: isHighlighted ? 700 : 500,
                       zIndex: isHighlighted ? 10 : 1,
                     }}
                   >
