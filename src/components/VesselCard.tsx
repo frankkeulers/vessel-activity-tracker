@@ -83,10 +83,10 @@ export function VesselCard() {
           <Row label="LOA" value={data.data.dimensions?.length ? `${data.data.dimensions.length} m` : null} />
           <Row label="Beam" value={data.data.dimensions?.breadth ? `${data.data.dimensions.breadth} m` : null} />
           <Row label="Built" value={data.data.build_year} />
-          <div className="flex items-center gap-1 pt-0.5">
+          {/* <div className="flex items-center gap-1 pt-0.5">
             <AnchorIcon className="size-3 text-muted-foreground" />
             <span className="text-xs text-muted-foreground">{data.data.ship_status ?? "—"}</span>
-          </div>
+          </div> */}
         </div>
       )}
     </div>
