@@ -1,9 +1,10 @@
 import * as React from "react"
-import { SearchIcon, XIcon, LoaderCircleIcon, FilterIcon } from "lucide-react"
+import { SearchIcon, XIcon, LoaderCircleIcon, FilterIcon, AlertTriangleIcon, KeyRoundIcon } from "lucide-react"
 import { useVesselSearch } from "@/lib/hooks"
 import { useAppStore } from "@/store/useAppStore"
 import { Input } from "@/components/ui/input"
 import { cn } from "@/lib/utils"
+import { getApiKey } from "@/lib/api"
 import type { VesselSearchResult } from "@/types"
 
 export function VesselSearch() {
@@ -11,15 +12,20 @@ export function VesselSearch() {
   const [open, setOpen] = React.useState(false)
   const inputRef = React.useRef<HTMLInputElement>(null)
   const listRef = React.useRef<HTMLUListElement>(null)
-  const { selectedVessel, setSelectedVessel, vesselStatusFilter, toggleVesselStatusFilter } = useAppStore()
+  const { selectedVessel, setSelectedVessel, vesselStatusFilter, toggleVesselStatusFilter, triggerFetch } = useAppStore()
 
-  const { data, isFetching } = useVesselSearch(query, vesselStatusFilter)
+  const apiKey = getApiKey()
+  const hasApiKey = Boolean(apiKey.trim())
+  
+  const { data, isFetching, error } = useVesselSearch(query, vesselStatusFilter)
   const results = data?.data ?? []
 
   function handleSelect(vessel: VesselSearchResult) {
     setSelectedVessel(vessel)
     setQuery(vessel.name)
     setOpen(false)
+    // Automatically trigger data fetching when a vessel is selected
+    triggerFetch()
   }
 
   function handleClear() {
@@ -61,10 +67,25 @@ export function VesselSearch() {
     }
   }
 
-  const showDropdown = open && query.trim().length >= 2
+  const showDropdown = open && query.trim().length >= 2 && hasApiKey
 
   return (
     <div className="flex flex-col gap-2">
+      {/* API Key Warning */}
+      {!hasApiKey && (
+        <div className="flex items-start gap-2 rounded-md border border-amber-200 bg-amber-50 p-3 text-xs dark:border-amber-800 dark:bg-amber-950/50">
+          <KeyRoundIcon className="mt-0.5 size-4 shrink-0 text-amber-600 dark:text-amber-400" />
+          <div className="flex flex-col gap-1">
+            <p className="font-medium text-amber-800 dark:text-amber-200">
+              API Key Required
+            </p>
+            <p className="text-amber-700 dark:text-amber-300">
+              Add your Pole Star API key in the top bar to search and fetch vessel data.
+            </p>
+          </div>
+        </div>
+      )}
+
       {/* Search input with dropdown container */}
       <div className="relative">
         <div className="relative flex items-center">
@@ -76,8 +97,9 @@ export function VesselSearch() {
           <Input
             ref={inputRef}
             value={query}
-            placeholder="Search vessel name, IMO, MMSI…"
-            className="pl-8 pr-8"
+            placeholder={hasApiKey ? "Search vessel name, IMO, MMSI…" : "API key required to search"}
+            className={cn("pl-8 pr-8", !hasApiKey && "bg-muted cursor-not-allowed")}
+            disabled={!hasApiKey}
             onChange={(e) => {
               setQuery(e.target.value)
               setOpen(true)
@@ -113,12 +135,18 @@ export function VesselSearch() {
             aria-label="Vessel search results"
             className="absolute z-50 mt-1 w-full overflow-y-auto rounded-lg border border-border bg-popover shadow-md max-h-72"
           >
-            {results.length === 0 && !isFetching && (
+            {error && (
+              <li className="px-3 py-2 text-sm text-destructive flex items-start gap-2">
+                <AlertTriangleIcon className="size-4 shrink-0 mt-0.5" />
+                <span>{error.message || "Search failed"}</span>
+              </li>
+            )}
+            {!error && results.length === 0 && !isFetching && (
               <li className="px-3 py-2 text-sm text-muted-foreground">
                 No vessels found
               </li>
             )}
-            {results.map((vessel) => (
+            {!error && results.map((vessel) => (
               <li
                 key={vessel.imo}
                 role="option"
@@ -161,11 +189,13 @@ export function VesselSearch() {
       <button
         type="button"
         onClick={toggleVesselStatusFilter}
+        disabled={!hasApiKey}
         className={cn(
           "flex items-center gap-1.5 self-start rounded-md border px-2 py-1 text-xs transition-colors",
           vesselStatusFilter
             ? "border-primary/30 bg-primary/10 text-primary hover:bg-primary/20"
-            : "border-border bg-card text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+            : "border-border bg-card text-muted-foreground hover:bg-accent hover:text-accent-foreground",
+          !hasApiKey && "cursor-not-allowed opacity-50"
         )}
       >
         <FilterIcon className="size-3" />
