@@ -187,8 +187,8 @@
   "hotPaths": [
     {
       "path": "src/components/EventsTimelineSidepanel.tsx",
-      "accessCount": 25,
-      "lastAccessed": 1775930078722,
+      "accessCount": 26,
+      "lastAccessed": 1775930531507,
       "type": "file"
     },
     {
@@ -204,16 +204,16 @@
       "type": "file"
     },
     {
+      "path": "src",
+      "accessCount": 12,
+      "lastAccessed": 1775930442975,
+      "type": "directory"
+    },
+    {
       "path": "src/config/constants.ts",
       "accessCount": 11,
       "lastAccessed": 1775930084156,
       "type": "file"
-    },
-    {
-      "path": "src",
-      "accessCount": 11,
-      "lastAccessed": 1775930084680,
-      "type": "directory"
     },
     {
       "path": "src/App.tsx",
@@ -241,8 +241,8 @@
     },
     {
       "path": "",
-      "accessCount": 5,
-      "lastAccessed": 1775929527560,
+      "accessCount": 6,
+      "lastAccessed": 1775930442660,
       "type": "directory"
     },
     {
@@ -285,6 +285,12 @@
       "path": "src/components/ErrorBoundary.tsx",
       "accessCount": 2,
       "lastAccessed": 1775927615887,
+      "type": "file"
+    },
+    {
+      "path": "src/index.css",
+      "accessCount": 2,
+      "lastAccessed": 1775930442245,
       "type": "file"
     },
     {
@@ -369,12 +375,6 @@
       "path": "src/main.tsx",
       "accessCount": 1,
       "lastAccessed": 1775927602598,
-      "type": "file"
-    },
-    {
-      "path": "src/index.css",
-      "accessCount": 1,
-      "lastAccessed": 1775929177164,
       "type": "file"
     },
     {

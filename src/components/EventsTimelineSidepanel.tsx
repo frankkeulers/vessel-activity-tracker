@@ -4,11 +4,11 @@ import {
   PanelRightCloseIcon,
   SearchIcon,
   ClockIcon,
+  ChevronRightIcon,
 } from "lucide-react"
 import { formatDistanceStrict, format, differenceInMilliseconds } from "date-fns"
 import { useAppStore } from "@/store/useAppStore"
 import { Input } from "@/components/ui/input"
-import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import { EVENT_COLOURS, CATEGORY_LABELS_SHORT } from "@/config/constants"
@@ -23,7 +23,7 @@ import type {
   PSCEvent,
 } from "@/types"
 
-// ─── Helpers ─────────────────────────────────────────────────────────────────
+// ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function formatSubType(subType: string): string {
   return subType
@@ -32,9 +32,10 @@ function formatSubType(subType: string): string {
     .replace(/\b\w/g, (c) => c.toUpperCase())
 }
 
+// Shows time + short date — year is already in the section header
 function formatTimestamp(iso: string): string {
   try {
-    return format(new Date(iso), "d MMM yyyy, HH:mm 'UTC'")
+    return format(new Date(iso), "HH:mm · d MMM")
   } catch {
     return iso
   }
@@ -63,14 +64,13 @@ function formatGapDuration(ms: number): string {
 function gapColorClass(ms: number): string {
   const hours = ms / 3_600_000
   if (hours > 24) return "text-amber-500"
-  if (hours > 1) return "text-muted-foreground"
-  return "text-muted-foreground/50"
+  if (hours > 1) return "text-muted-foreground/50"
+  return "text-muted-foreground/35"
 }
 
 function gapBorderClass(ms: number): string {
   const hours = ms / 3_600_000
   if (hours > 24) return "border-amber-500/40"
-  if (hours > 1) return "border-border"
   return "border-border/40"
 }
 
@@ -84,9 +84,19 @@ function EventMeta({ event }: { event: ActivityEvent }) {
     const hasContent = portInfo?.unlocode != null || berthInfo?.name != null
     if (!hasContent) return null
     return (
-      <div className="flex flex-col gap-0.5 text-[10px] text-muted-foreground">
-        {portInfo?.unlocode != null && <span>UNLOCODE: {portInfo.unlocode}</span>}
-        {berthInfo?.name != null && <span>Berth: {berthInfo.name}</span>}
+      <div className="mt-1.5 flex flex-col gap-0.5 text-[10px]">
+        {portInfo?.unlocode != null && (
+          <span>
+            <span className="text-muted-foreground/50">UNLOCODE </span>
+            <span className="text-muted-foreground">{portInfo.unlocode}</span>
+          </span>
+        )}
+        {berthInfo?.name != null && (
+          <span>
+            <span className="text-muted-foreground/50">Berth </span>
+            <span className="text-muted-foreground">{berthInfo.name}</span>
+          </span>
+        )}
       </div>
     )
   }
@@ -96,8 +106,9 @@ function EventMeta({ event }: { event: ActivityEvent }) {
     const zoneInfo = raw.zone_information
     if (zoneInfo?.type == null) return null
     return (
-      <div className="flex flex-col gap-0.5 text-[10px] text-muted-foreground">
-        <span>Type: {zoneInfo.type}</span>
+      <div className="mt-1.5 text-[10px]">
+        <span className="text-muted-foreground/50">Type </span>
+        <span className="text-muted-foreground">{zoneInfo.type}</span>
       </div>
     )
   }
@@ -106,19 +117,37 @@ function EventMeta({ event }: { event: ActivityEvent }) {
     const raw = event.raw as AISGapEvent
     if (raw.gap_duration_hours == null) return null
     return (
-      <div className="text-[10px] text-muted-foreground">
-        Gap: {raw.gap_duration_hours.toFixed(1)}h
+      <div className="mt-1.5 text-[10px]">
+        <span className="text-muted-foreground/50">Gap </span>
+        <span className="text-muted-foreground">{raw.gap_duration_hours.toFixed(1)}h</span>
       </div>
     )
   }
 
   if (event.category === "sts") {
     const raw = event.raw as STSEvent
+    const hasMeta = raw.paired_vessel?.name || raw.paired_vessel?.imo || raw.sts_type
+    if (!hasMeta) return null
     return (
-      <div className="flex flex-col gap-0.5 text-[10px] text-muted-foreground">
-        {raw.paired_vessel?.name && <span>Paired: {raw.paired_vessel.name}</span>}
-        {!raw.paired_vessel?.name && raw.paired_vessel?.imo && <span>Paired IMO: {raw.paired_vessel.imo}</span>}
-        {raw.sts_type && <span>Type: {raw.sts_type}</span>}
+      <div className="mt-1.5 flex flex-col gap-0.5 text-[10px]">
+        {raw.paired_vessel?.name && (
+          <span>
+            <span className="text-muted-foreground/50">Paired </span>
+            <span className="text-muted-foreground">{raw.paired_vessel.name}</span>
+          </span>
+        )}
+        {!raw.paired_vessel?.name && raw.paired_vessel?.imo && (
+          <span>
+            <span className="text-muted-foreground/50">IMO </span>
+            <span className="text-muted-foreground">{raw.paired_vessel.imo}</span>
+          </span>
+        )}
+        {raw.sts_type && (
+          <span>
+            <span className="text-muted-foreground/50">Type </span>
+            <span className="text-muted-foreground">{raw.sts_type}</span>
+          </span>
+        )}
       </div>
     )
   }
@@ -127,8 +156,11 @@ function EventMeta({ event }: { event: ActivityEvent }) {
     const raw = event.raw as DiscrepancyEvent
     if (raw.has_ended == null) return null
     return (
-      <div className="text-[10px] text-muted-foreground">
-        {raw.has_ended ? "Ended" : "Ongoing"}
+      <div className="mt-1.5 text-[10px]">
+        {raw.has_ended
+          ? <span className="text-muted-foreground">Resolved</span>
+          : <span className="text-amber-500 font-medium">Ongoing</span>
+        }
       </div>
     )
   }
@@ -136,10 +168,19 @@ function EventMeta({ event }: { event: ActivityEvent }) {
   if (event.category === "psc") {
     const raw = event.raw as PSCEvent
     return (
-      <div className="flex flex-col gap-0.5 text-[10px] text-muted-foreground">
-        {raw.inspection_type && <span>{raw.inspection_type}</span>}
-        {raw.no_defects != null && <span>Deficiencies: {raw.no_defects}</span>}
-        {raw.detained && <span className="text-destructive font-medium">Detained</span>}
+      <div className="mt-1.5 flex flex-col gap-0.5 text-[10px]">
+        {raw.inspection_type && (
+          <span className="text-muted-foreground">{raw.inspection_type}</span>
+        )}
+        {raw.no_defects != null && (
+          <span>
+            <span className="text-muted-foreground/50">Deficiencies </span>
+            <span className="text-muted-foreground">{raw.no_defects}</span>
+          </span>
+        )}
+        {raw.detained && (
+          <span className="font-semibold text-destructive">Detained</span>
+        )}
       </div>
     )
   }
@@ -153,9 +194,9 @@ function RawTooltipContent({ event }: { event: ActivityEvent }) {
   return (
     <div className="max-w-[260px] space-y-1 text-[10px]">
       <div className="font-semibold">{event.label || event.subType}</div>
-      <div className="text-muted-foreground">{event.id}</div>
+      <div className="text-muted-foreground font-mono">{event.id}</div>
       {event.latitude != null && event.longitude != null && (
-        <div>{event.latitude.toFixed(4)}, {event.longitude.toFixed(4)}</div>
+        <div className="tabular-nums">{event.latitude.toFixed(4)}, {event.longitude.toFixed(4)}</div>
       )}
       {event.endTime && (
         <div>Duration: {formatDuration(event.startTime, event.endTime)}</div>
@@ -186,46 +227,54 @@ const EventCard = React.memo(function EventCard({
           onClick={onClick}
           onKeyDown={(e) => e.key === "Enter" && onClick()}
           className={[
-            "flex cursor-pointer flex-col gap-1.5 rounded-md border p-3 text-xs transition-colors",
+            "cursor-pointer rounded-lg px-3 py-2.5 transition-colors",
             isHighlighted
-              ? "border-primary/60 bg-primary/5"
-              : "border-border bg-card hover:bg-accent/40",
+              ? "bg-primary/5"
+              : "bg-muted/30 hover:bg-muted/60",
           ].join(" ")}
-          style={isHighlighted ? { borderLeftColor: colour, borderLeftWidth: 3 } : {}}
+          style={
+            isHighlighted
+              ? { borderLeft: `3px solid ${colour}`, paddingLeft: "9px" }
+              : {}
+          }
         >
-          {/* Header row */}
-          <div className="flex items-center gap-1.5">
-            <Badge
-              className="shrink-0 px-1.5 py-0 text-[10px] font-semibold leading-5 max-w-[180px] truncate"
-              style={{ backgroundColor: colour, color: "#fff", border: "none" }}
+          {/* Row 1 — subtype (colored) + timestamp */}
+          <div className="flex items-baseline justify-between gap-2">
+            <span
+              className="text-[10px] font-bold uppercase tracking-widest leading-none"
+              style={{ color: colour }}
             >
               {formatSubType(event.subType)}
-            </Badge>
-            <span className="ml-auto shrink-0 text-[10px] tabular-nums text-muted-foreground">
+            </span>
+            <span className="shrink-0 text-[10px] tabular-nums text-muted-foreground">
               {formatTimestamp(event.startTime)}
             </span>
           </div>
 
-          {/* Label */}
+          {/* Row 2 — label (primary) */}
           {event.label && (
-            <div className="font-medium leading-tight">{event.label}</div>
-          )}
-
-          {/* Duration */}
-          {event.endTime && (
-            <div className="text-[10px] text-muted-foreground">
-              {formatDuration(event.startTime, event.endTime)}
+            <div className="mt-1 text-[13px] font-semibold leading-snug text-foreground">
+              {event.label}
             </div>
           )}
 
-          {/* Coordinates */}
-          {event.latitude != null && event.longitude != null && (
-            <div className="text-[10px] tabular-nums text-muted-foreground">
-              {event.latitude.toFixed(3)}, {event.longitude.toFixed(3)}
+          {/* Row 3 — duration + coordinates */}
+          {(event.endTime || event.latitude != null) && (
+            <div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-0.5">
+              {event.endTime && (
+                <span className="text-xs text-muted-foreground">
+                  {formatDuration(event.startTime, event.endTime)}
+                </span>
+              )}
+              {event.latitude != null && event.longitude != null && (
+                <span className="text-[10px] tabular-nums text-muted-foreground/55">
+                  {event.latitude.toFixed(3)}, {event.longitude.toFixed(3)}
+                </span>
+              )}
             </div>
           )}
 
-          {/* Category metadata */}
+          {/* Row 4 — category-specific metadata */}
           <EventMeta event={event} />
         </div>
       </TooltipTrigger>
@@ -235,18 +284,6 @@ const EventCard = React.memo(function EventCard({
     </Tooltip>
   )
 })
-
-// ─── Duration connector ───────────────────────────────────────────────────────
-
-function DurationConnector({ gapMs }: { gapMs: number }) {
-  if (gapMs <= 0) return null
-  return (
-    <div className={`flex items-center gap-1.5 py-0.5 pl-1 text-[10px] ${gapColorClass(gapMs)}`}>
-      <div className={`ml-1.5 h-4 w-px border-l border-dashed ${gapBorderClass(gapMs)}`} />
-      <span className="tabular-nums">{formatGapDuration(gapMs)}</span>
-    </div>
-  )
-}
 
 // ─── Date section ─────────────────────────────────────────────────────────────
 
@@ -264,39 +301,90 @@ function DateSection({
   const [open, setOpen] = React.useState(true)
 
   return (
-    <div className="flex flex-col">
+    <div>
+      {/* Sticky date header — horizontal-rule style */}
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
         aria-expanded={open}
-        className="sticky top-0 z-10 flex items-center gap-1 bg-background px-2 py-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground hover:text-foreground"
+        className="sticky top-0 z-10 flex w-full items-center gap-2 bg-background/95 px-4 py-2.5 text-left backdrop-blur-sm"
       >
-        <span className={`transition-transform ${open ? "rotate-90" : ""}`}>▶</span>
-        {dateLabel}
-        <span className="ml-auto font-normal normal-case">
-          {events.length} event{events.length !== 1 ? "s" : ""}
+        <span className="shrink-0 text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+          {dateLabel}
         </span>
+        <div className="mx-1 h-px flex-1 bg-border/50" />
+        <span className="shrink-0 text-[10px] tabular-nums text-muted-foreground/70">
+          {events.length}
+        </span>
+        <ChevronRightIcon
+          className={`size-3 shrink-0 text-muted-foreground/40 transition-transform ${
+            open ? "rotate-90" : ""
+          }`}
+        />
       </button>
 
       {open && (
-        <div className="flex flex-col gap-1.5 px-3 pb-3">
+        <div className="flex flex-col px-4 pb-3 pt-1">
           {events.map((ev, idx) => {
             const nextEv = events[idx + 1]
+            const isLast = idx === events.length - 1
             const gapMs = nextEv
-              ? Math.max(0, differenceInMilliseconds(
-                  new Date(ev.startTime),
-                  new Date(nextEv.endTime ?? nextEv.startTime),
-                ))
+              ? Math.max(
+                  0,
+                  differenceInMilliseconds(
+                    new Date(ev.startTime),
+                    new Date(nextEv.endTime ?? nextEv.startTime),
+                  ),
+                )
               : 0
+            const colour = EVENT_COLOURS[ev.category]
+            const isHighlighted = highlightedEventId === ev.id
 
             return (
               <React.Fragment key={ev.id}>
-                <EventCard
-                  event={ev}
-                  isHighlighted={highlightedEventId === ev.id}
-                  onClick={() => onEventClick(ev.id)}
-                />
-                {nextEv && <DurationConnector gapMs={gapMs} />}
+                {/* ── Event row ── */}
+                <div className="flex gap-3">
+                  {/* Left column: dot + spine segment */}
+                  <div className="flex w-4 shrink-0 flex-col items-center pt-[11px]">
+                    <div
+                      className={[
+                        "z-10 h-2.5 w-2.5 shrink-0 rounded-full ring-2 ring-background transition-shadow",
+                        isHighlighted
+                          ? "shadow-[0_0_0_3px_hsl(var(--primary)/0.18)]"
+                          : "",
+                      ].join(" ")}
+                      style={{ backgroundColor: colour }}
+                    />
+                    {!isLast && (
+                      <div className="mt-1.5 w-px flex-1 bg-border/40" />
+                    )}
+                  </div>
+
+                  {/* Right column: card */}
+                  <div className="flex-1 pb-2">
+                    <EventCard
+                      event={ev}
+                      isHighlighted={isHighlighted}
+                      onClick={() => onEventClick(ev.id)}
+                    />
+                  </div>
+                </div>
+
+                {/* ── Gap connector ── */}
+                {nextEv && gapMs > 0 && (
+                  <div className="flex gap-3 py-0.5">
+                    <div className="flex w-4 shrink-0 justify-center">
+                      <div
+                        className={`w-px border-l border-dashed ${gapBorderClass(gapMs)}`}
+                      />
+                    </div>
+                    <span
+                      className={`self-center text-[10px] tabular-nums ${gapColorClass(gapMs)}`}
+                    >
+                      {formatGapDuration(gapMs)}
+                    </span>
+                  </div>
+                )}
               </React.Fragment>
             )
           })}
@@ -354,7 +442,6 @@ export function EventsTimelineSidepanel() {
 
   const [searchQuery, setSearchQuery] = React.useState("")
 
-  // Apply global category filters + local text search
   const filteredEvents = React.useMemo(() => {
     const q = searchQuery.trim().toLowerCase()
     return events
@@ -368,16 +455,15 @@ export function EventsTimelineSidepanel() {
       .sort((a, b) => new Date(b.startTime).getTime() - new Date(a.startTime).getTime())
   }, [events, filters, searchQuery])
 
-  // Group by UTC date string (YYYY-MM-DD)
   const groupedByDate = React.useMemo(() => {
     const map = new Map<string, ActivityEvent[]>()
     for (const ev of filteredEvents) {
-      const dateKey = ev.startTime.slice(0, 10) // "YYYY-MM-DD"
+      const dateKey = ev.startTime.slice(0, 10)
       const label = format(new Date(dateKey + "T00:00:00Z"), "d MMM yyyy")
       if (!map.has(label)) map.set(label, [])
       map.get(label)!.push(ev)
     }
-    return Array.from(map.entries()) // already in descending order
+    return Array.from(map.entries())
   }, [filteredEvents])
 
   function handleEventClick(id: string) {
@@ -409,13 +495,13 @@ export function EventsTimelineSidepanel() {
 
   // ── Expanded state ─────────────────────────────────────────────────────────
   return (
-    <aside className="flex w-80 shrink-0 flex-col border-l border-border bg-background overflow-hidden">
+    <aside className="flex w-80 shrink-0 flex-col overflow-hidden border-l border-border bg-background">
       {/* Header */}
       <div className="flex h-10 shrink-0 items-center gap-2 border-b border-border px-3">
         <ClockIcon className="size-3.5 shrink-0 text-muted-foreground" />
         <span className="text-xs font-semibold">Events Timeline</span>
         {filteredEvents.length > 0 && (
-          <span className="ml-1 text-[10px] text-muted-foreground">
+          <span className="ml-1 text-[10px] tabular-nums text-muted-foreground">
             ({filteredEvents.length})
           </span>
         )}
@@ -431,7 +517,7 @@ export function EventsTimelineSidepanel() {
       </div>
 
       {/* Search */}
-      <div className="shrink-0 px-3 pt-2 pb-1">
+      <div className="shrink-0 px-3 pb-1 pt-2">
         <div className="relative">
           <SearchIcon className="absolute left-2 top-1/2 size-3 -translate-y-1/2 text-muted-foreground" />
           <Input
