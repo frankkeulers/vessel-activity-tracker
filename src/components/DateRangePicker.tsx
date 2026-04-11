@@ -102,11 +102,13 @@ export function DateRangePicker() {
       <Button
         onClick={handleFetch}
         disabled={!selectedVessel}
-        className="w-full gap-1.5"
+        className="w-full"
         size="sm"
       >
-        <PlayIcon className="size-3.5" />
-        {selectedVessel ? "Fetch Data" : "Select a vessel first"}
+        <span className="flex items-center gap-2">
+          <PlayIcon className="size-4 shrink-0" />
+          <span className="truncate">{selectedVessel ? "Fetch Data" : "Select a vessel first"}</span>
+        </span>
       </Button>
     </div>
   )

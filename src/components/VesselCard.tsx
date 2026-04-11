@@ -28,15 +28,19 @@ export function VesselCard() {
         <ShipIcon className="mt-0.5 size-4 shrink-0 text-primary" />
         <div className="min-w-0 flex-1">
           <p className="truncate font-medium leading-snug">{selectedVessel.name}</p>
-          {selectedVessel.flag && (
-            <div className="mt-0.5 flex items-center gap-1 text-xs text-muted-foreground">
-              <FlagIcon className="size-3" />
-              {selectedVessel.flag}
-            </div>
-          )}
         </div>
+      </div>
+
+      {/* Vessel metadata row - aligned with icon for cleaner layout */}
+      <div className="mb-2 flex flex-wrap items-center gap-1.5">
+        {selectedVessel.flag && (
+          <Badge variant="outline" className="flex items-center gap-1 text-xs font-normal">
+            <FlagIcon className="size-3" />
+            {selectedVessel.flag}
+          </Badge>
+        )}
         {selectedVessel.vessel_type && (
-          <Badge variant="outline" className="shrink-0 text-xs">
+          <Badge variant="secondary" className="text-xs font-normal">
             {selectedVessel.vessel_type}
           </Badge>
         )}

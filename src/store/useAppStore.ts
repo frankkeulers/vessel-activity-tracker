@@ -12,6 +12,11 @@ interface AppState {
   selectedVessel: VesselSearchResult | null
   setSelectedVessel: (vessel: VesselSearchResult | null) => void
 
+  // Vessel search filter - status filter for vessel_type_label_incl
+  vesselStatusFilter: string | null
+  setVesselStatusFilter: (status: string | null) => void
+  toggleVesselStatusFilter: () => void
+
   // Date range
   dateRange: DateRange
   setDateRange: (range: DateRange) => void
@@ -42,12 +47,21 @@ const DEFAULT_FILTERS: FilterState = {
   psc: true,
 }
 
+const DEFAULT_VESSEL_STATUS_FILTER = "In Service/Commission"
+
 export const useAppStore = create<AppState>((set) => ({
   selectedVessel: null,
   setSelectedVessel: (vessel) => set({ selectedVessel: vessel }),
 
+  vesselStatusFilter: DEFAULT_VESSEL_STATUS_FILTER,
+  setVesselStatusFilter: (status) => set({ vesselStatusFilter: status }),
+  toggleVesselStatusFilter: () =>
+    set((s) => ({
+      vesselStatusFilter: s.vesselStatusFilter ? null : DEFAULT_VESSEL_STATUS_FILTER,
+    })),
+
   dateRange: {
-    from: startOfDay(subDays(new Date(), 30)),
+    from: startOfDay(subDays(new Date(), 7)),
     to: new Date(),
   },
   setDateRange: (range) => set({ dateRange: range }),

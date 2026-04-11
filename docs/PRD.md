@@ -138,6 +138,59 @@ Interactivity:
 
 ---
 
+### 5.5 Events Timeline Sidepanel (right-hand side)
+
+A vertical timeline component displaying all non-position events in chronological order.
+
+**Layout & Position:**
+
+- Fixed-width sidepanel on the right edge of the viewport
+- Collapsible/expandable (default: expanded)
+- Scrollable container with sticky date section headers
+
+**Event Display:**
+
+- **Order**: Descending by event timestamp (newest first)
+- **Grouping**: Events grouped by date (collapsible date sections)
+- **Event Card Content**:
+  - Event type badge (colored by category: port, zone, ais_gap, sts, discrepancy, psc)
+  - Timestamp (ISO 8601 UTC, formatted for readability)
+  - Event label (port name, zone name, paired vessel, etc.)
+  - Duration for span events (start → end)
+  - Location coordinates when available (lat/lon)
+  - Event-specific metadata:
+    - Port events: port name, berth info, operation type
+    - Zone events: zone name, entry/exit type
+    - AIS gaps: gap reason if available
+    - STS pairings: paired vessel name, role
+    - Discrepancies: discrepancy type, severity
+    - PSC inspections: inspection type, port, deficiency count
+
+**Duration Between Events:**
+
+- Display elapsed time between each consecutive event pair
+- Format: human-readable duration (e.g., "2h 15m", "3d 4h")
+- Visual indicator showing gap size (thin line with time label)
+- Color-coded by gap magnitude:
+  - < 1 hour: subtle/gray
+  - 1-24 hours: neutral
+  - > 24 hours: highlighted (suggesting potential missing activity)
+
+**Interactivity:**
+
+- Click event card → highlight corresponding Gantt bar + fly-to on map
+- Click event card → scroll Gantt timeline to show event
+- Hover event card → show full tooltip with raw event details
+- Filter chips affect visibility (same as map + Gantt filters)
+- Search/filter within sidepanel by event type or label
+
+**Excluded Data:**
+
+- AIS position updates (positional data only, no events)
+- Raw track points from `/unified-position/v1/positions`
+
+---
+
 ## 6. Internal Event Data Model
 
 ```ts
@@ -220,3 +273,9 @@ Port events grouped by visit: PORT_AREA span → PORT span → BERTH span.
 17. Loading states, error boundaries, empty states
 18. Responsive panel layout (resizable split panes)
 19. Final colour/icon assignment per event type
+20. **Events Timeline Sidepanel** (right-hand):
+    - Vertical timeline component with event cards
+    - Descending chronological order with date grouping
+    - Duration indicators between consecutive events
+    - Cross-linking with map and Gantt (click to highlight/fly-to)
+    - In-panel search/filter capability

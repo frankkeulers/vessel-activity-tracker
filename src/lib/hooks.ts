@@ -23,20 +23,36 @@ const POSITIONS_PAGE_SIZE = 500
 
 // ─── Vessel search ─────────────────────────────────────────────────────────
 
-function buildSearchParams(query: string): Record<string, string | number> {
+function buildSearchParams(
+  query: string,
+  vesselStatusFilter: string | null,
+): Record<string, string | number> {
   const trimmed = query.trim()
+  const params: Record<string, string | number> = { limit: 50 }
+
   // 7-digit number → IMO; 9-digit number → MMSI; otherwise → name_contains
-  if (/^\d{7}$/.test(trimmed)) return { imo: Number(trimmed), limit: 50 }
-  if (/^\d{9}$/.test(trimmed)) return { mmsi: Number(trimmed), limit: 50 }
-  return { name_contains: trimmed, limit: 50 }
+  if (/^\d{7}$/.test(trimmed)) {
+    params.imo = Number(trimmed)
+  } else if (/^\d{9}$/.test(trimmed)) {
+    params.mmsi = Number(trimmed)
+  } else {
+    params.name_contains = trimmed
+  }
+
+  // Add vessel status filter if set (vessel_status_incl param)
+  if (vesselStatusFilter) {
+    params.vessel_status_incl = vesselStatusFilter
+  }
+
+  return params
 }
 
-export function useVesselSearch(query: string) {
+export function useVesselSearch(query: string, vesselStatusFilter: string | null) {
   return useQuery({
-    queryKey: ["vessel-search", query],
+    queryKey: ["vessel-search", query, vesselStatusFilter],
     queryFn: () =>
       apiFetch<VesselSearchResponse>("/vessel-insights//v1/vessel-search", {
-        params: buildSearchParams(query),
+        params: buildSearchParams(query, vesselStatusFilter),
       }),
     enabled: query.trim().length >= 2,
     staleTime: 60_000,

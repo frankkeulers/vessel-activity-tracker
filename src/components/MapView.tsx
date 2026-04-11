@@ -211,6 +211,7 @@ function AISTrack({ imo, from, to, fetchKey }: { imo: number; from: Date; to: Da
         <Polyline
           key={i}
           positions={seg.points}
+          pane="aisTrackPane"
           pathOptions={{ color: seg.colour, weight: 2, opacity: 0.8 }}
         />
       ))}
@@ -220,6 +221,7 @@ function AISTrack({ imo, from, to, fetchKey }: { imo: number; from: Date; to: Da
           key={`arrow-${i}`}
           position={arrow.position}
           icon={createArrowIcon(arrow.colour, arrow.bearing)}
+          pane="aisTrackPane"
           interactive={false}
         />
       ))}
@@ -228,6 +230,7 @@ function AISTrack({ imo, from, to, fetchKey }: { imo: number; from: Date; to: Da
           key={i}
           center={[pos.latitude, pos.longitude]}
           radius={3}
+          pane="aisTrackPane"
           pathOptions={{
             color: navStatusColour(pos.navigational_status?.status),
             fillColor: navStatusColour(pos.navigational_status?.status),
@@ -296,6 +299,7 @@ function AISGapLayer({
             {startLat != null && startLng != null && endLat != null && endLng != null && (
               <Polyline
                 positions={[[startLat, startLng], [endLat, endLng]]}
+                pane="aisTrackPane"
                 pathOptions={{
                   color: GAP_COLOUR,
                   weight: 2,
@@ -309,6 +313,7 @@ function AISGapLayer({
               <CircleMarker
                 center={[startLat, startLng]}
                 radius={radius}
+                pane="aisTrackPane"
                 pathOptions={{
                   color: "#fff",
                   fillColor: GAP_COLOUR,
@@ -328,6 +333,7 @@ function AISGapLayer({
               <CircleMarker
                 center={[endLat, endLng]}
                 radius={radius}
+                pane="aisTrackPane"
                 pathOptions={{
                   color: "#fff",
                   fillColor: GAP_COLOUR,
