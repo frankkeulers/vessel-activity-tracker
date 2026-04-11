@@ -1,6 +1,7 @@
 import * as React from "react"
 import { useAppStore } from "@/store/useAppStore"
 import type { ActivityEvent, EventCategory } from "@/types"
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -48,6 +49,7 @@ interface Bar {
   endMs: number | null  // null = point event → rendered as tick
   colour: string
   tooltip: string
+  event: ActivityEvent  // reference to full event for metadata
 }
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
@@ -111,6 +113,7 @@ function buildRowsAndBars(
         endMs: isPoint ? null : validRawEnd,
         colour: CATEGORY_COLOURS[category],
         tooltip,
+        event: ev,
       })
     }
   }
@@ -145,16 +148,33 @@ function getTicks(startMs: number, endMs: number, width: number): { ms: number; 
 export function GanttTimeline() {
   const { events, filters, dateRange, highlightedEventId, setHighlightedEventId } = useAppStore()
   const containerRef = React.useRef<HTMLDivElement>(null)
+  const canvasRef = React.useRef<HTMLDivElement>(null)
   const [canvasW, setCanvasW] = React.useState(800)
 
   React.useEffect(() => {
-    const el = containerRef.current
-    if (!el) return
-    const ro = new ResizeObserver(([entry]) => {
-      setCanvasW(Math.max(entry.contentRect.width - SIDEBAR_W, 1))
+    const updateWidth = () => {
+      const el = containerRef.current
+      if (!el) return
+      const rect = el.getBoundingClientRect()
+      setCanvasW(Math.max(rect.width - SIDEBAR_W, 1))
+    }
+    
+    // Initial measurement
+    updateWidth()
+    
+    const ro = new ResizeObserver(() => {
+      updateWidth()
     })
-    ro.observe(el)
-    return () => ro.disconnect()
+    
+    if (containerRef.current) {
+      ro.observe(containerRef.current)
+    }
+    
+    window.addEventListener('resize', updateWidth)
+    return () => {
+      ro.disconnect()
+      window.removeEventListener('resize', updateWidth)
+    }
   }, [])
 
   const [viewStart, setViewStart] = React.useState(() => dateRange.from.getTime())
@@ -288,7 +308,7 @@ export function GanttTimeline() {
         </div>
 
         {/* Canvas */}
-        <div className="relative flex-1" style={{ minHeight: totalH }}>
+        <div ref={canvasRef} className="relative flex-1" style={{ minHeight: totalH, width: canvasW }}>
           {/* Grid lines */}
           {ticks.map(({ ms }) => {
             const x = xOf(ms)
@@ -316,28 +336,41 @@ export function GanttTimeline() {
             const isHighlighted = highlightedEventId === bar.eventId
             const top = rowIndex * ROW_H
 
+            const tooltipContent = <EventTooltipContent bar={bar} />
+
             if (bar.endMs === null) {
               // Point event → render as a vertical tick
               if (x1 < -TICK_W || x1 > canvasW + TICK_W) return null
               return (
-                <div
-                  key={bar.eventId}
-                  data-bar="1"
-                  title={bar.tooltip}
-                  onClick={() => setHighlightedEventId(highlightedEventId === bar.eventId ? null : bar.eventId)}
-                  className="absolute cursor-pointer"
-                  style={{
-                    top: top + 3,
-                    left: x1 - Math.floor(TICK_W / 2),
-                    width: TICK_W,
-                    height: ROW_H - 6,
-                    background: bar.colour,
-                    borderRadius: 1,
-                    opacity: isHighlighted ? 1 : 0.9,
-                    boxShadow: isHighlighted ? `0 0 0 2px white, 0 0 0 3px ${bar.colour}` : undefined,
-                    zIndex: isHighlighted ? 10 : 2,
-                  }}
-                />
+                <Tooltip key={bar.eventId}>
+                  <TooltipTrigger asChild>
+                    <div
+                      data-bar="1"
+                      onClick={() => setHighlightedEventId(highlightedEventId === bar.eventId ? null : bar.eventId)}
+                      className="absolute cursor-pointer"
+                      style={{
+                        top: top + 3,
+                        left: x1 - Math.floor(TICK_W / 2),
+                        width: TICK_W,
+                        height: ROW_H - 6,
+                        background: bar.colour,
+                        borderRadius: 1,
+                        opacity: isHighlighted ? 1 : 0.9,
+                        boxShadow: isHighlighted ? `0 0 0 2px white, 0 0 0 3px ${bar.colour}` : undefined,
+                        zIndex: isHighlighted ? 10 : 2,
+                      }}
+                    />
+                  </TooltipTrigger>
+                  <TooltipContent
+                    side="top"
+                    sideOffset={2}
+                    avoidCollisions={true}
+                    collisionPadding={10}
+                    className="max-w-xs p-0 bg-background border border-border shadow-lg z-9999"
+                  >
+                    {tooltipContent}
+                  </TooltipContent>
+                </Tooltip>
               )
             }
 
@@ -346,31 +379,296 @@ export function GanttTimeline() {
             const barW = Math.max(x2 - x1, MIN_BAR_PX)
             if (x2 < 0 || x1 > canvasW) return null
             return (
-              <div
-                key={bar.eventId}
-                data-bar="1"
-                title={bar.tooltip}
-                onClick={() => setHighlightedEventId(highlightedEventId === bar.eventId ? null : bar.eventId)}
-                className="absolute cursor-pointer truncate px-1 text-[10px] font-medium text-white"
-                style={{
-                  top: top + 4,
-                  left: Math.max(x1, 0),
-                  width: barW,
-                  height: ROW_H - 8,
-                  lineHeight: `${ROW_H - 8}px`,
-                  background: bar.colour,
-                  borderRadius: 3,
-                  opacity: isHighlighted ? 1 : 0.82,
-                  boxShadow: isHighlighted ? `0 0 0 2px white, 0 0 0 3px ${bar.colour}` : undefined,
-                  zIndex: isHighlighted ? 10 : 1,
-                }}
-              >
-                {barW > 40 ? bar.label : ""}
-              </div>
+              <Tooltip key={bar.eventId}>
+                <TooltipTrigger asChild>
+                  <div
+                    data-bar="1"
+                    onClick={() => setHighlightedEventId(highlightedEventId === bar.eventId ? null : bar.eventId)}
+                    className="absolute cursor-pointer truncate px-1 text-[10px] font-medium text-white"
+                    style={{
+                      top: top + 4,
+                      left: Math.max(x1, 0),
+                      width: barW,
+                      height: ROW_H - 8,
+                      lineHeight: `${ROW_H - 8}px`,
+                      background: bar.colour,
+                      borderRadius: 3,
+                      opacity: isHighlighted ? 1 : 0.82,
+                      boxShadow: isHighlighted ? `0 0 0 2px white, 0 0 0 3px ${bar.colour}` : undefined,
+                      zIndex: isHighlighted ? 10 : 1,
+                    }}
+                  >
+                    {barW > 40 ? bar.label : ""}
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent
+                  side="top"
+                  sideOffset={2}
+                  avoidCollisions={true}
+                  collisionPadding={10}
+                  className="max-w-xs p-0 bg-background border border-border shadow-lg z-9999"
+                >
+                  {tooltipContent}
+                </TooltipContent>
+              </Tooltip>
             )
           })}
         </div>
       </div>
+    </div>
+  )
+}
+
+// ─── Event Tooltip Component ───────────────────────────────────────────────
+
+function EventTooltipContent({ bar }: { bar: Bar }) {
+  const ev = bar.event
+  const raw = ev.raw as Record<string, unknown> | undefined
+
+  const fmtCoord = (lat: number | null, lon: number | null): string => {
+    if (lat == null || lon == null) return "—"
+    return `${lat.toFixed(4)}, ${lon.toFixed(4)}`
+  }
+
+  const renderMetadata = (): React.ReactNode => {
+    switch (ev.category) {
+      case "port": {
+        const port = raw?.port_information as Record<string, unknown> | undefined
+        const berth = raw?.berth_information as Record<string, unknown> | undefined
+        const eventDetails = raw?.event_details as Record<string, unknown> | undefined
+        return (
+          <div className="space-y-1 text-xs">
+            {Boolean(port?.name) && (
+              <div className="flex justify-between gap-2">
+                <span className="text-muted-foreground">Port:</span>
+                <span className="text-foreground font-medium">{String(port?.name ?? "")}</span>
+              </div>
+            )}
+            {Boolean(berth?.name) && (
+              <div className="flex justify-between gap-2">
+                <span className="text-muted-foreground">Berth:</span>
+                <span className="text-foreground">{String(berth?.name ?? "")}</span>
+              </div>
+            )}
+            {Boolean(eventDetails?.event_type) && (
+              <div className="flex justify-between gap-2">
+                <span className="text-muted-foreground">Event:</span>
+                <span className="text-foreground">{String(eventDetails?.event_type ?? "")}</span>
+              </div>
+            )}
+            {Boolean(port?.unlocode) && (
+              <div className="flex justify-between gap-2">
+                <span className="text-muted-foreground">UNLOCODE:</span>
+                <span className="text-foreground">{String(port?.unlocode ?? "")}</span>
+              </div>
+            )}
+          </div>
+        )
+      }
+      case "zone": {
+        const zone = raw?.zone_information as Record<string, unknown> | undefined
+        const eventDetails = raw?.event_details as Record<string, unknown> | undefined
+        return (
+          <div className="space-y-1 text-xs">
+            {zone?.name != null && (
+              <div className="flex justify-between gap-2">
+                <span className="text-muted-foreground">Zone:</span>
+                <span className="text-foreground font-medium">{String(zone.name)}</span>
+              </div>
+            )}
+            {zone?.type != null && (
+              <div className="flex justify-between gap-2">
+                <span className="text-muted-foreground">Type:</span>
+                <span className="text-foreground">{String(zone.type)}</span>
+              </div>
+            )}
+            {eventDetails?.event_type != null && (
+              <div className="flex justify-between gap-2">
+                <span className="text-muted-foreground">Event:</span>
+                <span className="text-foreground">{String(eventDetails.event_type)}</span>
+              </div>
+            )}
+          </div>
+        )
+      }
+      case "ais_gap": {
+        const gapDuration = raw?.gap_duration_hours as number | undefined
+        const stopped = raw?.stopped as Record<string, unknown> | undefined
+        const resumed = raw?.resumed as Record<string, unknown> | undefined
+        return (
+          <div className="space-y-1 text-xs">
+            {gapDuration != null && (
+              <div className="flex justify-between gap-2">
+                <span className="text-muted-foreground">Duration:</span>
+                <span className="text-foreground font-medium">{gapDuration.toFixed(1)}h</span>
+              </div>
+            )}
+            {Boolean(stopped?.navigational_status) && (
+              <div className="flex justify-between gap-2">
+                <span className="text-muted-foreground">Stopped status:</span>
+                <span className="text-foreground">{String((stopped?.navigational_status as Record<string, string>)?.status ?? "—")}</span>
+              </div>
+            )}
+            {stopped?.speed != null && (
+              <div className="flex justify-between gap-2">
+                <span className="text-muted-foreground">Stopped speed:</span>
+                <span className="text-foreground">{Number(stopped.speed).toFixed(1)} kn</span>
+              </div>
+            )}
+            {resumed?.speed != null && (
+              <div className="flex justify-between gap-2">
+                <span className="text-muted-foreground">Resumed speed:</span>
+                <span className="text-foreground">{Number(resumed.speed).toFixed(1)} kn</span>
+              </div>
+            )}
+          </div>
+        )
+      }
+      case "sts": {
+        const pairedVessel = raw?.paired_vessel as Record<string, unknown> | undefined
+        const duration = raw?.duration_hours as number | undefined
+        const stsType = raw?.sts_type as string | undefined
+        return (
+          <div className="space-y-1 text-xs">
+            {pairedVessel?.name != null && (
+              <div className="flex justify-between gap-2">
+                <span className="text-muted-foreground">Paired vessel:</span>
+                <span className="text-foreground font-medium">{String(pairedVessel.name)}</span>
+              </div>
+            )}
+            {pairedVessel?.imo != null && (
+              <div className="flex justify-between gap-2">
+                <span className="text-muted-foreground">Paired IMO:</span>
+                <span className="text-foreground">{String(pairedVessel.imo)}</span>
+              </div>
+            )}
+            {duration != null && (
+              <div className="flex justify-between gap-2">
+                <span className="text-muted-foreground">Duration:</span>
+                <span className="text-foreground">{duration.toFixed(1)}h</span>
+              </div>
+            )}
+            {stsType && (
+              <div className="flex justify-between gap-2">
+                <span className="text-muted-foreground">STS type:</span>
+                <span className="text-foreground">{stsType}</span>
+              </div>
+            )}
+          </div>
+        )
+      }
+      case "discrepancy": {
+        const eventType = raw?.event_type as string | undefined
+        const hasEnded = raw?.has_ended as boolean | undefined
+        const duration = raw?.duration_hours as number | undefined
+        return (
+          <div className="space-y-1 text-xs">
+            {eventType && (
+              <div className="flex justify-between gap-2">
+                <span className="text-muted-foreground">Type:</span>
+                <span className="text-foreground font-medium">{eventType}</span>
+              </div>
+            )}
+            {duration != null && (
+              <div className="flex justify-between gap-2">
+                <span className="text-muted-foreground">Duration:</span>
+                <span className="text-foreground">{duration.toFixed(1)}h</span>
+              </div>
+            )}
+            {hasEnded != null && (
+              <div className="flex justify-between gap-2">
+                <span className="text-muted-foreground">Status:</span>
+                <span className="text-foreground">{hasEnded ? "Ended" : "Ongoing"}</span>
+              </div>
+            )}
+          </div>
+        )
+      }
+      case "psc": {
+        const port = raw?.port_information as Record<string, unknown> | undefined
+        const authority = raw?.authority as string | undefined
+        const inspectionType = raw?.inspection_type as string | undefined
+        const noDefects = raw?.no_defects as number | undefined
+        const detained = raw?.detained as boolean | undefined
+        return (
+          <div className="space-y-1 text-xs">
+            {Boolean(port?.name) && (
+              <div className="flex justify-between gap-2">
+                <span className="text-muted-foreground">Port:</span>
+                <span className="text-foreground font-medium">{String(port?.name)}</span>
+              </div>
+            )}
+            {authority && (
+              <div className="flex justify-between gap-2">
+                <span className="text-muted-foreground">Authority:</span>
+                <span className="text-foreground">{authority}</span>
+              </div>
+            )}
+            {inspectionType && (
+              <div className="flex justify-between gap-2">
+                <span className="text-muted-foreground">Type:</span>
+                <span className="text-foreground">{inspectionType}</span>
+              </div>
+            )}
+            {noDefects != null && (
+              <div className="flex justify-between gap-2">
+                <span className="text-muted-foreground">Defects:</span>
+                <span className={noDefects > 0 ? "text-orange-500 font-medium" : "text-foreground"}>{noDefects}</span>
+              </div>
+            )}
+            {detained != null && (
+              <div className="flex justify-between gap-2">
+                <span className="text-muted-foreground">Detained:</span>
+                <span className={detained ? "text-red-500 font-medium" : "text-foreground"}>{detained ? "Yes" : "No"}</span>
+              </div>
+            )}
+          </div>
+        )
+      }
+    }
+    return null
+  }
+
+  const durMs = ev.endTime ? new Date(ev.endTime).getTime() - new Date(ev.startTime).getTime() : 0
+
+  return (
+    <div className="p-3 space-y-2 min-w-[200px]">
+      <div className="flex items-center gap-2 pb-2 border-b border-border">
+        <div className="w-3 h-3 rounded-full" style={{ backgroundColor: CATEGORY_COLOURS[ev.category] }} />
+        <span className="text-sm font-semibold text-foreground">{CATEGORY_LABELS[ev.category]}</span>
+      </div>
+      <div className="space-y-1">
+        <div className="text-sm font-medium text-foreground">{ev.label || ev.subType}</div>
+        <div className="text-xs text-muted-foreground">{ev.subType}</div>
+      </div>
+      <div className="space-y-1 text-xs pt-1">
+        <div className="flex justify-between gap-2">
+          <span className="text-muted-foreground">Start:</span>
+          <span className="text-foreground">{fmtUtc(ev.startTime)}</span>
+        </div>
+        {ev.endTime && (
+          <div className="flex justify-between gap-2">
+            <span className="text-muted-foreground">End:</span>
+            <span className="text-foreground">{fmtUtc(ev.endTime)}</span>
+          </div>
+        )}
+        {durMs > 0 && (
+          <div className="flex justify-between gap-2">
+            <span className="text-muted-foreground">Duration:</span>
+            <span className="text-foreground">{formatDuration(durMs)}</span>
+          </div>
+        )}
+        {(ev.latitude != null || ev.longitude != null) && (
+          <div className="flex justify-between gap-2">
+            <span className="text-muted-foreground">Location:</span>
+            <span className="text-foreground">{fmtCoord(ev.latitude, ev.longitude)}</span>
+          </div>
+        )}
+      </div>
+      {(() => {
+        const meta = renderMetadata()
+        return meta ? <div className="pt-2 border-t border-border mt-2">{meta}</div> : null
+      })()}
     </div>
   )
 }

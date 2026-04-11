@@ -11,23 +11,8 @@ import {
 } from "@/lib/hooks"
 import type { ActivityEvent, EventCategory, PortCallEvent, ZoneEvent } from "@/types"
 
-// ─── Pairing helpers ─────────────────────────────────────────────────────────
+// ─── Individual event creation ────────────────────────────────────────────────
 
-// Maps arrival event_type → its corresponding departure event_type
-const ARRIVAL_TO_DEPARTURE: Record<string, string> = {
-  PORT_AREA_ARRIVAL: "PORT_AREA_DEPARTURE",
-  PORT_ARRIVAL: "PORT_DEPARTURE",
-  BERTH_ARRIVAL: "BERTH_DEPARTURE",
-  ZONE_ENTRY: "ZONE_EXIT",
-}
-
-// Subtype label for display
-const ARRIVAL_TO_SUBTYPE: Record<string, string> = {
-  PORT_AREA_ARRIVAL: "Port Area Visit",
-  PORT_ARRIVAL: "Port Visit",
-  BERTH_ARRIVAL: "Berth Visit",
-  ZONE_ENTRY: "Zone Visit",
-}
 
 interface RawEvent {
   event_id: string
@@ -38,7 +23,7 @@ interface RawEvent {
   lng: number | null
 }
 
-function pairEvents(
+function createIndividualEvents(
   rawEvents: RawEvent[],
   category: EventCategory,
 ): ActivityEvent[] {
@@ -48,53 +33,19 @@ function pairEvents(
   )
 
   const result: ActivityEvent[] = []
-  // Stack of open arrivals keyed by "departure_type::location_name"
-  const open = new Map<string, RawEvent>()
 
   for (const ev of sorted) {
-    const departureType = ARRIVAL_TO_DEPARTURE[ev.event_type]
-    if (departureType !== undefined) {
-      // This is an arrival — push onto open stack
-      const key = `${departureType}::${ev.location_name}`
-      open.set(key, ev)
-    } else {
-      // Check if this is a departure that closes an open arrival
-      const key = `${ev.event_type}::${ev.location_name}`
-      const arrival = open.get(key)
-      if (arrival) {
-        open.delete(key)
-        result.push({
-          id: `${category}-${arrival.event_id}-${ev.event_id}`,
-          category,
-          subType: ARRIVAL_TO_SUBTYPE[
-            Object.keys(ARRIVAL_TO_DEPARTURE).find(
-              (k) => ARRIVAL_TO_DEPARTURE[k] === ev.event_type,
-            ) ?? ""
-          ] ?? ev.event_type,
-          startTime: arrival.event_timestamp,
-          endTime: ev.event_timestamp,
-          latitude: arrival.lat,
-          longitude: arrival.lng,
-          label: arrival.location_name,
-          raw: { arrival, departure: ev },
-        })
-      }
-      // Unpaired departure — ignore (covered by the paired arrival or a gap)
-    }
-  }
-
-  // Emit unpaired arrivals as open-ended spans
-  for (const arrival of open.values()) {
+    // Create an individual event for each raw event
     result.push({
-      id: `${category}-${arrival.event_id}-open`,
+      id: `${category}-${ev.event_id}`,
       category,
-      subType: ARRIVAL_TO_SUBTYPE[arrival.event_type] ?? arrival.event_type,
-      startTime: arrival.event_timestamp,
-      endTime: null,
-      latitude: arrival.lat,
-      longitude: arrival.lng,
-      label: arrival.location_name,
-      raw: arrival,
+      subType: ev.event_type, // Use the actual event_type
+      startTime: ev.event_timestamp,
+      endTime: null, // Individual events are point events, no duration
+      latitude: ev.lat,
+      longitude: ev.lng,
+      label: ev.location_name,
+      raw: ev,
     })
   }
 
@@ -156,14 +107,14 @@ export function DataOrchestrator() {
 
     const events: ActivityEvent[] = []
 
-    // Port calls — pair ARRIVAL→DEPARTURE into spans
-    pairEvents(
+    // Port calls — create individual events for each port call
+    createIndividualEvents(
       (portCalls.data ?? []).map(portCallToRaw),
       "port",
     ).forEach((e) => events.push(e))
 
-    // Zone events — pair ZONE_ENTRY→ZONE_EXIT into spans
-    pairEvents(
+    // Zone events — create individual events for each zone event
+    createIndividualEvents(
       (zones.data ?? []).map(zoneEventToRaw),
       "zone",
     ).forEach((e) => events.push(e))

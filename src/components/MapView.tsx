@@ -135,13 +135,6 @@ function fmtUtc(iso: string | null | undefined): string {
   return isNaN(d.getTime()) ? iso : d.toISOString().replace("T", " ").slice(0, 16) + " UTC"
 }
 
-function formatDuration(ms: number): string {
-  const minutes = Math.round(ms / 60000)
-  if (minutes < 60) return `${minutes}m`
-  const h = Math.floor(minutes / 60)
-  const m = minutes % 60
-  return m > 0 ? `${h}h ${m}m` : `${h}h`
-}
 
 // ─── Auto-fit bounds ──────────────────────────────────────────────────────────
 
@@ -376,9 +369,6 @@ function EventMarkers({
 
         const colour = CATEGORY_COLOURS[ev.category]
         const isHighlighted = highlightedEventId === ev.id
-        const startMs = new Date(ev.startTime).getTime()
-        const endMs = ev.endTime ? new Date(ev.endTime).getTime() : null
-        const durMs = endMs ? endMs - startMs : null
 
         return (
           <Marker
@@ -402,9 +392,7 @@ function EventMarkers({
                 <div className="font-medium">{ev.label}</div>
                 <div className="text-muted-foreground">{ev.subType}</div>
                 <div className="mt-1 space-y-0.5 text-muted-foreground">
-                  <div>Start: {fmtUtc(ev.startTime)}</div>
-                  {ev.endTime && <div>End: {fmtUtc(ev.endTime)}</div>}
-                  {durMs && <div>Duration: {formatDuration(durMs)}</div>}
+                  <div>Time: {fmtUtc(ev.startTime)}</div>
                 </div>
               </div>
             </Popup>
