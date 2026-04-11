@@ -1,3 +1,5 @@
+import type { EventCategory } from "@/types"
+
 // Sidebar layout & persistence
 export const SIDEBAR_COOKIE_NAME = "sidebar_state"
 export const SIDEBAR_COOKIE_MAX_AGE = 60 * 60 * 24 * 7
@@ -20,3 +22,21 @@ export const EVENT_COLOURS = {
   discrepancy: "#EC6436", // psg-orange-800
   psc: "#0F545A",         // psg-green-600
 } as const
+
+export const CATEGORY_LABELS: Record<EventCategory, string> = {
+  port: "Port Events",
+  zone: "Zone Events",
+  ais_gap: "AIS Gaps",
+  sts: "STS Pairings",
+  discrepancy: "Discrepancies",
+  psc: "Port State Control",
+}
+
+export const CATEGORY_LABELS_SHORT: Record<EventCategory, string> = {
+  port: "Port",
+  zone: "Zone",
+  ais_gap: "AIS Gap",
+  sts: "STS",
+  discrepancy: "Discrepancy",
+  psc: "PSC",
+}

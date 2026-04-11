@@ -11,19 +11,17 @@ import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
-import { EVENT_COLOURS } from "@/config/constants"
-import type { ActivityEvent, EventCategory } from "@/types"
-
-// ─── Constants ───────────────────────────────────────────────────────────────
-
-const CATEGORY_LABELS: Record<EventCategory, string> = {
-  port: "Port",
-  zone: "Zone",
-  ais_gap: "AIS Gap",
-  sts: "STS",
-  discrepancy: "Discrepancy",
-  psc: "PSC",
-}
+import { EVENT_COLOURS, CATEGORY_LABELS_SHORT } from "@/config/constants"
+import type {
+  ActivityEvent,
+  EventCategory,
+  PortCallEvent,
+  ZoneEvent,
+  AISGapEvent,
+  STSEvent,
+  DiscrepancyEvent,
+  PSCEvent,
+} from "@/types"
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -79,72 +77,69 @@ function gapBorderClass(ms: number): string {
 // ─── Category-specific metadata ──────────────────────────────────────────────
 
 function EventMeta({ event }: { event: ActivityEvent }) {
-  const raw = event.raw as Record<string, unknown>
-
   if (event.category === "port") {
-    const portInfo = raw.port_information as Record<string, unknown> | null
-    const berthInfo = raw.berth_information as Record<string, unknown> | null
+    const raw = event.raw as PortCallEvent
+    const portInfo = raw.port_information
+    const berthInfo = raw.berth_information
     const hasContent = portInfo?.unlocode != null || berthInfo?.name != null
     if (!hasContent) return null
     return (
       <div className="flex flex-col gap-0.5 text-[10px] text-muted-foreground">
-        {portInfo?.unlocode != null && <span>UNLOCODE: {String(portInfo.unlocode)}</span>}
-        {berthInfo?.name != null && <span>Berth: {String(berthInfo.name)}</span>}
+        {portInfo?.unlocode != null && <span>UNLOCODE: {portInfo.unlocode}</span>}
+        {berthInfo?.name != null && <span>Berth: {berthInfo.name}</span>}
       </div>
     )
   }
 
   if (event.category === "zone") {
-    const zoneInfo = raw.zone_information as Record<string, unknown> | null
+    const raw = event.raw as ZoneEvent
+    const zoneInfo = raw.zone_information
     if (zoneInfo?.type == null) return null
     return (
       <div className="flex flex-col gap-0.5 text-[10px] text-muted-foreground">
-        <span>Type: {String(zoneInfo.type)}</span>
+        <span>Type: {zoneInfo.type}</span>
       </div>
     )
   }
 
   if (event.category === "ais_gap") {
-    const gapHours = (raw as { gap_duration_hours?: number }).gap_duration_hours
-    if (gapHours == null) return null
+    const raw = event.raw as AISGapEvent
+    if (raw.gap_duration_hours == null) return null
     return (
       <div className="text-[10px] text-muted-foreground">
-        Gap: {gapHours.toFixed(1)}h
+        Gap: {raw.gap_duration_hours.toFixed(1)}h
       </div>
     )
   }
 
   if (event.category === "sts") {
-    const pairedVessel = (raw as { paired_vessel?: { name?: string | null; imo?: string | null } }).paired_vessel
-    const stsType = (raw as { sts_type?: string | null }).sts_type
+    const raw = event.raw as STSEvent
     return (
       <div className="flex flex-col gap-0.5 text-[10px] text-muted-foreground">
-        {pairedVessel?.name && <span>Paired: {pairedVessel.name}</span>}
-        {!pairedVessel?.name && pairedVessel?.imo && <span>Paired IMO: {pairedVessel.imo}</span>}
-        {stsType && <span>Type: {stsType}</span>}
+        {raw.paired_vessel?.name && <span>Paired: {raw.paired_vessel.name}</span>}
+        {!raw.paired_vessel?.name && raw.paired_vessel?.imo && <span>Paired IMO: {raw.paired_vessel.imo}</span>}
+        {raw.sts_type && <span>Type: {raw.sts_type}</span>}
       </div>
     )
   }
 
   if (event.category === "discrepancy") {
-    const hasEnded = (raw as { has_ended?: boolean }).has_ended
-    if (hasEnded == null) return null
+    const raw = event.raw as DiscrepancyEvent
+    if (raw.has_ended == null) return null
     return (
       <div className="text-[10px] text-muted-foreground">
-        {hasEnded ? "Ended" : "Ongoing"}
+        {raw.has_ended ? "Ended" : "Ongoing"}
       </div>
     )
   }
 
   if (event.category === "psc") {
-    const noDefects = (raw as { no_defects?: number | null }).no_defects
-    const detained = (raw as { detained?: boolean | null }).detained
-    const inspType = (raw as { inspection_type?: string | null }).inspection_type
+    const raw = event.raw as PSCEvent
     return (
       <div className="flex flex-col gap-0.5 text-[10px] text-muted-foreground">
-        {inspType && <span>{inspType}</span>}
-        {noDefects != null && <span>Deficiencies: {noDefects}</span>}
-        {detained && <span className="text-destructive font-medium">Detained</span>}
+        {raw.inspection_type && <span>{raw.inspection_type}</span>}
+        {raw.no_defects != null && <span>Deficiencies: {raw.no_defects}</span>}
+        {raw.detained && <span className="text-destructive font-medium">Detained</span>}
       </div>
     )
   }
@@ -171,7 +166,7 @@ function RawTooltipContent({ event }: { event: ActivityEvent }) {
 
 // ─── Single event card ────────────────────────────────────────────────────────
 
-function EventCard({
+const EventCard = React.memo(function EventCard({
   event,
   isHighlighted,
   onClick,
@@ -239,7 +234,7 @@ function EventCard({
       </TooltipContent>
     </Tooltip>
   )
-}
+})
 
 // ─── Duration connector ───────────────────────────────────────────────────────
 
@@ -271,7 +266,9 @@ function DateSection({
   return (
     <div className="flex flex-col">
       <button
+        type="button"
         onClick={() => setOpen((v) => !v)}
+        aria-expanded={open}
         className="sticky top-0 z-10 flex items-center gap-1 bg-background px-2 py-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground hover:text-foreground"
       >
         <span className={`transition-transform ${open ? "rotate-90" : ""}`}>▶</span>
@@ -331,7 +328,7 @@ function CategoryChip({
           : { borderColor: colour }
       }
     >
-      {CATEGORY_LABELS[category]}
+      {CATEGORY_LABELS_SHORT[category]}
     </button>
   )
 }
@@ -389,9 +386,11 @@ export function EventsTimelineSidepanel() {
     return (
       <aside className="flex w-12 shrink-0 flex-col items-center border-l border-border bg-background py-3">
         <button
+          type="button"
           onClick={() => setTimelinePanelOpen(true)}
+          aria-expanded={false}
+          aria-label="Open events timeline"
           className="flex flex-col items-center gap-1 text-muted-foreground hover:text-foreground"
-          title="Open events timeline"
         >
           <PanelRightOpenIcon className="size-5" />
           <span
@@ -418,9 +417,11 @@ export function EventsTimelineSidepanel() {
           </span>
         )}
         <button
+          type="button"
           onClick={() => setTimelinePanelOpen(false)}
+          aria-expanded={true}
+          aria-label="Collapse events timeline"
           className="ml-auto text-muted-foreground hover:text-foreground"
-          title="Collapse"
         >
           <PanelRightCloseIcon className="size-4" />
         </button>

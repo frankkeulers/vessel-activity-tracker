@@ -142,11 +142,14 @@ export interface AISGapEvent {
     timestamp: string
     latitude: number | null
     longitude: number | null
+    speed: number | null
+    navigational_status: { status: string; code: number } | null
   } | null
   resumed: {
     timestamp: string
     latitude: number | null
     longitude: number | null
+    speed: number | null
   } | null
 }
 

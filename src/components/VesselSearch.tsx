@@ -94,6 +94,11 @@ export function VesselSearch() {
           )}
           <Input
             ref={inputRef}
+            role="combobox"
+            aria-expanded={showDropdown}
+            aria-controls="vessel-results"
+            aria-haspopup="listbox"
+            aria-autocomplete="list"
             value={query}
             placeholder={hasApiKey ? "Search vessel name, IMO, MMSI…" : "API key required to search"}
             className={cn("pl-8 pr-8", !hasApiKey && "bg-muted cursor-not-allowed")}
@@ -128,6 +133,7 @@ export function VesselSearch() {
         {/* Dropdown - positioned below search input */}
         {showDropdown && (
           <ul
+            id="vessel-results"
             ref={listRef}
             role="listbox"
             aria-label="Vessel search results"

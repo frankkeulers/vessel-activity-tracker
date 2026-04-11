@@ -1,30 +1,22 @@
 import * as React from "react"
 import { useAppStore } from "@/store/useAppStore"
-import type { ActivityEvent, EventCategory } from "@/types"
+import type {
+  ActivityEvent,
+  EventCategory,
+  PortCallEvent,
+  ZoneEvent,
+  AISGapEvent,
+  STSEvent,
+  DiscrepancyEvent,
+  PSCEvent,
+} from "@/types"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import { Skeleton } from "@/components/ui/skeleton"
 import { useDataStatus } from "@/components/DataOrchestrator"
 import { CalendarOffIcon } from "lucide-react"
+import { EVENT_COLOURS, CATEGORY_LABELS } from "@/config/constants"
 
 // ─── Constants ────────────────────────────────────────────────────────────────
-
-const CATEGORY_COLOURS: Record<EventCategory, string> = {
-  port: "#2B969C",
-  zone: "#1E40AF",
-  ais_gap: "#F88E63",
-  sts: "#4ED0D0",
-  discrepancy: "#EC6436",
-  psc: "#0F545A",
-}
-
-const CATEGORY_LABELS: Record<EventCategory, string> = {
-  port: "Port Events",
-  zone: "Zone Events",
-  ais_gap: "AIS Gaps",
-  sts: "STS Pairings",
-  discrepancy: "Discrepancies",
-  psc: "Port State Control",
-}
 
 const CATEGORY_ORDER: EventCategory[] = [
   "port", "zone", "ais_gap", "sts", "discrepancy", "psc",
@@ -144,7 +136,7 @@ function buildRowsAndBars(
         label: ev.label || ev.subType,
         startMs,
         endMs: isPoint ? null : validRawEnd,
-        colour: CATEGORY_COLOURS[category],
+        colour: EVENT_COLOURS[category],
         tooltip,
         event: ev,
       })
@@ -361,11 +353,11 @@ export function GanttTimeline() {
                   height: ROW_H,
                   paddingLeft: 8,
                   fontWeight: isRowHighlighted ? 700 : 600,
-                  color: CATEGORY_COLOURS[row.category],
-                  borderLeft: `3px solid ${CATEGORY_COLOURS[row.category]}`,
+                  color: EVENT_COLOURS[row.category],
+                  borderLeft: `3px solid ${EVENT_COLOURS[row.category]}`,
                   background: isRowHighlighted
-                    ? `${CATEGORY_COLOURS[row.category]}30`
-                    : `${CATEGORY_COLOURS[row.category]}12`,
+                    ? `${EVENT_COLOURS[row.category]}30`
+                    : `${EVENT_COLOURS[row.category]}12`,
                 }}
               >
                 {row.label}
@@ -390,7 +382,7 @@ export function GanttTimeline() {
               style={{
                 top: i * ROW_H,
                 height: ROW_H,
-                background: `${CATEGORY_COLOURS[row.category]}08`,
+                background: `${EVENT_COLOURS[row.category]}08`,
               }}
             />
           ))}
@@ -516,222 +508,229 @@ export function GanttTimeline() {
   )
 }
 
+// ─── Per-category tooltip metadata ────────────────────────────────────────────
+
+function PortTooltipMeta({ event }: { event: ActivityEvent }) {
+  const raw = event.raw as PortCallEvent
+  const port = raw.port_information
+  const berth = raw.berth_information
+  const eventDetails = raw.event_details
+  return (
+    <div className="space-y-1 text-xs">
+      {Boolean(port?.name) && (
+        <div className="flex justify-between gap-2">
+          <span className="text-muted-foreground">Port:</span>
+          <span className="text-foreground font-medium">{port?.name ?? ""}</span>
+        </div>
+      )}
+      {Boolean(berth?.name) && (
+        <div className="flex justify-between gap-2">
+          <span className="text-muted-foreground">Berth:</span>
+          <span className="text-foreground">{berth?.name ?? ""}</span>
+        </div>
+      )}
+      {Boolean(eventDetails?.event_type) && (
+        <div className="flex justify-between gap-2">
+          <span className="text-muted-foreground">Event:</span>
+          <span className="text-foreground">{eventDetails?.event_type ?? ""}</span>
+        </div>
+      )}
+      {Boolean(port?.unlocode) && (
+        <div className="flex justify-between gap-2">
+          <span className="text-muted-foreground">UNLOCODE:</span>
+          <span className="text-foreground">{port?.unlocode ?? ""}</span>
+        </div>
+      )}
+    </div>
+  )
+}
+
+function ZoneTooltipMeta({ event }: { event: ActivityEvent }) {
+  const raw = event.raw as ZoneEvent
+  const zone = raw.zone_information
+  const eventDetails = raw.event_details
+  return (
+    <div className="space-y-1 text-xs">
+      {zone?.name != null && (
+        <div className="flex justify-between gap-2">
+          <span className="text-muted-foreground">Zone:</span>
+          <span className="text-foreground font-medium">{zone.name}</span>
+        </div>
+      )}
+      {zone?.type != null && (
+        <div className="flex justify-between gap-2">
+          <span className="text-muted-foreground">Type:</span>
+          <span className="text-foreground">{zone.type}</span>
+        </div>
+      )}
+      {eventDetails?.event_type != null && (
+        <div className="flex justify-between gap-2">
+          <span className="text-muted-foreground">Event:</span>
+          <span className="text-foreground">{eventDetails.event_type}</span>
+        </div>
+      )}
+    </div>
+  )
+}
+
+function AISGapTooltipMeta({ event }: { event: ActivityEvent }) {
+  const raw = event.raw as AISGapEvent
+  const stopped = raw.stopped
+  const resumed = raw.resumed
+  return (
+    <div className="space-y-1 text-xs">
+      {raw.gap_duration_hours != null && (
+        <div className="flex justify-between gap-2">
+          <span className="text-muted-foreground">Duration:</span>
+          <span className="text-foreground font-medium">{raw.gap_duration_hours.toFixed(1)}h</span>
+        </div>
+      )}
+      {stopped?.navigational_status != null && (
+        <div className="flex justify-between gap-2">
+          <span className="text-muted-foreground">Stopped status:</span>
+          <span className="text-foreground">{stopped.navigational_status.status}</span>
+        </div>
+      )}
+      {stopped?.speed != null && (
+        <div className="flex justify-between gap-2">
+          <span className="text-muted-foreground">Stopped speed:</span>
+          <span className="text-foreground">{stopped.speed.toFixed(1)} kn</span>
+        </div>
+      )}
+      {resumed?.speed != null && (
+        <div className="flex justify-between gap-2">
+          <span className="text-muted-foreground">Resumed speed:</span>
+          <span className="text-foreground">{resumed.speed.toFixed(1)} kn</span>
+        </div>
+      )}
+    </div>
+  )
+}
+
+function STSTooltipMeta({ event }: { event: ActivityEvent }) {
+  const raw = event.raw as STSEvent
+  const pairedVessel = raw.paired_vessel
+  return (
+    <div className="space-y-1 text-xs">
+      {pairedVessel?.name != null && (
+        <div className="flex justify-between gap-2">
+          <span className="text-muted-foreground">Paired vessel:</span>
+          <span className="text-foreground font-medium">{pairedVessel.name}</span>
+        </div>
+      )}
+      {pairedVessel?.imo != null && (
+        <div className="flex justify-between gap-2">
+          <span className="text-muted-foreground">Paired IMO:</span>
+          <span className="text-foreground">{pairedVessel.imo}</span>
+        </div>
+      )}
+      {raw.duration_hours != null && (
+        <div className="flex justify-between gap-2">
+          <span className="text-muted-foreground">Duration:</span>
+          <span className="text-foreground">{raw.duration_hours.toFixed(1)}h</span>
+        </div>
+      )}
+      {raw.sts_type && (
+        <div className="flex justify-between gap-2">
+          <span className="text-muted-foreground">STS type:</span>
+          <span className="text-foreground">{raw.sts_type}</span>
+        </div>
+      )}
+    </div>
+  )
+}
+
+function DiscrepancyTooltipMeta({ event }: { event: ActivityEvent }) {
+  const raw = event.raw as DiscrepancyEvent
+  return (
+    <div className="space-y-1 text-xs">
+      {raw.event_type && (
+        <div className="flex justify-between gap-2">
+          <span className="text-muted-foreground">Type:</span>
+          <span className="text-foreground font-medium">{raw.event_type}</span>
+        </div>
+      )}
+      {raw.duration_hours != null && (
+        <div className="flex justify-between gap-2">
+          <span className="text-muted-foreground">Duration:</span>
+          <span className="text-foreground">{raw.duration_hours.toFixed(1)}h</span>
+        </div>
+      )}
+      {raw.has_ended != null && (
+        <div className="flex justify-between gap-2">
+          <span className="text-muted-foreground">Status:</span>
+          <span className="text-foreground">{raw.has_ended ? "Ended" : "Ongoing"}</span>
+        </div>
+      )}
+    </div>
+  )
+}
+
+function PSCTooltipMeta({ event }: { event: ActivityEvent }) {
+  const raw = event.raw as PSCEvent
+  const port = raw.port_information
+  return (
+    <div className="space-y-1 text-xs">
+      {Boolean(port?.name) && (
+        <div className="flex justify-between gap-2">
+          <span className="text-muted-foreground">Port:</span>
+          <span className="text-foreground font-medium">{port?.name ?? ""}</span>
+        </div>
+      )}
+      {raw.authority && (
+        <div className="flex justify-between gap-2">
+          <span className="text-muted-foreground">Authority:</span>
+          <span className="text-foreground">{raw.authority}</span>
+        </div>
+      )}
+      {raw.inspection_type && (
+        <div className="flex justify-between gap-2">
+          <span className="text-muted-foreground">Type:</span>
+          <span className="text-foreground">{raw.inspection_type}</span>
+        </div>
+      )}
+      {raw.no_defects != null && (
+        <div className="flex justify-between gap-2">
+          <span className="text-muted-foreground">Defects:</span>
+          <span className={raw.no_defects > 0 ? "text-orange-500 font-medium" : "text-foreground"}>{raw.no_defects}</span>
+        </div>
+      )}
+      {raw.detained != null && (
+        <div className="flex justify-between gap-2">
+          <span className="text-muted-foreground">Detained:</span>
+          <span className={raw.detained ? "text-red-500 font-medium" : "text-foreground"}>{raw.detained ? "Yes" : "No"}</span>
+        </div>
+      )}
+    </div>
+  )
+}
+
+const TOOLTIP_META: Record<EventCategory, React.ComponentType<{ event: ActivityEvent }>> = {
+  port: PortTooltipMeta,
+  zone: ZoneTooltipMeta,
+  ais_gap: AISGapTooltipMeta,
+  sts: STSTooltipMeta,
+  discrepancy: DiscrepancyTooltipMeta,
+  psc: PSCTooltipMeta,
+}
+
 // ─── Event Tooltip Component ───────────────────────────────────────────────
 
 function EventTooltipContent({ bar }: { bar: Bar }) {
   const ev = bar.event
-  const raw = ev.raw as Record<string, unknown> | undefined
 
   const fmtCoord = (lat: number | null, lon: number | null): string => {
     if (lat == null || lon == null) return "—"
     return `${lat.toFixed(4)}, ${lon.toFixed(4)}`
   }
 
-  const renderMetadata = (): React.ReactNode => {
-    switch (ev.category) {
-      case "port": {
-        const port = raw?.port_information as Record<string, unknown> | undefined
-        const berth = raw?.berth_information as Record<string, unknown> | undefined
-        const eventDetails = raw?.event_details as Record<string, unknown> | undefined
-        return (
-          <div className="space-y-1 text-xs">
-            {Boolean(port?.name) && (
-              <div className="flex justify-between gap-2">
-                <span className="text-muted-foreground">Port:</span>
-                <span className="text-foreground font-medium">{String(port?.name ?? "")}</span>
-              </div>
-            )}
-            {Boolean(berth?.name) && (
-              <div className="flex justify-between gap-2">
-                <span className="text-muted-foreground">Berth:</span>
-                <span className="text-foreground">{String(berth?.name ?? "")}</span>
-              </div>
-            )}
-            {Boolean(eventDetails?.event_type) && (
-              <div className="flex justify-between gap-2">
-                <span className="text-muted-foreground">Event:</span>
-                <span className="text-foreground">{String(eventDetails?.event_type ?? "")}</span>
-              </div>
-            )}
-            {Boolean(port?.unlocode) && (
-              <div className="flex justify-between gap-2">
-                <span className="text-muted-foreground">UNLOCODE:</span>
-                <span className="text-foreground">{String(port?.unlocode ?? "")}</span>
-              </div>
-            )}
-          </div>
-        )
-      }
-      case "zone": {
-        const zone = raw?.zone_information as Record<string, unknown> | undefined
-        const eventDetails = raw?.event_details as Record<string, unknown> | undefined
-        return (
-          <div className="space-y-1 text-xs">
-            {zone?.name != null && (
-              <div className="flex justify-between gap-2">
-                <span className="text-muted-foreground">Zone:</span>
-                <span className="text-foreground font-medium">{String(zone.name)}</span>
-              </div>
-            )}
-            {zone?.type != null && (
-              <div className="flex justify-between gap-2">
-                <span className="text-muted-foreground">Type:</span>
-                <span className="text-foreground">{String(zone.type)}</span>
-              </div>
-            )}
-            {eventDetails?.event_type != null && (
-              <div className="flex justify-between gap-2">
-                <span className="text-muted-foreground">Event:</span>
-                <span className="text-foreground">{String(eventDetails.event_type)}</span>
-              </div>
-            )}
-          </div>
-        )
-      }
-      case "ais_gap": {
-        const gapDuration = raw?.gap_duration_hours as number | undefined
-        const stopped = raw?.stopped as Record<string, unknown> | undefined
-        const resumed = raw?.resumed as Record<string, unknown> | undefined
-        return (
-          <div className="space-y-1 text-xs">
-            {gapDuration != null && (
-              <div className="flex justify-between gap-2">
-                <span className="text-muted-foreground">Duration:</span>
-                <span className="text-foreground font-medium">{gapDuration.toFixed(1)}h</span>
-              </div>
-            )}
-            {Boolean(stopped?.navigational_status) && (
-              <div className="flex justify-between gap-2">
-                <span className="text-muted-foreground">Stopped status:</span>
-                <span className="text-foreground">{String((stopped?.navigational_status as Record<string, string>)?.status ?? "—")}</span>
-              </div>
-            )}
-            {stopped?.speed != null && (
-              <div className="flex justify-between gap-2">
-                <span className="text-muted-foreground">Stopped speed:</span>
-                <span className="text-foreground">{Number(stopped.speed).toFixed(1)} kn</span>
-              </div>
-            )}
-            {resumed?.speed != null && (
-              <div className="flex justify-between gap-2">
-                <span className="text-muted-foreground">Resumed speed:</span>
-                <span className="text-foreground">{Number(resumed.speed).toFixed(1)} kn</span>
-              </div>
-            )}
-          </div>
-        )
-      }
-      case "sts": {
-        const pairedVessel = raw?.paired_vessel as Record<string, unknown> | undefined
-        const duration = raw?.duration_hours as number | undefined
-        const stsType = raw?.sts_type as string | undefined
-        return (
-          <div className="space-y-1 text-xs">
-            {pairedVessel?.name != null && (
-              <div className="flex justify-between gap-2">
-                <span className="text-muted-foreground">Paired vessel:</span>
-                <span className="text-foreground font-medium">{String(pairedVessel.name)}</span>
-              </div>
-            )}
-            {pairedVessel?.imo != null && (
-              <div className="flex justify-between gap-2">
-                <span className="text-muted-foreground">Paired IMO:</span>
-                <span className="text-foreground">{String(pairedVessel.imo)}</span>
-              </div>
-            )}
-            {duration != null && (
-              <div className="flex justify-between gap-2">
-                <span className="text-muted-foreground">Duration:</span>
-                <span className="text-foreground">{duration.toFixed(1)}h</span>
-              </div>
-            )}
-            {stsType && (
-              <div className="flex justify-between gap-2">
-                <span className="text-muted-foreground">STS type:</span>
-                <span className="text-foreground">{stsType}</span>
-              </div>
-            )}
-          </div>
-        )
-      }
-      case "discrepancy": {
-        const eventType = raw?.event_type as string | undefined
-        const hasEnded = raw?.has_ended as boolean | undefined
-        const duration = raw?.duration_hours as number | undefined
-        return (
-          <div className="space-y-1 text-xs">
-            {eventType && (
-              <div className="flex justify-between gap-2">
-                <span className="text-muted-foreground">Type:</span>
-                <span className="text-foreground font-medium">{eventType}</span>
-              </div>
-            )}
-            {duration != null && (
-              <div className="flex justify-between gap-2">
-                <span className="text-muted-foreground">Duration:</span>
-                <span className="text-foreground">{duration.toFixed(1)}h</span>
-              </div>
-            )}
-            {hasEnded != null && (
-              <div className="flex justify-between gap-2">
-                <span className="text-muted-foreground">Status:</span>
-                <span className="text-foreground">{hasEnded ? "Ended" : "Ongoing"}</span>
-              </div>
-            )}
-          </div>
-        )
-      }
-      case "psc": {
-        const port = raw?.port_information as Record<string, unknown> | undefined
-        const authority = raw?.authority as string | undefined
-        const inspectionType = raw?.inspection_type as string | undefined
-        const noDefects = raw?.no_defects as number | undefined
-        const detained = raw?.detained as boolean | undefined
-        return (
-          <div className="space-y-1 text-xs">
-            {Boolean(port?.name) && (
-              <div className="flex justify-between gap-2">
-                <span className="text-muted-foreground">Port:</span>
-                <span className="text-foreground font-medium">{String(port?.name)}</span>
-              </div>
-            )}
-            {authority && (
-              <div className="flex justify-between gap-2">
-                <span className="text-muted-foreground">Authority:</span>
-                <span className="text-foreground">{authority}</span>
-              </div>
-            )}
-            {inspectionType && (
-              <div className="flex justify-between gap-2">
-                <span className="text-muted-foreground">Type:</span>
-                <span className="text-foreground">{inspectionType}</span>
-              </div>
-            )}
-            {noDefects != null && (
-              <div className="flex justify-between gap-2">
-                <span className="text-muted-foreground">Defects:</span>
-                <span className={noDefects > 0 ? "text-orange-500 font-medium" : "text-foreground"}>{noDefects}</span>
-              </div>
-            )}
-            {detained != null && (
-              <div className="flex justify-between gap-2">
-                <span className="text-muted-foreground">Detained:</span>
-                <span className={detained ? "text-red-500 font-medium" : "text-foreground"}>{detained ? "Yes" : "No"}</span>
-              </div>
-            )}
-          </div>
-        )
-      }
-    }
-    return null
-  }
-
   const durMs = ev.endTime ? new Date(ev.endTime).getTime() - new Date(ev.startTime).getTime() : 0
+  const MetaComponent = TOOLTIP_META[ev.category]
 
   return (
     <div className="p-3 space-y-2 min-w-[200px]">
       <div className="flex items-center gap-2 pb-2 border-b border-border">
-        <div className="w-3 h-3 rounded-full" style={{ backgroundColor: CATEGORY_COLOURS[ev.category] }} />
+        <div className="w-3 h-3 rounded-full" style={{ backgroundColor: EVENT_COLOURS[ev.category] }} />
         <span className="text-sm font-semibold text-foreground">{CATEGORY_LABELS[ev.category]}</span>
       </div>
       <div className="space-y-1">
@@ -762,10 +761,9 @@ function EventTooltipContent({ bar }: { bar: Bar }) {
           </div>
         )}
       </div>
-      {(() => {
-        const meta = renderMetadata()
-        return meta ? <div className="pt-2 border-t border-border mt-2">{meta}</div> : null
-      })()}
+      <div className="pt-2 border-t border-border mt-2">
+        <MetaComponent event={ev} />
+      </div>
     </div>
   )
 }

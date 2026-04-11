@@ -16,6 +16,7 @@ import { useAppStore } from "@/store/useAppStore"
 import { useAISPositions } from "@/lib/hooks"
 import { useDataStatus } from "@/components/DataOrchestrator"
 import type { ActivityEvent, AISGapEvent, EventCategory } from "@/types"
+import { EVENT_COLOURS, CATEGORY_LABELS } from "@/config/constants"
 import { Skeleton } from "@/components/ui/skeleton"
 import {
   Anchor,
@@ -30,25 +31,6 @@ import {
   type LucideIcon,
 } from "lucide-react"
 
-// ─── Colours ─────────────────────────────────────────────────────────────────
-
-const CATEGORY_COLOURS: Record<EventCategory, string> = {
-  port: "#2B969C",
-  zone: "#1E40AF",
-  ais_gap: "#F88E63",
-  sts: "#4ED0D0",
-  discrepancy: "#EC6436",
-  psc: "#0F545A",
-}
-
-const CATEGORY_LABELS: Record<EventCategory, string> = {
-  port: "Port Events",
-  zone: "Zone Events",
-  ais_gap: "AIS Gaps",
-  sts: "STS Pairings",
-  discrepancy: "Discrepancies",
-  psc: "Port State Control",
-}
 
 const CATEGORY_ICONS: Record<EventCategory, LucideIcon> = {
   port: Anchor,
@@ -275,7 +257,7 @@ function AISTrack({ imo, from, to, fetchKey }: { imo: number; from: Date; to: Da
 
 // ─── AIS Gap layer ───────────────────────────────────────────────────────────
 
-const GAP_COLOUR = CATEGORY_COLOURS["ais_gap"] // #F88E63
+const GAP_COLOUR = EVENT_COLOURS["ais_gap"] // #F88E63
 
 function AISGapLayer({
   events,
@@ -396,7 +378,7 @@ function EventMarkers({
         if (ev.category === "ais_gap") return null  // rendered by AISGapLayer
         if (ev.latitude == null || ev.longitude == null) return null
 
-        const colour = CATEGORY_COLOURS[ev.category]
+        const colour = EVENT_COLOURS[ev.category]
         const isHighlighted = highlightedEventId === ev.id
 
         return (
@@ -471,7 +453,7 @@ function MapLegend({ filters }: { filters: Record<EventCategory, boolean> }) {
       <div className="flex flex-col gap-1">
         {activeCategories.map((cat) => {
           const Icon = CATEGORY_ICONS[cat]
-          const colour = CATEGORY_COLOURS[cat]
+          const colour = EVENT_COLOURS[cat]
           return (
             <div key={cat} className="flex items-center gap-1.5">
               <div

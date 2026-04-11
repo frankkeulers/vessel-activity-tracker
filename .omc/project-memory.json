@@ -1,0 +1,382 @@
+{
+  "version": "1.0.0",
+  "lastScanned": 1775923138163,
+  "projectRoot": "/Users/frankkeulers/Code/work/PS Labs/vessel-activity-tracker",
+  "techStack": {
+    "languages": [
+      {
+        "name": "JavaScript/TypeScript",
+        "version": null,
+        "confidence": "high",
+        "markers": [
+          "package.json"
+        ]
+      },
+      {
+        "name": "TypeScript",
+        "version": null,
+        "confidence": "high",
+        "markers": [
+          "tsconfig.json"
+        ]
+      }
+    ],
+    "frameworks": [
+      {
+        "name": "react",
+        "version": "19.2.0",
+        "category": "frontend"
+      },
+      {
+        "name": "react-dom",
+        "version": "19.2.0",
+        "category": "frontend"
+      },
+      {
+        "name": "vite",
+        "version": "7.2.4",
+        "category": "build"
+      }
+    ],
+    "packageManager": "npm",
+    "runtime": null
+  },
+  "build": {
+    "buildCommand": "npm run build",
+    "testCommand": null,
+    "lintCommand": null,
+    "devCommand": "npm run dev",
+    "scripts": {
+      "dev": "vite",
+      "build": "tsc -b && vite build",
+      "preview": "vite preview",
+      "typecheck": "tsc --noEmit"
+    }
+  },
+  "conventions": {
+    "namingStyle": null,
+    "importStyle": null,
+    "testPattern": null,
+    "fileOrganization": "type-based"
+  },
+  "structure": {
+    "isMonorepo": false,
+    "workspaces": [],
+    "mainDirectories": [
+      "docs",
+      "src"
+    ],
+    "gitBranches": null
+  },
+  "customNotes": [],
+  "directoryMap": {
+    "dist": {
+      "path": "dist",
+      "purpose": "Distribution/build output",
+      "fileCount": 1,
+      "lastAccessed": 1775923138153,
+      "keyFiles": [
+        "index.html"
+      ]
+    },
+    "docs": {
+      "path": "docs",
+      "purpose": "Documentation",
+      "fileCount": 3,
+      "lastAccessed": 1775923138153,
+      "keyFiles": [
+        "DESIGN_SPEC.md",
+        "PRD.md",
+        "Pole Star Global - Insights APIs Copy.postman_collection.json"
+      ]
+    },
+    "proxy": {
+      "path": "proxy",
+      "purpose": null,
+      "fileCount": 4,
+      "lastAccessed": 1775923138153,
+      "keyFiles": [
+        "index.js",
+        "package-lock.json",
+        "package.json"
+      ]
+    },
+    "sample_data": {
+      "path": "sample_data",
+      "purpose": null,
+      "fileCount": 7,
+      "lastAccessed": 1775923138157,
+      "keyFiles": [
+        "ais_gaps.json",
+        "port_state_control.json",
+        "positional_discrepancies.json",
+        "positions.json",
+        "sts_pairings.json"
+      ]
+    },
+    "src": {
+      "path": "src",
+      "purpose": "Source code",
+      "fileCount": 3,
+      "lastAccessed": 1775923138157,
+      "keyFiles": [
+        "App.tsx",
+        "index.css",
+        "main.tsx"
+      ]
+    },
+    "dist/assets": {
+      "path": "dist/assets",
+      "purpose": "Static assets",
+      "fileCount": 13,
+      "lastAccessed": 1775923138158,
+      "keyFiles": [
+        "index-CwtvPhXx.css",
+        "index-DVKb6ZyF.js",
+        "inter-cyrillic-ext-wght-normal-BOeWTOD4.woff2"
+      ]
+    },
+    "proxy/node_modules": {
+      "path": "proxy/node_modules",
+      "purpose": "Dependencies",
+      "fileCount": 1,
+      "lastAccessed": 1775923138158,
+      "keyFiles": []
+    },
+    "src/components": {
+      "path": "src/components",
+      "purpose": "UI components",
+      "fileCount": 10,
+      "lastAccessed": 1775923138158,
+      "keyFiles": [
+        "DataOrchestrator.tsx",
+        "DateRangePicker.tsx",
+        "ErrorBoundary.tsx"
+      ]
+    },
+    "src/config": {
+      "path": "src/config",
+      "purpose": "Configuration files",
+      "fileCount": 1,
+      "lastAccessed": 1775923138159,
+      "keyFiles": [
+        "constants.ts"
+      ]
+    },
+    "src/lib": {
+      "path": "src/lib",
+      "purpose": "Library code",
+      "fileCount": 3,
+      "lastAccessed": 1775923138159,
+      "keyFiles": [
+        "api.ts",
+        "hooks.ts",
+        "utils.ts"
+      ]
+    },
+    "src/types": {
+      "path": "src/types",
+      "purpose": "Type definitions",
+      "fileCount": 1,
+      "lastAccessed": 1775923138159,
+      "keyFiles": [
+        "index.ts"
+      ]
+    }
+  },
+  "hotPaths": [
+    {
+      "path": "src/components/EventsTimelineSidepanel.tsx",
+      "accessCount": 22,
+      "lastAccessed": 1775929170523,
+      "type": "file"
+    },
+    {
+      "path": "src/components/GanttTimeline.tsx",
+      "accessCount": 21,
+      "lastAccessed": 1775929169728,
+      "type": "file"
+    },
+    {
+      "path": "src/components/MapView.tsx",
+      "accessCount": 11,
+      "lastAccessed": 1775929169348,
+      "type": "file"
+    },
+    {
+      "path": "src",
+      "accessCount": 10,
+      "lastAccessed": 1775929166333,
+      "type": "directory"
+    },
+    {
+      "path": "src/types/index.ts",
+      "accessCount": 8,
+      "lastAccessed": 1775929173327,
+      "type": "file"
+    },
+    {
+      "path": "src/config/constants.ts",
+      "accessCount": 8,
+      "lastAccessed": 1775929173713,
+      "type": "file"
+    },
+    {
+      "path": "src/components/VesselSearch.tsx",
+      "accessCount": 7,
+      "lastAccessed": 1775929169809,
+      "type": "file"
+    },
+    {
+      "path": "src/components/DataOrchestrator.tsx",
+      "accessCount": 6,
+      "lastAccessed": 1775928718033,
+      "type": "file"
+    },
+    {
+      "path": "",
+      "accessCount": 3,
+      "lastAccessed": 1775927600647,
+      "type": "directory"
+    },
+    {
+      "path": "src/store/useAppStore.ts",
+      "accessCount": 3,
+      "lastAccessed": 1775929174079,
+      "type": "file"
+    },
+    {
+      "path": "src/App.tsx",
+      "accessCount": 3,
+      "lastAccessed": 1775929174510,
+      "type": "file"
+    },
+    {
+      "path": "src/components/VesselCard.tsx",
+      "accessCount": 3,
+      "lastAccessed": 1775929177538,
+      "type": "file"
+    },
+    {
+      "path": "src/components/DateRangePicker.tsx",
+      "accessCount": 3,
+      "lastAccessed": 1775929178010,
+      "type": "file"
+    },
+    {
+      "path": "src/lib/hooks.ts",
+      "accessCount": 3,
+      "lastAccessed": 1775929178372,
+      "type": "file"
+    },
+    {
+      "path": "package.json",
+      "accessCount": 2,
+      "lastAccessed": 1775927600275,
+      "type": "file"
+    },
+    {
+      "path": "src/lib/api.ts",
+      "accessCount": 2,
+      "lastAccessed": 1775927603369,
+      "type": "file"
+    },
+    {
+      "path": "src/components/ErrorBoundary.tsx",
+      "accessCount": 2,
+      "lastAccessed": 1775927615887,
+      "type": "file"
+    },
+    {
+      "path": "proxy/index.js",
+      "accessCount": 1,
+      "lastAccessed": 1775923182898,
+      "type": "file"
+    },
+    {
+      "path": "AGENTS.md",
+      "accessCount": 1,
+      "lastAccessed": 1775923218627,
+      "type": "file"
+    },
+    {
+      "path": "docs/AGENTS.md",
+      "accessCount": 1,
+      "lastAccessed": 1775923223983,
+      "type": "file"
+    },
+    {
+      "path": "proxy/AGENTS.md",
+      "accessCount": 1,
+      "lastAccessed": 1775923232763,
+      "type": "file"
+    },
+    {
+      "path": "sample_data/AGENTS.md",
+      "accessCount": 1,
+      "lastAccessed": 1775923238765,
+      "type": "file"
+    },
+    {
+      "path": "src/AGENTS.md",
+      "accessCount": 1,
+      "lastAccessed": 1775923254977,
+      "type": "file"
+    },
+    {
+      "path": "src/config/AGENTS.md",
+      "accessCount": 1,
+      "lastAccessed": 1775923260464,
+      "type": "file"
+    },
+    {
+      "path": "src/hooks/AGENTS.md",
+      "accessCount": 1,
+      "lastAccessed": 1775923264247,
+      "type": "file"
+    },
+    {
+      "path": "src/lib/AGENTS.md",
+      "accessCount": 1,
+      "lastAccessed": 1775923277556,
+      "type": "file"
+    },
+    {
+      "path": "src/store/AGENTS.md",
+      "accessCount": 1,
+      "lastAccessed": 1775923286508,
+      "type": "file"
+    },
+    {
+      "path": "src/types/AGENTS.md",
+      "accessCount": 1,
+      "lastAccessed": 1775923294512,
+      "type": "file"
+    },
+    {
+      "path": "src/components/AGENTS.md",
+      "accessCount": 1,
+      "lastAccessed": 1775923323323,
+      "type": "file"
+    },
+    {
+      "path": "src/components/ui/AGENTS.md",
+      "accessCount": 1,
+      "lastAccessed": 1775923335566,
+      "type": "file"
+    },
+    {
+      "path": "src/main.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1775927602598,
+      "type": "file"
+    },
+    {
+      "path": "src/index.css",
+      "accessCount": 1,
+      "lastAccessed": 1775929177164,
+      "type": "file"
+    }
+  ],
+  "userDirectives": []
+}

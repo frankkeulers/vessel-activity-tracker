@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__plugin_oh-my-claudecode_t__lsp_workspace_symbols",
+      "Bash(wc -l \"/Users/frankkeulers/Code/work/PS Labs/vessel-activity-tracker/src/components\"/*.tsx)",
+      "Bash(ls -lh \"/Users/frankkeulers/Code/work/PS Labs/vessel-activity-tracker/src/components\"/*.tsx)",
+      "Bash(wc -l \"/Users/frankkeulers/Code/work/PS Labs/vessel-activity-tracker/src\"/**/*.tsx \"/Users/frankkeulers/Code/work/PS Labs/vessel-activity-tracker/src\"/**/*.ts)",
+      "Bash(npm run:*)"
+    ]
+  }
+}
