@@ -3,6 +3,8 @@ import { createRoot } from "react-dom/client"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { ThemeProvider } from "@/components/theme-provider"
 import { TooltipProvider } from "@/components/ui/tooltip"
+import { ToastProvider } from "@/components/Toaster"
+import { ErrorBoundary } from "@/components/ErrorBoundary"
 import "./index.css"
 import App from "./App"
 
@@ -19,9 +21,13 @@ createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <QueryClientProvider client={queryClient}>
       <ThemeProvider defaultTheme="dark" storageKey="theme">
-        <TooltipProvider>
-          <App />
-        </TooltipProvider>
+        <ToastProvider>
+          <TooltipProvider>
+            <ErrorBoundary label="Application error">
+              <App />
+            </ErrorBoundary>
+          </TooltipProvider>
+        </ToastProvider>
       </ThemeProvider>
     </QueryClientProvider>
   </StrictMode>,

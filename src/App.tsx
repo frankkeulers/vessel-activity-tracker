@@ -19,6 +19,8 @@ import { DataOrchestrator, useDataStatus } from "@/components/DataOrchestrator"
 import { GanttTimeline } from "@/components/GanttTimeline"
 import { MapView } from "@/components/MapView"
 import { getApiKey, setApiKey } from "@/lib/api"
+import { ErrorBoundary } from "@/components/ErrorBoundary"
+import { useToast } from "@/components/Toaster"
 
 function ThemeToggle() {
   const { theme, setTheme } = useTheme()
@@ -94,6 +96,20 @@ const EVENT_BREAKDOWN_ROWS: { key: keyof ReturnType<typeof useDataStatus>["count
 
 function DataStatusBar() {
   const { isLoading, errors, fetchKey, counts } = useDataStatus()
+  const { toast } = useToast()
+  const reportedErrors = React.useRef<Set<string>>(new Set())
+
+  React.useEffect(() => {
+    for (const msg of errors) {
+      if (!reportedErrors.current.has(msg)) {
+        reportedErrors.current.add(msg)
+        toast(msg, "error")
+      }
+    }
+    if (errors.length === 0) {
+      reportedErrors.current.clear()
+    }
+  }, [errors, toast])
 
   if (fetchKey === 0) return null
 
@@ -182,14 +198,18 @@ export default function App() {
           <main className="flex flex-1 flex-col overflow-hidden">
             {/* Map */}
             <div className="flex-1 overflow-hidden">
-              <MapView />
+              <ErrorBoundary label="Map failed to render">
+                <MapView />
+              </ErrorBoundary>
             </div>
 
             <Separator />
 
             {/* Gantt timeline */}
             <div className="h-64 shrink-0 overflow-hidden border-t border-border w-full">
-              <GanttTimeline />
+              <ErrorBoundary label="Timeline failed to render">
+                <GanttTimeline />
+              </ErrorBoundary>
             </div>
           </main>
         </div>

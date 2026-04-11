@@ -2,6 +2,9 @@ import * as React from "react"
 import { useAppStore } from "@/store/useAppStore"
 import type { ActivityEvent, EventCategory } from "@/types"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
+import { Skeleton } from "@/components/ui/skeleton"
+import { useDataStatus } from "@/components/DataOrchestrator"
+import { CalendarOffIcon } from "lucide-react"
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -188,7 +191,8 @@ function getTicks(startMs: number, endMs: number, width: number): { ms: number; 
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export function GanttTimeline() {
-  const { ganttEvents, filters, dateRange, highlightedEventId, setHighlightedEventId } = useAppStore()
+  const { ganttEvents, filters, dateRange, fetchKey, highlightedEventId, setHighlightedEventId } = useAppStore()
+  const { isLoading } = useDataStatus()
   const containerRef = React.useRef<HTMLDivElement>(null)
   const canvasRef = React.useRef<HTMLDivElement>(null)
   const [canvasW, setCanvasW] = React.useState(800)
@@ -267,17 +271,36 @@ export function GanttTimeline() {
   // function handleMouseMove(e: React.MouseEvent) { ... }
   // function handleMouseUp() { ... }
 
+  if (isLoading && fetchKey > 0) {
+    return (
+      <div className="flex h-full flex-col gap-2 p-3">
+        <div className="flex gap-2">
+          <Skeleton className="h-5 w-32" />
+          <Skeleton className="h-5 flex-1" />
+        </div>
+        {["w-24", "w-28", "w-20", "w-32"].map((w, i) => (
+          <div key={i} className="flex gap-2">
+            <Skeleton className={`h-4 ${w}`} />
+            <Skeleton className="h-4 flex-1" />
+          </div>
+        ))}
+      </div>
+    )
+  }
+
   if (ganttEvents.length === 0) {
     return (
-      <div className="flex h-full items-center justify-center text-sm text-muted-foreground">
-        Fetch data to see the timeline
+      <div className="flex h-full flex-col items-center justify-center gap-2 text-center">
+        <CalendarOffIcon className="size-5 text-muted-foreground/50" />
+        <p className="text-sm text-muted-foreground">Fetch data to see the timeline</p>
       </div>
     )
   }
   if (rows.length === 0) {
     return (
-      <div className="flex h-full items-center justify-center text-sm text-muted-foreground">
-        No events match the active filters
+      <div className="flex h-full flex-col items-center justify-center gap-2 text-center">
+        <CalendarOffIcon className="size-5 text-muted-foreground/50" />
+        <p className="text-sm text-muted-foreground">No events match the active filters</p>
       </div>
     )
   }

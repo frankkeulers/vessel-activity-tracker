@@ -14,7 +14,9 @@ import "leaflet/dist/leaflet.css"
 import { useTheme } from "@/components/theme-provider"
 import { useAppStore } from "@/store/useAppStore"
 import { useAISPositions } from "@/lib/hooks"
+import { useDataStatus } from "@/components/DataOrchestrator"
 import type { ActivityEvent, AISGapEvent, EventCategory } from "@/types"
+import { Skeleton } from "@/components/ui/skeleton"
 import {
   Anchor,
   Hexagon,
@@ -24,6 +26,7 @@ import {
   ShieldCheck,
   Map as MapIcon,
   Satellite,
+  MapPinOffIcon,
   type LucideIcon,
 } from "lucide-react"
 
@@ -523,6 +526,7 @@ export function MapView() {
   const [mapStyle, setMapStyle] = React.useState<MapStyle>("street")
 
   const { selectedVessel, dateRange, fetchKey, events, filters } = useAppStore()
+  const { isLoading } = useDataStatus()
   const imo = selectedVessel ? parseInt(selectedVessel.imo, 10) : null
 
   // Street tiles (CartoDB) - light/dark variants
@@ -540,8 +544,27 @@ export function MapView() {
   const tileUrl = mapStyle === "street" ? streetTileUrl : satelliteTileUrl
   const tileAttribution = mapStyle === "street" ? streetAttribution : satelliteAttribution
 
+  if (!selectedVessel && fetchKey === 0) {
+    return (
+      <div className="flex h-full flex-col items-center justify-center gap-3 text-center">
+        <div className="flex size-12 items-center justify-center rounded-full bg-muted">
+          <MapPinOffIcon className="size-6 text-muted-foreground" />
+        </div>
+        <div className="flex flex-col gap-1">
+          <p className="text-sm font-medium text-foreground">No vessel selected</p>
+          <p className="text-xs text-muted-foreground">Search for a vessel to see its track and events on the map</p>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="relative size-full">
+      {isLoading && fetchKey > 0 && (
+        <div className="absolute inset-0 z-500 flex flex-col gap-2 p-3 bg-background/70 backdrop-blur-sm pointer-events-none">
+          <Skeleton className="h-full w-full rounded-lg opacity-40" />
+        </div>
+      )}
       <MapContainer
         center={[20, 0]}
         zoom={3}
