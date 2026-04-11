@@ -18,7 +18,6 @@ import { DateRangePicker } from "@/components/DateRangePicker"
 import { DataOrchestrator, useDataStatus } from "@/components/DataOrchestrator"
 import { GanttTimeline } from "@/components/GanttTimeline"
 import { MapView } from "@/components/MapView"
-import { useAppStore } from "@/store/useAppStore"
 import { getApiKey, setApiKey } from "@/lib/api"
 
 function ThemeToggle() {
@@ -83,9 +82,18 @@ function SidebarSection({
   )
 }
 
+const EVENT_BREAKDOWN_ROWS: { key: keyof ReturnType<typeof useDataStatus>["counts"]; label: string }[] = [
+  { key: "port",        label: "Port events" },
+  { key: "zone",        label: "Zone events" },
+  { key: "sts",         label: "STS events" },
+  { key: "ais_gap",     label: "AIS gaps" },
+  { key: "psc",         label: "PSC inspections" },
+  { key: "discrepancy", label: "Discrepancies" },
+  { key: "positions",   label: "Positions" },
+]
+
 function DataStatusBar() {
-  const { isLoading, errors, fetchKey } = useDataStatus()
-  const events = useAppStore((s) => s.events)
+  const { isLoading, errors, fetchKey, counts } = useDataStatus()
 
   if (fetchKey === 0) return null
 
@@ -112,9 +120,19 @@ function DataStatusBar() {
   }
 
   return (
-    <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-      <CheckCircleIcon className="size-3.5 text-primary" />
-      {events.length} event{events.length !== 1 ? "s" : ""} loaded
+    <div className="flex flex-col gap-1.5">
+      <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+        <CheckCircleIcon className="size-3.5 text-primary" />
+        <span className="font-semibold">Data loaded</span>
+      </div>
+      <div className="flex flex-col gap-0.5 pl-5">
+        {EVENT_BREAKDOWN_ROWS.map(({ key, label }) => (
+          <div key={key} className="flex items-center justify-between text-xs text-muted-foreground">
+            <span>{label}</span>
+            <span className="tabular-nums font-medium text-foreground">{counts[key].toLocaleString()}</span>
+          </div>
+        ))}
+      </div>
     </div>
   )
 }

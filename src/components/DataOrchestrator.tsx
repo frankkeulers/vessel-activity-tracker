@@ -7,6 +7,7 @@ import {
   useSTSPairings,
   useDiscrepancies,
   usePSC,
+  useAISPositions,
 } from "@/lib/hooks"
 import type { ActivityEvent, EventCategory, PortCallEvent, ZoneEvent } from "@/types"
 
@@ -264,17 +265,30 @@ export function useDataStatus() {
   const discrepancies = useDiscrepancies(imo, from, to, fetchKey)
   const psc = usePSC(imo, from, to, fetchKey)
 
+  const positions = useAISPositions(imo, from, to, fetchKey)
+
   const isLoading =
     portCalls.isFetching ||
     zones.isFetching ||
     gaps.isFetching ||
     sts.isFetching ||
     discrepancies.isFetching ||
-    psc.isFetching
+    psc.isFetching ||
+    positions.isFetching
 
-  const errors = [portCalls, zones, gaps, sts, discrepancies, psc]
+  const errors = [portCalls, zones, gaps, sts, discrepancies, psc, positions]
     .filter((q) => q.isError)
     .map((q) => (q.error as Error).message)
 
-  return { isLoading, errors, fetchKey }
+  const counts = {
+    port: portCalls.data?.length ?? 0,
+    zone: zones.data?.length ?? 0,
+    ais_gap: gaps.data?.length ?? 0,
+    sts: sts.data?.length ?? 0,
+    discrepancy: discrepancies.data?.length ?? 0,
+    psc: psc.data?.length ?? 0,
+    positions: positions.data?.length ?? 0,
+  }
+
+  return { isLoading, errors, fetchKey, counts }
 }

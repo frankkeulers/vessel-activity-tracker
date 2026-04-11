@@ -7,12 +7,25 @@ import {
   Popup,
   useMap,
   Tooltip,
+  Marker,
 } from "react-leaflet"
+import L from "leaflet"
 import "leaflet/dist/leaflet.css"
 import { useTheme } from "@/components/theme-provider"
 import { useAppStore } from "@/store/useAppStore"
 import { useAISPositions } from "@/lib/hooks"
 import type { ActivityEvent, AISGapEvent, EventCategory } from "@/types"
+import {
+  Anchor,
+  Hexagon,
+  WifiOff,
+  ArrowLeftRight,
+  AlertTriangle,
+  ShieldCheck,
+  Map as MapIcon,
+  Satellite,
+  type LucideIcon,
+} from "lucide-react"
 
 // ─── Colours ─────────────────────────────────────────────────────────────────
 
@@ -34,12 +47,86 @@ const CATEGORY_LABELS: Record<EventCategory, string> = {
   psc: "Port State Control",
 }
 
+const CATEGORY_ICONS: Record<EventCategory, LucideIcon> = {
+  port: Anchor,
+  zone: Hexagon,
+  ais_gap: WifiOff,
+  sts: ArrowLeftRight,
+  discrepancy: AlertTriangle,
+  psc: ShieldCheck,
+}
+
 function navStatusColour(status: string | null | undefined): string {
   if (!status) return "#81E4E3"
   const s = status.toLowerCase()
   if (s.includes("moored") || s.includes("anchor")) return "#FAAF89"
   if (s.includes("underway") || s.includes("way")) return "#2B969C"
   return "#81E4E3"
+}
+
+// Calculate bearing between two lat/lng points in degrees (0-360)
+function calculateBearing(lat1: number, lng1: number, lat2: number, lng2: number): number {
+  const toRad = (deg: number) => (deg * Math.PI) / 180
+  const toDeg = (rad: number) => (rad * 180) / Math.PI
+
+  const dLng = toRad(lng2 - lng1)
+  const y = Math.sin(dLng) * Math.cos(toRad(lat2))
+  const x = Math.cos(toRad(lat1)) * Math.sin(toRad(lat2)) -
+            Math.sin(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.cos(dLng)
+
+  let bearing = toDeg(Math.atan2(y, x))
+  return (bearing + 360) % 360
+}
+
+// Create a rotated arrow icon for direction indicators
+function createArrowIcon(colour: string, rotation: number): L.DivIcon {
+  return L.divIcon({
+    className: "ais-direction-arrow",
+    html: `<svg width="12" height="12" viewBox="0 0 12 12" style="transform: rotate(${rotation}deg); transform-origin: center;">
+      <path d="M6 0 L12 12 L6 9 L0 12 Z" fill="${colour}"/>
+    </svg>`,
+    iconSize: [12, 12],
+    iconAnchor: [6, 6],
+  })
+}
+
+// SVG paths for category icons (from Lucide icons, 24x24 viewBox)
+const CATEGORY_ICON_PATHS: Record<EventCategory, string> = {
+  port: "M12 6v16m7-9 2-1a9 9 0 0 1-18 0l2 1M9 11h6 M12 4a2 2 0 1 0 0 0", // Anchor (with circle)
+  zone: "M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z", // Hexagon
+  ais_gap: "M12 20h.01M8.5 16.429a5 5 0 0 1 7 0M5 12.859a10 10 0 0 1 5.17-2.69M19 12.859a10 10 0 0 0-2.007-1.523M2 8.82a15 15 0 0 1 4.177-2.643M22 8.82a15 15 0 0 0-11.288-3.764m2 2 20 20", // WifiOff
+  sts: "M8 3 4 7l4 4M4 7h16m0 10-4-4 4-4M20 17H4", // ArrowLeftRight
+  discrepancy: "m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3M12 9v4M12 17h.01", // TriangleAlert
+  psc: "M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1zm-11 6 2 2 4-4", // ShieldCheck
+}
+
+function createEventIcon(category: EventCategory, colour: string, isHighlighted: boolean): L.DivIcon {
+  const size = isHighlighted ? 28 : 22
+  const strokeWidth = isHighlighted ? 2.5 : 2
+  const iconAnchor = size / 2
+
+  return L.divIcon({
+    className: `event-marker event-marker-${category}`,
+    html: `
+      <div style="
+        width: ${size}px;
+        height: ${size}px;
+        background: ${colour};
+        border-radius: 50%;
+        border: ${strokeWidth}px solid #fff;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      ">
+        <svg width="${size * 0.55}" height="${size * 0.55}" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="${CATEGORY_ICON_PATHS[category]}"/>
+        </svg>
+      </div>
+    `,
+    iconSize: [size, size],
+    iconAnchor: [iconAnchor, iconAnchor],
+  })
 }
 
 function fmtUtc(iso: string | null | undefined): string {
@@ -97,6 +184,23 @@ function AISTrack({ imo, from, to, fetchKey }: { imo: number; from: Date; to: Da
     })
   }
 
+  // Build direction arrows at intervals (every 5th segment to avoid clutter)
+  const ARROW_INTERVAL = 5
+  const arrows: { position: [number, number]; bearing: number; colour: string }[] = []
+  for (let i = 0; i < positions.length - 1; i += ARROW_INTERVAL) {
+    const a = positions[i]
+    const b = positions[i + 1]
+    // Midpoint of segment
+    const midLat = (a.latitude + b.latitude) / 2
+    const midLng = (a.longitude + b.longitude) / 2
+    const bearing = calculateBearing(a.latitude, a.longitude, b.latitude, b.longitude)
+    arrows.push({
+      position: [midLat, midLng],
+      bearing,
+      colour: navStatusColour(a.navigational_status?.status),
+    })
+  }
+
   const markers = positions
   const allLatLngs: [number, number][] = positions.map((p) => [p.latitude, p.longitude])
 
@@ -108,6 +212,15 @@ function AISTrack({ imo, from, to, fetchKey }: { imo: number; from: Date; to: Da
           key={i}
           positions={seg.points}
           pathOptions={{ color: seg.colour, weight: 2, opacity: 0.8 }}
+        />
+      ))}
+      {/* Direction arrows showing vessel travel direction */}
+      {arrows.map((arrow, i) => (
+        <Marker
+          key={`arrow-${i}`}
+          position={arrow.position}
+          icon={createArrowIcon(arrow.colour, arrow.bearing)}
+          interactive={false}
         />
       ))}
       {markers.map((pos, i) => (
@@ -262,16 +375,11 @@ function EventMarkers({
         const durMs = endMs ? endMs - startMs : null
 
         return (
-          <CircleMarker
+          <Marker
             key={ev.id}
-            center={[ev.latitude, ev.longitude]}
-            radius={isHighlighted ? 9 : 6}
-            pathOptions={{
-              color: "#fff",
-              fillColor: colour,
-              fillOpacity: isHighlighted ? 1 : 0.85,
-              weight: isHighlighted ? 2 : 1,
-            }}
+            position={[ev.latitude, ev.longitude]}
+            icon={createEventIcon(ev.category, colour, isHighlighted)}
+            pane="eventMarkersPane"
             eventHandlers={{
               click: () =>
                 setHighlightedEventId(highlightedEventId === ev.id ? null : ev.id),
@@ -294,7 +402,7 @@ function EventMarkers({
                 </div>
               </div>
             </Popup>
-          </CircleMarker>
+          </Marker>
         )
       })}
     </>
@@ -307,6 +415,27 @@ const CATEGORY_ORDER: EventCategory[] = [
   "port", "zone", "ais_gap", "sts", "discrepancy", "psc",
 ]
 
+// ─── Pane setup for layer ordering ────────────────────────────────────────────
+
+function PaneSetup() {
+  const map = useMap()
+  React.useEffect(() => {
+    // Create panes with explicit z-index if they don't exist
+    // Default leaflet panes: tilePane(200), overlayPane(400), shadowPane(500), markerPane(600), tooltipPane(650), popupPane(700)
+    if (!map.getPane("eventMarkersPane")) {
+      map.createPane("eventMarkersPane")
+      map.getPane("eventMarkersPane")!.style.zIndex = "620" // Above markerPane(600), below tooltipPane(650)
+    }
+    if (!map.getPane("aisTrackPane")) {
+      map.createPane("aisTrackPane")
+      map.getPane("aisTrackPane")!.style.zIndex = "400" // Same as overlayPane for polylines
+    }
+  }, [map])
+  return null
+}
+
+// ─── Legend ───────────────────────────────────────────────────────────────────
+
 function MapLegend({ filters }: { filters: Record<EventCategory, boolean> }) {
   const activeCategories = CATEGORY_ORDER.filter((c) => filters[c])
   if (activeCategories.length === 0) return null
@@ -317,15 +446,21 @@ function MapLegend({ filters }: { filters: Record<EventCategory, boolean> }) {
         Events
       </div>
       <div className="flex flex-col gap-1">
-        {activeCategories.map((cat) => (
-          <div key={cat} className="flex items-center gap-1.5">
-            <div
-              className="size-2.5 rounded-full border border-white/50"
-              style={{ background: CATEGORY_COLOURS[cat] }}
-            />
-            <span className="text-[10px] text-foreground">{CATEGORY_LABELS[cat]}</span>
-          </div>
-        ))}
+        {activeCategories.map((cat) => {
+          const Icon = CATEGORY_ICONS[cat]
+          const colour = CATEGORY_COLOURS[cat]
+          return (
+            <div key={cat} className="flex items-center gap-1.5">
+              <div
+                className="flex size-4 items-center justify-center rounded-full"
+                style={{ background: colour }}
+              >
+                <Icon className="size-2.5 text-white" strokeWidth={2.5} />
+              </div>
+              <span className="text-[10px] text-foreground">{CATEGORY_LABELS[cat]}</span>
+            </div>
+          )
+        })}
         <div className="mt-1 border-t border-border pt-1">
           <div className="mb-0.5 text-[10px] font-medium text-muted-foreground">AIS Track</div>
           {[
@@ -346,19 +481,70 @@ function MapLegend({ filters }: { filters: Record<EventCategory, boolean> }) {
 
 // ─── Main component ───────────────────────────────────────────────────────────
 
+type MapStyle = "street" | "satellite"
+
+function MapStyleToggle({
+  style,
+  onChange,
+}: {
+  style: MapStyle
+  onChange: (style: MapStyle) => void
+}) {
+  return (
+    <div className="absolute right-3 top-3 z-1000 flex rounded-lg border border-border bg-card/90 p-1 shadow-md backdrop-blur-sm">
+      <button
+        onClick={() => onChange("street")}
+        className={`flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs font-medium transition-colors ${
+          style === "street"
+            ? "bg-primary text-primary-foreground"
+            : "text-muted-foreground hover:text-foreground"
+        }`}
+        title="Street view"
+      >
+        <MapIcon className="size-3.5" />
+        <span>Street</span>
+      </button>
+      <button
+        onClick={() => onChange("satellite")}
+        className={`flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs font-medium transition-colors ${
+          style === "satellite"
+            ? "bg-primary text-primary-foreground"
+            : "text-muted-foreground hover:text-foreground"
+        }`}
+        title="Satellite view"
+      >
+        <Satellite className="size-3.5" />
+        <span>Satellite</span>
+      </button>
+    </div>
+  )
+}
+
 export function MapView() {
   const { theme } = useTheme()
   const isDark =
     theme === "dark" ||
     (theme === "system" && window.matchMedia("(prefers-color-scheme: dark)").matches)
 
+  const [mapStyle, setMapStyle] = React.useState<MapStyle>("street")
+
   const { selectedVessel, dateRange, fetchKey, events, filters } = useAppStore()
   const imo = selectedVessel ? parseInt(selectedVessel.imo, 10) : null
 
-  const tileUrl = isDark
+  // Street tiles (CartoDB) - light/dark variants
+  const streetTileUrl = isDark
     ? "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
     : "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
-  const tileAttribution = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/">CARTO</a>'
+  const streetAttribution = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/">CARTO</a>'
+
+  // Satellite tiles (Esri World Imagery) - same for both modes
+  const satelliteTileUrl =
+    "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
+  const satelliteAttribution =
+    '&copy; <a href="https://www.esri.com/">Esri</a> &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
+
+  const tileUrl = mapStyle === "street" ? streetTileUrl : satelliteTileUrl
+  const tileAttribution = mapStyle === "street" ? streetAttribution : satelliteAttribution
 
   return (
     <div className="relative size-full">
@@ -368,7 +554,23 @@ export function MapView() {
         className="size-full"
         zoomControl={true}
       >
+        <PaneSetup />
         <TileLayer url={tileUrl} attribution={tileAttribution} />
+        {/* Dark overlay for satellite view in dark mode */}
+        {mapStyle === "satellite" && isDark && (
+          <TileLayer
+            url="https://{s}.basemaps.cartocdn.com/dark_only_labels/{z}/{x}/{y}{r}.png"
+            attribution=""
+            opacity={0.3}
+          />
+        )}
+        {/* Light labels overlay for satellite view */}
+        {mapStyle === "satellite" && !isDark && (
+          <TileLayer
+            url="https://{s}.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}{r}.png"
+            attribution=""
+          />
+        )}
 
         {imo !== null && fetchKey > 0 && (
           <AISTrack imo={imo} from={dateRange.from} to={dateRange.to} fetchKey={fetchKey} />
@@ -378,6 +580,7 @@ export function MapView() {
         <EventMarkers events={events} filters={filters} />
       </MapContainer>
 
+      <MapStyleToggle style={mapStyle} onChange={setMapStyle} />
       <MapLegend filters={filters} />
     </div>
   )
