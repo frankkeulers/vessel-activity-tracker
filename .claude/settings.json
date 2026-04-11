@@ -5,7 +5,8 @@
       "Bash(wc -l \"/Users/frankkeulers/Code/work/PS Labs/vessel-activity-tracker/src/components\"/*.tsx)",
       "Bash(ls -lh \"/Users/frankkeulers/Code/work/PS Labs/vessel-activity-tracker/src/components\"/*.tsx)",
       "Bash(wc -l \"/Users/frankkeulers/Code/work/PS Labs/vessel-activity-tracker/src\"/**/*.tsx \"/Users/frankkeulers/Code/work/PS Labs/vessel-activity-tracker/src\"/**/*.ts)",
-      "Bash(npm run:*)"
+      "Bash(npm run:*)",
+      "Bash(node -e \"const m = require\\('/Users/frankkeulers/Code/work/PS Labs/vessel-activity-tracker/node_modules/react-resizable-panels/dist/react-resizable-panels.cjs.js'\\); console.log\\(Object.keys\\(m\\).filter\\(k => !k.startsWith\\('_'\\)\\)\\)\")"
     ]
   }
 }

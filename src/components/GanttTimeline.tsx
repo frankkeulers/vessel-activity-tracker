@@ -433,7 +433,17 @@ export function GanttTimeline() {
                   <TooltipTrigger asChild>
                     <div
                       data-bar="1"
+                      role="button"
+                      tabIndex={0}
+                      aria-label={bar.label}
+                      aria-pressed={isHighlighted}
                       onClick={() => setHighlightedEventId(highlightedEventId === bar.eventId ? null : bar.eventId)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" || e.key === " ") {
+                          e.preventDefault()
+                          setHighlightedEventId(highlightedEventId === bar.eventId ? null : bar.eventId)
+                        }
+                      }}
                       className="absolute cursor-pointer"
                       style={{
                         top: top + 3,
@@ -470,7 +480,17 @@ export function GanttTimeline() {
                 <TooltipTrigger asChild>
                   <div
                     data-bar="1"
+                    role="button"
+                    tabIndex={0}
+                    aria-label={bar.label}
+                    aria-pressed={isHighlighted}
                     onClick={() => setHighlightedEventId(highlightedEventId === bar.eventId ? null : bar.eventId)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        e.preventDefault()
+                        setHighlightedEventId(highlightedEventId === bar.eventId ? null : bar.eventId)
+                      }
+                    }}
                     className="absolute cursor-pointer truncate px-1 text-[10px] font-medium text-white"
                     style={{
                       top: top + 4,

@@ -187,38 +187,44 @@
   "hotPaths": [
     {
       "path": "src/components/EventsTimelineSidepanel.tsx",
-      "accessCount": 22,
-      "lastAccessed": 1775929170523,
+      "accessCount": 25,
+      "lastAccessed": 1775930078722,
       "type": "file"
     },
     {
       "path": "src/components/GanttTimeline.tsx",
-      "accessCount": 21,
-      "lastAccessed": 1775929169728,
+      "accessCount": 24,
+      "lastAccessed": 1775929627432,
       "type": "file"
     },
     {
       "path": "src/components/MapView.tsx",
+      "accessCount": 16,
+      "lastAccessed": 1775929845845,
+      "type": "file"
+    },
+    {
+      "path": "src/config/constants.ts",
       "accessCount": 11,
-      "lastAccessed": 1775929169348,
+      "lastAccessed": 1775930084156,
       "type": "file"
     },
     {
       "path": "src",
-      "accessCount": 10,
-      "lastAccessed": 1775929166333,
+      "accessCount": 11,
+      "lastAccessed": 1775930084680,
       "type": "directory"
+    },
+    {
+      "path": "src/App.tsx",
+      "accessCount": 10,
+      "lastAccessed": 1775929744693,
+      "type": "file"
     },
     {
       "path": "src/types/index.ts",
       "accessCount": 8,
       "lastAccessed": 1775929173327,
-      "type": "file"
-    },
-    {
-      "path": "src/config/constants.ts",
-      "accessCount": 8,
-      "lastAccessed": 1775929173713,
       "type": "file"
     },
     {
@@ -235,20 +241,14 @@
     },
     {
       "path": "",
-      "accessCount": 3,
-      "lastAccessed": 1775927600647,
+      "accessCount": 5,
+      "lastAccessed": 1775929527560,
       "type": "directory"
     },
     {
       "path": "src/store/useAppStore.ts",
       "accessCount": 3,
       "lastAccessed": 1775929174079,
-      "type": "file"
-    },
-    {
-      "path": "src/App.tsx",
-      "accessCount": 3,
-      "lastAccessed": 1775929174510,
       "type": "file"
     },
     {
@@ -271,8 +271,8 @@
     },
     {
       "path": "package.json",
-      "accessCount": 2,
-      "lastAccessed": 1775927600275,
+      "accessCount": 3,
+      "lastAccessed": 1775929499783,
       "type": "file"
     },
     {
@@ -375,6 +375,18 @@
       "path": "src/index.css",
       "accessCount": 1,
       "lastAccessed": 1775929177164,
+      "type": "file"
+    },
+    {
+      "path": "src/hooks/use-mobile.ts",
+      "accessCount": 1,
+      "lastAccessed": 1775929529835,
+      "type": "file"
+    },
+    {
+      "path": "docs/ux-ui-backlog.md",
+      "accessCount": 1,
+      "lastAccessed": 1775930018736,
       "type": "file"
     }
   ],

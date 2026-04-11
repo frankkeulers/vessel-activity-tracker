@@ -1,7 +1,0 @@
-{
-  "tool_name": "Bash",
-  "tool_input_preview": "{\"command\":\"cd \\\"/Users/frankkeulers/Code/work/PS Labs/vessel-activity-tracker\\\" && npm run build 2>&1\",\"timeout\":60000,\"description\":\"Run production build to check for TypeScript errors\"}",
-  "error": "Exit code 2\n\n> vessel-activity-tracker@0.0.1 build\n> tsc -b && vite build\n\nsrc/components/DataOrchestrator.tsx(63,7): error TS2322: Type 'RawEvent' is not assignable to type 'PortCallEvent | ZoneEvent | AISGapEvent | STSEvent | DiscrepancyEvent | PSCEvent'.\n  Type 'RawEvent' is missing the following properties from type 'DiscrepancyEvent': has_ended, duration_hours, started, stopped\nsrc/components/DataOrchestrator.tsx(95,9): error TS2322: Type 'RawEvent' is not assignable to type 'PortCallEvent ...",
-  "timestamp": "2026-04-11T17:31:37.002Z",
-  "retry_count": 1
-}

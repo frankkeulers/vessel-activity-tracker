@@ -18,7 +18,7 @@ export const EVENT_COLOURS = {
   port: "#2B969C",        // psg-green-400
   zone: "#1E40AF",        // blue-700 (distinct from green ports)
   ais_gap: "#F88E63",     // psg-orange-700
-  sts: "#4ED0D0",         // psg-green-300
+  sts: "#8B5CF6",         // violet-500 (distinct from teal ports and orange gaps)
   discrepancy: "#EC6436", // psg-orange-800
   psc: "#0F545A",         // psg-green-600
 } as const

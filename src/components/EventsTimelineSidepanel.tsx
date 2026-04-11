@@ -283,7 +283,10 @@ function DateSection({
           {events.map((ev, idx) => {
             const nextEv = events[idx + 1]
             const gapMs = nextEv
-              ? differenceInMilliseconds(new Date(ev.startTime), new Date(nextEv.startTime))
+              ? Math.max(0, differenceInMilliseconds(
+                  new Date(ev.startTime),
+                  new Date(nextEv.endTime ?? nextEv.startTime),
+                ))
               : 0
 
             return (

@@ -7,7 +7,9 @@ import {
   LoaderCircleIcon,
   AlertTriangleIcon,
   CheckCircleIcon,
+  MenuIcon,
 } from "lucide-react"
+import { Panel, Group as PanelGroup, Separator as PanelResizeHandle } from "react-resizable-panels"
 import { useTheme } from "@/components/theme-provider"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -23,6 +25,7 @@ import { useAppStore } from "@/store/useAppStore"
 import { ErrorBoundary } from "@/components/ErrorBoundary"
 import { useToast } from "@/components/Toaster"
 import { EventsTimelineSidepanel } from "@/components/EventsTimelineSidepanel"
+import { useIsMobile } from "@/hooks/use-mobile"
 
 function ThemeToggle() {
   const { theme, setTheme } = useTheme()
@@ -157,6 +160,9 @@ function DataStatusBar() {
 }
 
 export default function App() {
+  const isMobile = useIsMobile()
+  const [mobileSidebarOpen, setMobileSidebarOpen] = React.useState(false)
+
   return (
     <>
       <DataOrchestrator />
@@ -164,56 +170,95 @@ export default function App() {
       <div className="flex h-screen flex-col overflow-hidden bg-background text-foreground">
         {/* Top bar */}
         <header className="flex h-12 shrink-0 items-center gap-4 border-b border-border px-4">
+          {isMobile && (
+            <Button
+              variant="ghost"
+              size="icon"
+              aria-label="Toggle navigation"
+              onClick={() => setMobileSidebarOpen((v) => !v)}
+            >
+              <MenuIcon className="size-5" />
+            </Button>
+          )}
           <div className="flex items-center gap-2">
             <MapIcon className="size-5 text-primary" />
             <span className="font-display text-sm font-semibold tracking-wide">
               Vessel Activity Tracker
             </span>
           </div>
-          <Separator orientation="vertical" className="h-5" />
-          <ApiKeyInput />
+          {!isMobile && (
+            <>
+              <Separator orientation="vertical" className="h-5" />
+              <ApiKeyInput />
+            </>
+          )}
           <div className="ml-auto">
             <ThemeToggle />
           </div>
         </header>
 
         {/* Main layout */}
-        <div className="flex flex-1 overflow-hidden">
-          {/* Left control panel */}
-          <aside className="flex w-72 shrink-0 flex-col gap-4 overflow-y-auto border-r border-border p-4">
-            <SidebarSection label="Vessel">
-              <VesselSearch />
-              <VesselCard />
-            </SidebarSection>
+        <div className="relative flex flex-1 overflow-hidden">
+          {/* Left control panel — desktop: always visible; mobile: slide-in overlay */}
+          {(!isMobile || mobileSidebarOpen) && (
+            <aside
+              className={[
+                "flex w-72 shrink-0 flex-col gap-4 overflow-y-auto border-r border-border p-4 bg-background",
+                isMobile ? "absolute inset-y-0 left-0 z-50 shadow-xl" : "",
+              ].join(" ")}
+            >
+              {isMobile && (
+                <>
+                  <ApiKeyInput />
+                  <Separator />
+                </>
+              )}
+              <SidebarSection label="Vessel">
+                <VesselSearch />
+                <VesselCard />
+              </SidebarSection>
 
-            <Separator />
+              <Separator />
 
-            <SidebarSection label="Date Range">
-              <DateRangePicker />
-            </SidebarSection>
+              <SidebarSection label="Date Range">
+                <DateRangePicker />
+              </SidebarSection>
 
-            <Separator />
+              <Separator />
 
-            <DataStatusBar />
-          </aside>
+              <DataStatusBar />
+            </aside>
+          )}
 
-          {/* Centre pane: map + Gantt stacked */}
+          {/* Mobile backdrop — tap outside to close sidebar */}
+          {isMobile && mobileSidebarOpen && (
+            <div
+              className="absolute inset-0 z-40 bg-black/30"
+              onClick={() => setMobileSidebarOpen(false)}
+            />
+          )}
+
+          {/* Centre pane: map + Gantt — vertically resizable */}
           <main className="flex flex-1 flex-col overflow-hidden">
-            {/* Map */}
-            <div className="flex-1 overflow-hidden">
-              <ErrorBoundary label="Map failed to render">
-                <MapView />
-              </ErrorBoundary>
-            </div>
-
-            <Separator />
-
-            {/* Gantt timeline */}
-            <div className="h-64 shrink-0 overflow-hidden border-t border-border w-full">
-              <ErrorBoundary label="Timeline failed to render">
-                <GanttTimeline />
-              </ErrorBoundary>
-            </div>
+            <PanelGroup orientation="vertical">
+              <Panel defaultSize={65} minSize={25}>
+                <div className="h-full overflow-hidden">
+                  <ErrorBoundary label="Map failed to render">
+                    <MapView />
+                  </ErrorBoundary>
+                </div>
+              </Panel>
+              <PanelResizeHandle className="group relative flex h-2 cursor-row-resize items-center justify-center border-t border-border bg-muted/20 transition-colors hover:bg-primary/10">
+                <div className="h-0.5 w-8 rounded-full bg-muted-foreground/30 transition-colors group-hover:bg-primary/50" />
+              </PanelResizeHandle>
+              <Panel defaultSize={35} minSize={15}>
+                <div className="h-full overflow-hidden">
+                  <ErrorBoundary label="Timeline failed to render">
+                    <GanttTimeline />
+                  </ErrorBoundary>
+                </div>
+              </Panel>
+            </PanelGroup>
           </main>
 
           {/* Right sidepanel: events timeline */}

@@ -147,6 +147,21 @@ function fmtUtc(iso: string | null | undefined): string {
 }
 
 
+// ─── Resize handler ───────────────────────────────────────────────────────────
+
+function MapResizeHandler() {
+  const map = useMap()
+  React.useEffect(() => {
+    const container = map.getContainer()
+    const ro = new ResizeObserver(() => {
+      map.invalidateSize()
+    })
+    ro.observe(container)
+    return () => ro.disconnect()
+  }, [map])
+  return null
+}
+
 // ─── Auto-fit bounds ──────────────────────────────────────────────────────────
 
 function FitBounds({
@@ -579,6 +594,7 @@ export function MapView() {
         className="size-full"
         zoomControl={true}
       >
+        <MapResizeHandler />
         <PaneSetup />
         <TileLayer url={tileUrl} attribution={tileAttribution} />
         {/* Dark overlay for satellite view in dark mode */}
