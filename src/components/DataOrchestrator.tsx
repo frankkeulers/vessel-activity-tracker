@@ -101,24 +101,30 @@ function pairEvents(
 }
 
 function portCallToRaw(pc: PortCallEvent): RawEvent {
+  // Use event_details coordinates first (more precise), fall back to port centroid
+  const lat = pc.event_details.latitude ?? pc.port_information?.centroid?.latitude ?? null
+  const lng = pc.event_details.longitude ?? pc.port_information?.centroid?.longitude ?? null
   return {
     event_id: pc.event_details.event_id,
     event_type: pc.event_details.event_type,
     event_timestamp: pc.event_details.event_timestamp,
     location_name: pc.port_information?.name ?? "Unknown port",
-    lat: pc.port_information?.centroid?.latitude ?? null,
-    lng: pc.port_information?.centroid?.longitude ?? null,
+    lat,
+    lng,
   }
 }
 
 function zoneEventToRaw(z: ZoneEvent): RawEvent {
+  // Use event_details coordinates first (more precise), fall back to zone centroid
+  const lat = z.event_details.latitude ?? z.zone_information?.centroid?.latitude ?? null
+  const lng = z.event_details.longitude ?? z.zone_information?.centroid?.longitude ?? null
   return {
     event_id: z.event_details.event_id,
     event_type: z.event_details.event_type,
     event_timestamp: z.event_details.event_timestamp,
     location_name: z.zone_information?.name ?? "Unknown zone",
-    lat: z.zone_information?.centroid?.latitude ?? null,
-    lng: z.zone_information?.centroid?.longitude ?? null,
+    lat,
+    lng,
   }
 }
 
