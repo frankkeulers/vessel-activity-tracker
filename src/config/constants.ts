@@ -14,7 +14,7 @@ export const APP_SWITCHER_KEYBOARD_SHORTCUT = "\\" // used with metaKey → ⌘\
 // Event category colours (map markers & Gantt bars)
 export const EVENT_COLOURS = {
   port: "#2B969C",        // psg-green-400
-  zone: "#18767C",        // psg-green-500
+  zone: "#1E40AF",        // blue-700 (distinct from green ports)
   ais_gap: "#F88E63",     // psg-orange-700
   sts: "#4ED0D0",         // psg-green-300
   discrepancy: "#EC6436", // psg-orange-800

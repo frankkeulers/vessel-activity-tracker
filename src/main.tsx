@@ -3,8 +3,6 @@ import { createRoot } from "react-dom/client"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { ThemeProvider } from "@/components/theme-provider"
 import { TooltipProvider } from "@/components/ui/tooltip"
-import "@fontsource-variable/inter"
-import "@fontsource-variable/unbounded"
 import "./index.css"
 import App from "./App"
 

@@ -31,7 +31,7 @@ import {
 
 const CATEGORY_COLOURS: Record<EventCategory, string> = {
   port: "#2B969C",
-  zone: "#18767C",
+  zone: "#1E40AF",
   ais_gap: "#F88E63",
   sts: "#4ED0D0",
   discrepancy: "#EC6436",

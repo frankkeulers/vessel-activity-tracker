@@ -7,7 +7,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
 
 const CATEGORY_COLOURS: Record<EventCategory, string> = {
   port: "#2B969C",
-  zone: "#18767C",
+  zone: "#1E40AF",
   ais_gap: "#F88E63",
   sts: "#4ED0D0",
   discrepancy: "#EC6436",
@@ -82,9 +82,9 @@ function buildRowsAndBars(
     const catEvents = events.filter((e) => e.category === category)
     if (catEvents.length === 0) continue
 
-    const rowId = `cat::${category}`
-    rows.push({ id: rowId, label: CATEGORY_LABELS[category], category })
-
+    // Create separate rows for different event types to handle nesting
+    const eventTypeRows = new Map<string, Row>()
+    
     for (const ev of catEvents) {
       const startMs = new Date(ev.startTime).getTime()
       if (isNaN(startMs)) continue
@@ -96,6 +96,36 @@ function buildRowsAndBars(
 
       const durMs = validRawEnd ? validRawEnd - startMs : 0
       const isPoint = validRawEnd === null || durMs < 60_000
+
+      // Determine row based on event type
+      let rowId: string
+      let rowLabel: string
+      
+      if (category === "port") {
+        if (ev.subType.includes("PORT_AREA")) {
+          rowId = `port-area`
+          rowLabel = "Port Area"
+        } else if (ev.subType.includes("PORT_ARRIVAL") || ev.subType.includes("PORT_DEPARTURE")) {
+          rowId = `port`
+          rowLabel = "Port"
+        } else {
+          // BERTH events or others
+          rowId = `berth`
+          rowLabel = "Berth"
+        }
+      } else if (category === "zone") {
+        rowId = `zone`
+        rowLabel = "Zone"
+      } else {
+        // Other categories use single row
+        rowId = `cat::${category}`
+        rowLabel = CATEGORY_LABELS[category]
+      }
+
+      // Create row if it doesn't exist
+      if (!eventTypeRows.has(rowId)) {
+        eventTypeRows.set(rowId, { id: rowId, label: rowLabel, category })
+      }
 
       const tooltip = [
         `${ev.subType}`,
@@ -115,6 +145,18 @@ function buildRowsAndBars(
         tooltip,
         event: ev,
       })
+    }
+
+    // Add rows for this category in the correct order for nesting
+    if (category === "port") {
+      // Port events should be ordered: Port Area -> Port -> Berth
+      const order = ["port-area", "port", "berth"]
+      order.forEach(rowId => {
+        const row = eventTypeRows.get(rowId)
+        if (row) rows.push(row)
+      })
+    } else {
+      rows.push(...eventTypeRows.values())
     }
   }
 
@@ -146,17 +188,26 @@ function getTicks(startMs: number, endMs: number, width: number): { ms: number; 
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export function GanttTimeline() {
-  const { events, filters, dateRange, highlightedEventId, setHighlightedEventId } = useAppStore()
+  const { ganttEvents, filters, dateRange, highlightedEventId, setHighlightedEventId } = useAppStore()
   const containerRef = React.useRef<HTMLDivElement>(null)
   const canvasRef = React.useRef<HTMLDivElement>(null)
   const [canvasW, setCanvasW] = React.useState(800)
 
   React.useEffect(() => {
     const updateWidth = () => {
-      const el = containerRef.current
-      if (!el) return
+      const el = canvasRef.current
+      const containerEl = containerRef.current
+      if (!el || !containerEl) return
+      
       const rect = el.getBoundingClientRect()
-      setCanvasW(Math.max(rect.width - SIDEBAR_W, 1))
+      const containerRect = containerEl.getBoundingClientRect()
+      
+      // With grid layout, the canvas should take the remaining space
+      const expectedWidth = containerRect.width - SIDEBAR_W
+      
+      // Use the expected width if the canvas hasn't been measured properly yet
+      const actualWidth = rect.width > 0 ? rect.width : expectedWidth
+      setCanvasW(Math.max(actualWidth, 1))
     }
     
     // Initial measurement
@@ -166,8 +217,8 @@ export function GanttTimeline() {
       updateWidth()
     })
     
-    if (containerRef.current) {
-      ro.observe(containerRef.current)
+    if (canvasRef.current) {
+      ro.observe(canvasRef.current)
     }
     
     window.addEventListener('resize', updateWidth)
@@ -177,59 +228,46 @@ export function GanttTimeline() {
     }
   }, [])
 
-  const [viewStart, setViewStart] = React.useState(() => dateRange.from.getTime())
-  const [viewEnd, setViewEnd] = React.useState(() => dateRange.to.getTime())
-
   const { rows, bars, minMs, maxMs } = React.useMemo(
-    () => buildRowsAndBars(events, filters),
-    [events, filters],
+    () => buildRowsAndBars(ganttEvents, filters),
+    [ganttEvents, filters],
   )
 
-  // Auto-fit view to actual event extents whenever events change
-  React.useEffect(() => {
+  // Static timeline - always show full date range
+  const { viewStart, viewEnd, msPerPx } = React.useMemo(() => {
     if (rows.length === 0 || minMs === Infinity) {
-      setViewStart(dateRange.from.getTime())
-      setViewEnd(dateRange.to.getTime())
-      return
+      const startMs = dateRange.from.getTime()
+      const endMs = dateRange.to.getTime()
+      return {
+        viewStart: startMs,
+        viewEnd: endMs,
+        msPerPx: (endMs - startMs) / Math.max(canvasW, 1)
+      }
     }
+    
+    // Show full event range with small padding
     const pad = (maxMs - minMs) * 0.04 || 3_600_000
-    setViewStart(minMs - pad)
-    setViewEnd(maxMs + pad)
-  }, [rows.length, minMs, maxMs]) // eslint-disable-line react-hooks/exhaustive-deps
+    const startMs = minMs - pad
+    const endMs = maxMs + pad
+    const span = endMs - startMs
+    
+    return {
+      viewStart: startMs,
+      viewEnd: endMs,
+      msPerPx: span / Math.max(canvasW, 1)
+    }
+  }, [rows, minMs, maxMs, dateRange, canvasW])
 
-  const spanMs = viewEnd - viewStart
-  const msPerPx = spanMs / Math.max(canvasW, 1)
+  // Remove wheel zoom - make it static
+  // function handleWheel(e: React.WheelEvent) { ... }
 
-  // Wheel zoom
-  function handleWheel(e: React.WheelEvent) {
-    e.preventDefault()
-    const rect = containerRef.current?.getBoundingClientRect()
-    if (!rect) return
-    const cursorX = e.clientX - rect.left - SIDEBAR_W
-    const cursorMs = viewStart + cursorX * msPerPx
-    const factor = e.deltaY > 0 ? 1.3 : 1 / 1.3
-    const newSpan = Math.min(Math.max(spanMs * factor, 60_000), 365 * 86_400_000)
-    const ratio = cursorX / Math.max(canvasW, 1)
-    setViewStart(Math.round(cursorMs - ratio * newSpan))
-    setViewEnd(Math.round(cursorMs + (1 - ratio) * newSpan))
-  }
+  // Remove drag pan - make it completely static
+  // const dragRef = React.useRef<{ startX: number; startViewStart: number } | null>(null)
+  // function handleMouseDown(e: React.MouseEvent) { ... }
+  // function handleMouseMove(e: React.MouseEvent) { ... }
+  // function handleMouseUp() { ... }
 
-  // Drag pan
-  const dragRef = React.useRef<{ startX: number; startViewStart: number } | null>(null)
-  function handleMouseDown(e: React.MouseEvent) {
-    if ((e.target as HTMLElement).dataset.bar) return
-    dragRef.current = { startX: e.clientX, startViewStart: viewStart }
-  }
-  function handleMouseMove(e: React.MouseEvent) {
-    if (!dragRef.current) return
-    const dx = e.clientX - dragRef.current.startX
-    const delta = -dx * msPerPx
-    setViewStart(dragRef.current.startViewStart + delta)
-    setViewEnd(dragRef.current.startViewStart + delta + spanMs)
-  }
-  function handleMouseUp() { dragRef.current = null }
-
-  if (events.length === 0) {
+  if (ganttEvents.length === 0) {
     return (
       <div className="flex h-full items-center justify-center text-sm text-muted-foreground">
         Fetch data to see the timeline
@@ -253,11 +291,6 @@ export function GanttTimeline() {
     <div
       ref={containerRef}
       className="relative flex size-full select-none flex-col overflow-hidden bg-background text-foreground"
-      onWheel={handleWheel}
-      onMouseDown={handleMouseDown}
-      onMouseMove={handleMouseMove}
-      onMouseUp={handleMouseUp}
-      onMouseLeave={handleMouseUp}
     >
       {/* Header */}
       <div className="flex shrink-0 border-b border-border" style={{ height: HEADER_H }}>
@@ -285,9 +318,9 @@ export function GanttTimeline() {
       </div>
 
       {/* Body */}
-      <div className="flex flex-1 overflow-auto">
+      <div className="flex flex-1 overflow-hidden" style={{ display: 'grid', gridTemplateColumns: `${SIDEBAR_W}px 1fr` }}>
         {/* Sidebar */}
-        <div className="shrink-0 border-r border-border" style={{ width: SIDEBAR_W, minHeight: totalH }}>
+        <div className="border-r border-border" style={{ minHeight: totalH }}>
           {rows.map((row) => (
             <div
               key={row.id}
@@ -308,7 +341,7 @@ export function GanttTimeline() {
         </div>
 
         {/* Canvas */}
-        <div ref={canvasRef} className="relative flex-1" style={{ minHeight: totalH, width: canvasW }}>
+        <div ref={canvasRef} className="relative" style={{ minHeight: totalH }}>
           {/* Grid lines */}
           {ticks.map(({ ms }) => {
             const x = xOf(ms)

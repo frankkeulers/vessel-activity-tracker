@@ -188,7 +188,7 @@ export default function App() {
             <Separator />
 
             {/* Gantt timeline */}
-            <div className="h-64 shrink-0 overflow-hidden border-t border-border">
+            <div className="h-64 shrink-0 overflow-hidden border-t border-border w-full">
               <GanttTimeline />
             </div>
           </main>

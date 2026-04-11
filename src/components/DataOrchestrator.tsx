@@ -11,6 +11,21 @@ import {
 } from "@/lib/hooks"
 import type { ActivityEvent, EventCategory, PortCallEvent, ZoneEvent } from "@/types"
 
+// ─── Gantt chart pairing helpers ─────────────────────────────────────────────
+
+// Maps arrival event_type → its corresponding departure event_type
+const ARRIVAL_TO_DEPARTURE: Record<string, string> = {
+  PORT_AREA_ARRIVAL: "PORT_AREA_DEPARTURE",
+  PORT_ARRIVAL: "PORT_DEPARTURE",
+  ZONE_ENTRY: "ZONE_EXIT",
+}
+
+// Events that should remain as individual markers (not paired)
+const INDIVIDUAL_EVENTS = new Set([
+  "BERTH_ARRIVAL",
+  "BERTH_DEPARTURE",
+])
+
 // ─── Individual event creation ────────────────────────────────────────────────
 
 
@@ -52,6 +67,81 @@ function createIndividualEvents(
   return result
 }
 
+function createGanttEvents(
+  rawEvents: RawEvent[],
+  category: EventCategory,
+): ActivityEvent[] {
+  // Sort chronologically
+  const sorted = [...rawEvents].sort(
+    (a, b) => new Date(a.event_timestamp).getTime() - new Date(b.event_timestamp).getTime(),
+  )
+
+  const result: ActivityEvent[] = []
+  // Stack of open arrivals keyed by "departure_type::location_name"
+  const open = new Map<string, RawEvent>()
+
+  for (const ev of sorted) {
+    // Check if this should remain as an individual event
+    if (INDIVIDUAL_EVENTS.has(ev.event_type)) {
+      result.push({
+        id: `${category}-${ev.event_id}`,
+        category,
+        subType: ev.event_type,
+        startTime: ev.event_timestamp,
+        endTime: null, // Individual marker
+        latitude: ev.lat,
+        longitude: ev.lng,
+        label: ev.location_name,
+        raw: ev,
+      })
+      continue
+    }
+
+    const departureType = ARRIVAL_TO_DEPARTURE[ev.event_type]
+    if (departureType !== undefined) {
+      // This is an arrival — push onto open stack
+      const key = `${departureType}::${ev.location_name}`
+      open.set(key, ev)
+    } else {
+      // Check if this is a departure that closes an open arrival
+      const key = `${ev.event_type}::${ev.location_name}`
+      const arrival = open.get(key)
+      if (arrival) {
+        open.delete(key)
+        result.push({
+          id: `${category}-${arrival.event_id}-${ev.event_id}`,
+          category,
+          subType: `${arrival.event_type} → ${ev.event_type}`,
+          startTime: arrival.event_timestamp,
+          endTime: ev.event_timestamp,
+          latitude: arrival.lat,
+          longitude: arrival.lng,
+          label: arrival.location_name,
+          raw: { arrival, departure: ev },
+        })
+      }
+      // Unpaired departure — ignore (covered by the paired arrival or a gap)
+    }
+  }
+
+  // Emit unpaired arrivals as open-ended spans
+  for (const arrival of open.values()) {
+    result.push({
+      id: `${category}-${arrival.event_id}-open`,
+      category,
+      subType: arrival.event_type,
+      startTime: arrival.event_timestamp,
+      endTime: null,
+      latitude: arrival.lat,
+      longitude: arrival.lng,
+      label: arrival.location_name,
+      raw: arrival,
+    })
+  }
+
+  return result
+}
+
 function portCallToRaw(pc: PortCallEvent): RawEvent {
   // Use event_details coordinates first (more precise), fall back to port centroid
   const lat = pc.event_details.latitude ?? pc.port_information?.centroid?.latitude ?? null
@@ -81,7 +171,7 @@ function zoneEventToRaw(z: ZoneEvent): RawEvent {
 }
 
 export function DataOrchestrator() {
-  const { selectedVessel, dateRange, fetchKey, setEvents } = useAppStore()
+  const { selectedVessel, dateRange, fetchKey, setEvents, setGanttEvents } = useAppStore()
   const imo = selectedVessel ? parseInt(selectedVessel.imo, 10) : null
   const { from, to } = dateRange
 
@@ -105,26 +195,28 @@ export function DataOrchestrator() {
 
     if (!allLoaded) return
 
-    const events: ActivityEvent[] = []
+    // Map events - individual markers for each event
+    const mapEvents: ActivityEvent[] = []
 
-    // Port calls — create individual events for each port call
-    createIndividualEvents(
-      (portCalls.data ?? []).map(portCallToRaw),
-      "port",
-    ).forEach((e) => events.push(e))
+    // Gantt events - paired ranges with individual markers for berth events
+    const ganttEvents: ActivityEvent[] = []
 
-    // Zone events — create individual events for each zone event
-    createIndividualEvents(
-      (zones.data ?? []).map(zoneEventToRaw),
-      "zone",
-    ).forEach((e) => events.push(e))
+    // Port calls - map: individual, gantt: paired + individual berth events
+    const portRawEvents = (portCalls.data ?? []).map(portCallToRaw)
+    createIndividualEvents(portRawEvents, "port").forEach((e) => mapEvents.push(e))
+    createGanttEvents(portRawEvents, "port").forEach((e) => ganttEvents.push(e))
 
-    // AIS gaps — store both stopped and resumed coords in raw for map rendering
+    // Zone events - map: individual, gantt: paired
+    const zoneRawEvents = (zones.data ?? []).map(zoneEventToRaw)
+    createIndividualEvents(zoneRawEvents, "zone").forEach((e) => mapEvents.push(e))
+    createGanttEvents(zoneRawEvents, "zone").forEach((e) => ganttEvents.push(e))
+
+    // AIS gaps — same for both map and gantt
     ;(gaps.data ?? []).forEach((g) => {
       if (!g.stopped?.timestamp) return
-      events.push({
+      const gapEvent = {
         id: `gap-${g.event_id}`,
-        category: "ais_gap",
+        category: "ais_gap" as const,
         subType: "AIS_GAP",
         startTime: g.stopped.timestamp,
         endTime: g.resumed?.timestamp ?? null,
@@ -132,15 +224,17 @@ export function DataOrchestrator() {
         longitude: g.stopped?.longitude ?? null,
         label: `${g.gap_duration_hours?.toFixed(1) ?? "?"}h gap`,
         raw: g,
-      })
+      }
+      mapEvents.push(gapEvent)
+      ganttEvents.push(gapEvent)
     })
 
-    // STS pairings — started/stopped are bare ISO strings; location holds lat/lng
+    // STS pairings — same for both map and gantt
     ;(sts.data ?? []).forEach((s, i) => {
       if (!s.started) return
-      events.push({
+      const stsEvent = {
         id: `sts-${i}`,
-        category: "sts",
+        category: "sts" as const,
         subType: s.sts_type ?? "STS",
         startTime: s.started,
         endTime: s.stopped ?? null,
@@ -148,15 +242,17 @@ export function DataOrchestrator() {
         longitude: s.location?.longitude ?? null,
         label: s.paired_vessel?.name ?? (s.paired_vessel?.imo ? `IMO ${s.paired_vessel.imo}` : "STS pairing"),
         raw: s,
-      })
+      }
+      mapEvents.push(stsEvent)
+      ganttEvents.push(stsEvent)
     })
 
-    // Discrepancies — event_type field, stopped (not ended), no event_id
+    // Discrepancies — same for both map and gantt
     ;(discrepancies.data ?? []).forEach((d, i) => {
       if (!d.started?.timestamp) return
-      events.push({
+      const discEvent = {
         id: `disc-${i}-${d.started.timestamp}`,
-        category: "discrepancy",
+        category: "discrepancy" as const,
         subType: d.event_type,
         startTime: d.started.timestamp,
         endTime: d.stopped?.timestamp ?? null,
@@ -164,14 +260,16 @@ export function DataOrchestrator() {
         longitude: d.started?.longitude ?? null,
         label: d.event_type,
         raw: d,
-      })
+      }
+      mapEvents.push(discEvent)
+      ganttEvents.push(discEvent)
     })
 
-    // PSC — no event_id or centroid; use index as id
+    // PSC — same for both map and gantt
     ;(psc.data ?? []).forEach((p, i) => {
-      events.push({
+      const pscEvent = {
         id: `psc-${i}-${p.inspection_date}`,
-        category: "psc",
+        category: "psc" as const,
         subType: p.inspection_type ?? "PSC Inspection",
         startTime: p.inspection_date,
         endTime: null,
@@ -179,10 +277,13 @@ export function DataOrchestrator() {
         longitude: null,
         label: p.port_information?.name ?? "PSC inspection",
         raw: p,
-      })
+      }
+      mapEvents.push(pscEvent)
+      ganttEvents.push(pscEvent)
     })
 
-    setEvents(events)
+    setEvents(mapEvents)
+    setGanttEvents(ganttEvents)
   }, [
     fetchKey,
     portCalls.isFetching,

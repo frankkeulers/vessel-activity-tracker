@@ -36,6 +36,10 @@ interface AppState {
   // All resolved events (set by data layer after fetching)
   events: ActivityEvent[]
   setEvents: (events: ActivityEvent[]) => void
+
+  // Gantt-specific events (with paired ranges for timeline view)
+  ganttEvents: ActivityEvent[]
+  setGanttEvents: (events: ActivityEvent[]) => void
 }
 
 const DEFAULT_FILTERS: FilterState = {
@@ -80,4 +84,7 @@ export const useAppStore = create<AppState>((set) => ({
 
   events: [],
   setEvents: (events) => set({ events }),
+
+  ganttEvents: [],
+  setGanttEvents: (events) => set({ ganttEvents: events }),
 }))

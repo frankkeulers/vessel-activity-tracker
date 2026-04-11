@@ -1,4 +1,4 @@
-import { ShipIcon, FlagIcon, AnchorIcon } from "lucide-react"
+import { ShipIcon, FlagIcon } from "lucide-react"
 import { useAppStore } from "@/store/useAppStore"
 import { useVesselCharacteristics } from "@/lib/hooks"
 import { Skeleton } from "@/components/ui/skeleton"
