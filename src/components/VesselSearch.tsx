@@ -122,7 +122,7 @@ export function VesselSearch() {
             <button
               type="button"
               onClick={handleClear}
-              className="absolute right-2.5 flex items-center text-muted-foreground hover:text-foreground"
+              className="absolute right-2.5 flex cursor-pointer items-center text-muted-foreground hover:text-foreground"
               aria-label="Clear search"
             >
               <XIcon className="size-4" />
@@ -199,7 +199,7 @@ export function VesselSearch() {
           vesselStatusFilter
             ? "border-primary/30 bg-primary/10 text-primary hover:bg-primary/20"
             : "border-border bg-card text-muted-foreground hover:bg-accent hover:text-accent-foreground",
-          !hasApiKey && "cursor-not-allowed opacity-50"
+          hasApiKey ? "cursor-pointer" : "cursor-not-allowed opacity-50"
         )}
       >
         <FilterIcon className="size-3" />

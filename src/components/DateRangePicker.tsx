@@ -5,6 +5,7 @@ import { useAppStore } from "@/store/useAppStore"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { cn } from "@/lib/utils"
 
 function toDatetimeLocal(date: Date): string {
   return format(date, "yyyy-MM-dd'T'HH:mm")
@@ -24,6 +25,7 @@ export function DateRangePicker() {
   const [fromStr, setFromStr] = React.useState(toDatetimeLocal(dateRange.from))
   const [toStr, setToStr] = React.useState(toDatetimeLocal(dateRange.to))
   const [error, setError] = React.useState<string | null>(null)
+  const [activePreset, setActivePreset] = React.useState<number | null>(7)
 
   function handleFetch() {
     const from = fromDatetimeLocal(fromStr)
@@ -52,6 +54,7 @@ export function DateRangePicker() {
     const from = startOfDay(new Date(Date.now() - days * 24 * 60 * 60 * 1000))
     setFromStr(toDatetimeLocal(from))
     setToStr(toDatetimeLocal(to))
+    setActivePreset(days)
     setError(null)
   }
 
@@ -64,7 +67,12 @@ export function DateRangePicker() {
             key={days}
             type="button"
             onClick={() => handlePreset(days)}
-            className="flex-1 rounded-md border border-border bg-card px-1 py-0.5 text-xs text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+            className={cn(
+              "flex-1 cursor-pointer rounded-md border px-1 py-0.5 text-xs transition-colors",
+              activePreset === days
+                ? "border-primary/30 bg-primary/10 text-primary"
+                : "border-border bg-card text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+            )}
           >
             {days}d
           </button>
@@ -77,7 +85,7 @@ export function DateRangePicker() {
           <Input
             type="datetime-local"
             value={fromStr}
-            onChange={(e) => { setFromStr(e.target.value); setError(null) }}
+            onChange={(e) => { setFromStr(e.target.value); setActivePreset(null); setError(null) }}
             className="text-xs"
           />
         </div>
@@ -86,7 +94,7 @@ export function DateRangePicker() {
           <Input
             type="datetime-local"
             value={toStr}
-            onChange={(e) => { setToStr(e.target.value); setError(null) }}
+            onChange={(e) => { setToStr(e.target.value); setActivePreset(null); setError(null) }}
             className="text-xs"
           />
         </div>

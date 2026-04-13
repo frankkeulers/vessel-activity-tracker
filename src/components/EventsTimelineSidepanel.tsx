@@ -410,7 +410,7 @@ export function CategoryChip({
     <button
       onClick={onToggle}
       className={[
-        "rounded-full border px-2 py-0.5 text-[10px] font-semibold transition-colors",
+        "cursor-pointer rounded-full border px-2 py-0.5 text-[10px] font-semibold transition-colors",
         active ? "text-white" : "bg-background text-muted-foreground",
       ].join(" ")}
       style={

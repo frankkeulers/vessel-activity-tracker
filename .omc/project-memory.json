@@ -193,14 +193,26 @@
   "hotPaths": [
     {
       "path": "src/App.tsx",
-      "accessCount": 16,
-      "lastAccessed": 1776060541149,
+      "accessCount": 17,
+      "lastAccessed": 1776060710511,
       "type": "file"
     },
     {
       "path": "src/components/VesselCard.tsx",
       "accessCount": 14,
       "lastAccessed": 1776059710703,
+      "type": "file"
+    },
+    {
+      "path": "src/components/EventsTimelineSidepanel.tsx",
+      "accessCount": 13,
+      "lastAccessed": 1776060801684,
+      "type": "file"
+    },
+    {
+      "path": "src/components/DateRangePicker.tsx",
+      "accessCount": 9,
+      "lastAccessed": 1776060897662,
       "type": "file"
     },
     {
@@ -216,21 +228,21 @@
       "type": "file"
     },
     {
+      "path": "src/store/useAppStore.ts",
+      "accessCount": 8,
+      "lastAccessed": 1776060894148,
+      "type": "file"
+    },
+    {
       "path": "",
       "accessCount": 7,
       "lastAccessed": 1776059184967,
       "type": "directory"
     },
     {
-      "path": "src/components/EventsTimelineSidepanel.tsx",
-      "accessCount": 7,
-      "lastAccessed": 1776060355945,
-      "type": "file"
-    },
-    {
-      "path": "src/store/useAppStore.ts",
-      "accessCount": 7,
-      "lastAccessed": 1776060525657,
+      "path": "src/components/DataOrchestrator.tsx",
+      "accessCount": 6,
+      "lastAccessed": 1776060710895,
       "type": "file"
     },
     {
@@ -246,33 +258,33 @@
       "type": "file"
     },
     {
-      "path": "src/components/DataOrchestrator.tsx",
+      "path": "src/components/VesselSearch.tsx",
       "accessCount": 5,
-      "lastAccessed": 1776060541933,
+      "lastAccessed": 1776060795763,
       "type": "file"
     },
     {
       "path": "src/components/GanttTimeline.tsx",
-      "accessCount": 3,
-      "lastAccessed": 1776060525905,
+      "accessCount": 4,
+      "lastAccessed": 1776060644939,
       "type": "file"
     },
     {
-      "path": "src/components/VesselSearch.tsx",
-      "accessCount": 1,
-      "lastAccessed": 1776059187521,
+      "path": "src/components/ui/button.tsx",
+      "accessCount": 3,
+      "lastAccessed": 1776060806864,
       "type": "file"
     },
     {
       "path": "src/lib",
-      "accessCount": 1,
-      "lastAccessed": 1776059210496,
+      "accessCount": 2,
+      "lastAccessed": 1776060648022,
       "type": "directory"
     },
     {
       "path": "src/index.css",
-      "accessCount": 1,
-      "lastAccessed": 1776059880965,
+      "accessCount": 2,
+      "lastAccessed": 1776060691709,
       "type": "file"
     },
     {
@@ -315,6 +327,12 @@
       "path": "src/lib/api.ts",
       "accessCount": 1,
       "lastAccessed": 1776060355131,
+      "type": "file"
+    },
+    {
+      "path": "src/components/ui/input.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1776060698112,
       "type": "file"
     }
   ],

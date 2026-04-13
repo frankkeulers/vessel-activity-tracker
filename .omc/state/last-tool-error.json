@@ -1,0 +1,7 @@
+{
+  "tool_name": "Read",
+  "tool_input_preview": "{\"file_path\":\"/Users/frankkeulers/Code/work/PS Labs/vessel-activity-tracker/src/components\"}",
+  "error": "EISDIR: illegal operation on a directory, read '/Users/frankkeulers/Code/work/PS Labs/vessel-activity-tracker/src/components'",
+  "timestamp": "2026-04-13T06:11:41.111Z",
+  "retry_count": 1
+}
