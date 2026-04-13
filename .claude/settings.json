@@ -8,7 +8,8 @@
       "Bash(npm run:*)",
       "Bash(node -e \"const m = require\\('/Users/frankkeulers/Code/work/PS Labs/vessel-activity-tracker/node_modules/react-resizable-panels/dist/react-resizable-panels.cjs.js'\\); console.log\\(Object.keys\\(m\\).filter\\(k => !k.startsWith\\('_'\\)\\)\\)\")",
       "Bash(npx tsc:*)",
-      "Bash(node_modules/.bin/tsc --noEmit)"
+      "Bash(node_modules/.bin/tsc --noEmit)",
+      "mcp__plugin_oh-my-claudecode_t__lsp_document_symbols"
     ]
   }
 }

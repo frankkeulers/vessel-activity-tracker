@@ -1,0 +1,47 @@
+{
+  "meta": {
+    "request_id": "cb3e8f6b-b864-4e9a-94d6-d368489b6b42",
+    "request_timestamp": "2026-04-13T05:43:09Z"
+  },
+  "data": {
+    "imo": "9183934",
+    "flag": {
+      "name": "Iran",
+      "country_code": "IRN",
+      "effective_date": "2019-03-01"
+    },
+    "mmsi": "422205600",
+    "name": "FELICITY",
+    "type": "Crude Oil Tanker",
+    "draught": 21.128,
+    "asset_id": "94563040-eef7-4e19-a971-c396fd318057",
+    "callsign": "EPJC9",
+    "ownership": {
+      "operator": "NITC",
+      "registered_owner": "Sharp Shipping Inc",
+      "technical_manager": "NITC",
+      "ship_manager": "NITC",
+      "group_beneficial_owner": "NITC"
+    },
+    "build_year": 2000,
+    "deadweight": 299990,
+    "dimensions": {
+      "length": 330,
+      "breadth": 60
+    },
+    "ship_status": "In Service/Commission",
+    "shipbuilder": "IHI",
+    "pandi_club": "Unknown",
+    "displacement": 339317,
+    "gross_tonnage": 149383,
+    "country_of_build": {
+      "country_code": "JPN",
+      "country_name": "Japan"
+    },
+    "port_of_registry": "Qeshm Island",
+    "classification_society": "Polish Register of Shipping (IACS)",
+    "doc_company": "NITC",
+    "hull_type": "Double Hull",
+    "speed": 12.2
+  }
+}

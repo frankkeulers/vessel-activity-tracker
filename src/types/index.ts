@@ -42,7 +42,7 @@ export interface VesselCharacteristics {
   mmsi: string | null
   name: string
   type: string | null
-  flag: { name: string; country_code: string } | null
+  flag: { name: string; country_code: string; effective_date?: string | null } | null
   callsign: string | null
   gross_tonnage: number | null
   deadweight: number | null
@@ -50,6 +50,24 @@ export interface VesselCharacteristics {
   build_year: number | null
   ship_status: string | null
   asset_id: string
+  // Extended fields
+  draught: number | null
+  displacement: number | null
+  hull_type: string | null
+  speed: number | null
+  shipbuilder: string | null
+  port_of_registry: string | null
+  classification_society: string | null
+  doc_company: string | null
+  pandi_club: string | null
+  ownership: {
+    operator: string | null
+    registered_owner: string | null
+    technical_manager: string | null
+    ship_manager: string | null
+    group_beneficial_owner: string | null
+  } | null
+  country_of_build: { country_code: string; country_name: string } | null
 }
 
 export interface VesselCharacteristicsResponse {
