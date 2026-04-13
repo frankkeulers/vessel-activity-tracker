@@ -396,7 +396,7 @@ function DateSection({
 
 // ─── Category chip ────────────────────────────────────────────────────────────
 
-function CategoryChip({
+export function CategoryChip({
   category,
   active,
   onToggle,
@@ -426,7 +426,7 @@ function CategoryChip({
 
 // ─── Main component ───────────────────────────────────────────────────────────
 
-const ALL_CATEGORIES: EventCategory[] = ["port", "zone", "ais_gap", "sts", "discrepancy", "psc"]
+export const ALL_CATEGORIES: EventCategory[] = ["port", "zone", "ais_gap", "sts", "discrepancy", "psc"]
 
 export function EventsTimelineSidepanel() {
   const {
@@ -471,24 +471,31 @@ export function EventsTimelineSidepanel() {
   }
 
   // ── Collapsed state ────────────────────────────────────────────────────────
+  const hasActiveFilter = Object.values(filters).some((v) => !v)
+
   if (!timelinePanelOpen) {
     return (
       <aside className="flex w-12 shrink-0 flex-col items-center border-l border-border bg-background py-3">
-        <button
-          type="button"
-          onClick={() => setTimelinePanelOpen(true)}
-          aria-expanded={false}
-          aria-label="Open events timeline"
-          className="flex flex-col items-center gap-1 text-muted-foreground hover:text-foreground"
-        >
-          <PanelRightOpenIcon className="size-5" />
-          <span
-            className="text-[9px] font-semibold uppercase tracking-wider"
-            style={{ writingMode: "vertical-rl", transform: "rotate(180deg)" }}
+        <div className="relative">
+          <button
+            type="button"
+            onClick={() => setTimelinePanelOpen(true)}
+            aria-expanded={false}
+            aria-label="Open events timeline"
+            className="flex flex-col items-center gap-1 text-muted-foreground hover:text-foreground"
           >
-            Timeline
-          </span>
-        </button>
+            <PanelRightOpenIcon className="size-5" />
+            <span
+              className="text-[9px] font-semibold uppercase tracking-wider"
+              style={{ writingMode: "vertical-rl", transform: "rotate(180deg)" }}
+            >
+              Timeline
+            </span>
+          </button>
+          {hasActiveFilter && (
+            <span className="absolute -right-1 -top-1 size-2 rounded-full bg-amber-500" />
+          )}
+        </div>
       </aside>
     )
   }
@@ -527,18 +534,6 @@ export function EventsTimelineSidepanel() {
             className="h-7 pl-6 text-xs"
           />
         </div>
-      </div>
-
-      {/* Category chips */}
-      <div className="flex shrink-0 flex-wrap gap-1 px-3 pb-2">
-        {ALL_CATEGORIES.map((cat) => (
-          <CategoryChip
-            key={cat}
-            category={cat}
-            active={filters[cat]}
-            onToggle={() => toggleFilter(cat)}
-          />
-        ))}
       </div>
 
       <Separator />

@@ -51,7 +51,7 @@ export function useVesselSearch(query: string, vesselStatusFilter: string | null
   return useQuery({
     queryKey: ["vessel-search", query, vesselStatusFilter],
     queryFn: () =>
-      apiFetch<VesselSearchResponse>("/vessel-insights//v1/vessel-search", {
+      apiFetch<VesselSearchResponse>("/vessel-insights/v1/vessel-search", {
         params: buildSearchParams(query, vesselStatusFilter),
       }),
     enabled: query.trim().length >= 2,

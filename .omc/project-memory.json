@@ -192,9 +192,27 @@
   },
   "hotPaths": [
     {
+      "path": "src/App.tsx",
+      "accessCount": 16,
+      "lastAccessed": 1776060541149,
+      "type": "file"
+    },
+    {
       "path": "src/components/VesselCard.tsx",
       "accessCount": 14,
       "lastAccessed": 1776059710703,
+      "type": "file"
+    },
+    {
+      "path": "src",
+      "accessCount": 8,
+      "lastAccessed": 1776060495766,
+      "type": "directory"
+    },
+    {
+      "path": "src/types/index.ts",
+      "accessCount": 8,
+      "lastAccessed": 1776060529138,
       "type": "file"
     },
     {
@@ -204,39 +222,39 @@
       "type": "directory"
     },
     {
-      "path": "src",
-      "accessCount": 4,
-      "lastAccessed": 1776059282926,
-      "type": "directory"
-    },
-    {
-      "path": "src/App.tsx",
-      "accessCount": 4,
-      "lastAccessed": 1776059288567,
-      "type": "file"
-    },
-    {
-      "path": "src/types/index.ts",
-      "accessCount": 3,
-      "lastAccessed": 1776059234256,
-      "type": "file"
-    },
-    {
       "path": "src/components/EventsTimelineSidepanel.tsx",
-      "accessCount": 1,
-      "lastAccessed": 1776059179556,
-      "type": "file"
-    },
-    {
-      "path": "src/components/DataOrchestrator.tsx",
-      "accessCount": 1,
-      "lastAccessed": 1776059182243,
+      "accessCount": 7,
+      "lastAccessed": 1776060355945,
       "type": "file"
     },
     {
       "path": "src/store/useAppStore.ts",
-      "accessCount": 1,
-      "lastAccessed": 1776059185429,
+      "accessCount": 7,
+      "lastAccessed": 1776060525657,
+      "type": "file"
+    },
+    {
+      "path": "src/lib/hooks.ts",
+      "accessCount": 5,
+      "lastAccessed": 1776060503150,
+      "type": "directory"
+    },
+    {
+      "path": "src/config/constants.ts",
+      "accessCount": 5,
+      "lastAccessed": 1776060529611,
+      "type": "file"
+    },
+    {
+      "path": "src/components/DataOrchestrator.tsx",
+      "accessCount": 5,
+      "lastAccessed": 1776060541933,
+      "type": "file"
+    },
+    {
+      "path": "src/components/GanttTimeline.tsx",
+      "accessCount": 3,
+      "lastAccessed": 1776060525905,
       "type": "file"
     },
     {
@@ -252,10 +270,52 @@
       "type": "directory"
     },
     {
-      "path": "src/lib/hooks.ts",
+      "path": "src/index.css",
       "accessCount": 1,
-      "lastAccessed": 1776059213969,
-      "type": "directory"
+      "lastAccessed": 1776059880965,
+      "type": "file"
+    },
+    {
+      "path": "sample_data/vessel_zone_and_port_events.json",
+      "accessCount": 1,
+      "lastAccessed": 1776060348987,
+      "type": "file"
+    },
+    {
+      "path": "sample_data/ais_gaps.json",
+      "accessCount": 1,
+      "lastAccessed": 1776060349268,
+      "type": "file"
+    },
+    {
+      "path": "sample_data/sts_pairings.json",
+      "accessCount": 1,
+      "lastAccessed": 1776060349299,
+      "type": "file"
+    },
+    {
+      "path": "sample_data/positional_discrepancies.json",
+      "accessCount": 1,
+      "lastAccessed": 1776060351945,
+      "type": "file"
+    },
+    {
+      "path": "sample_data/vessel_port_calls.json",
+      "accessCount": 1,
+      "lastAccessed": 1776060352021,
+      "type": "file"
+    },
+    {
+      "path": "sample_data/port_state_control.json",
+      "accessCount": 1,
+      "lastAccessed": 1776060352113,
+      "type": "file"
+    },
+    {
+      "path": "src/lib/api.ts",
+      "accessCount": 1,
+      "lastAccessed": 1776060355131,
+      "type": "file"
     }
   ],
   "userDirectives": []

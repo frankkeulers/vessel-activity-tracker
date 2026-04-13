@@ -8,6 +8,7 @@ import {
   AlertTriangleIcon,
   CheckCircleIcon,
   MenuIcon,
+  SlidersHorizontalIcon,
 } from "lucide-react"
 import { Panel, Group as PanelGroup, Separator as PanelResizeHandle } from "react-resizable-panels"
 import { useTheme } from "@/components/theme-provider"
@@ -24,7 +25,7 @@ import { getApiKey } from "@/lib/api"
 import { useAppStore } from "@/store/useAppStore"
 import { ErrorBoundary } from "@/components/ErrorBoundary"
 import { useToast } from "@/components/Toaster"
-import { EventsTimelineSidepanel } from "@/components/EventsTimelineSidepanel"
+import { EventsTimelineSidepanel, CategoryChip, ALL_CATEGORIES } from "@/components/EventsTimelineSidepanel"
 import { useIsMobile } from "@/hooks/use-mobile"
 
 function ThemeToggle() {
@@ -86,6 +87,26 @@ function SidebarSection({
         {label}
       </p>
       {children}
+    </div>
+  )
+}
+
+function EventFilterChips() {
+  const filters = useAppStore((s) => s.filters)
+  const toggleFilter = useAppStore((s) => s.toggleFilter)
+  return (
+    <div className="flex items-center gap-1.5">
+      <SlidersHorizontalIcon className="size-3.5 shrink-0 text-muted-foreground" />
+      <div className="flex flex-wrap gap-1">
+        {ALL_CATEGORIES.map((cat) => (
+          <CategoryChip
+            key={cat}
+            category={cat}
+            active={filters[cat]}
+            onToggle={() => toggleFilter(cat)}
+          />
+        ))}
+      </div>
     </div>
   )
 }
@@ -190,6 +211,8 @@ export default function App() {
             <>
               <Separator orientation="vertical" className="h-5" />
               <ApiKeyInput />
+              <Separator orientation="vertical" className="h-5" />
+              <EventFilterChips />
             </>
           )}
           <div className="ml-auto">
@@ -225,6 +248,15 @@ export default function App() {
               </SidebarSection>
 
               <Separator />
+
+              {isMobile && (
+                <>
+                  <SidebarSection label="Event Filters">
+                    <EventFilterChips />
+                  </SidebarSection>
+                  <Separator />
+                </>
+              )}
 
               <DataStatusBar />
             </aside>

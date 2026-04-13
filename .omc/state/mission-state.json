@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-04-13T05:46:38.037Z",
+  "updatedAt": "2026-04-13T06:08:41.931Z",
   "missions": [
     {
       "id": "session:69d8cf1d-68a3-41e9-a854-1d157b17ed2b:none",
@@ -274,6 +274,130 @@
           "agent": "explore:a067327",
           "detail": "completed",
           "sourceKey": "session-stop:a067327b2c00db29c"
+        }
+      ]
+    },
+    {
+      "id": "session:95277a60-132a-4143-a1d4-30c0e3c72be7:none",
+      "source": "session",
+      "name": "none",
+      "objective": "Session mission",
+      "createdAt": "2026-04-13T05:57:35.343Z",
+      "updatedAt": "2026-04-13T05:58:43.675Z",
+      "status": "done",
+      "workerCount": 1,
+      "taskCounts": {
+        "total": 1,
+        "pending": 0,
+        "blocked": 0,
+        "inProgress": 0,
+        "completed": 1,
+        "failed": 0
+      },
+      "agents": [
+        {
+          "name": "designer:af9afff",
+          "role": "designer",
+          "ownership": "af9afff1298b00693",
+          "status": "done",
+          "currentStep": null,
+          "latestUpdate": "completed",
+          "completedSummary": null,
+          "updatedAt": "2026-04-13T05:58:43.675Z"
+        }
+      ],
+      "timeline": [
+        {
+          "id": "session-start:af9afff1298b00693:2026-04-13T05:57:35.343Z",
+          "at": "2026-04-13T05:57:35.343Z",
+          "kind": "update",
+          "agent": "designer:af9afff",
+          "detail": "started designer:af9afff",
+          "sourceKey": "session-start:af9afff1298b00693"
+        },
+        {
+          "id": "session-stop:af9afff1298b00693:2026-04-13T05:58:43.675Z",
+          "at": "2026-04-13T05:58:43.675Z",
+          "kind": "completion",
+          "agent": "designer:af9afff",
+          "detail": "completed",
+          "sourceKey": "session-stop:af9afff1298b00693"
+        }
+      ]
+    },
+    {
+      "id": "session:dca13789-347f-4112-aba4-68ec5f009a6b:none",
+      "source": "session",
+      "name": "none",
+      "objective": "Session mission",
+      "createdAt": "2026-04-13T06:05:35.416Z",
+      "updatedAt": "2026-04-13T06:08:41.931Z",
+      "status": "running",
+      "workerCount": 3,
+      "taskCounts": {
+        "total": 3,
+        "pending": 0,
+        "blocked": 0,
+        "inProgress": 1,
+        "completed": 2,
+        "failed": 0
+      },
+      "agents": [
+        {
+          "name": "Explore:a1b7011",
+          "role": "Explore",
+          "ownership": "a1b7011953e887f2b",
+          "status": "done",
+          "currentStep": null,
+          "latestUpdate": "completed",
+          "completedSummary": null,
+          "updatedAt": "2026-04-13T06:06:25.136Z"
+        },
+        {
+          "name": "Explore:a742d63",
+          "role": "Explore",
+          "ownership": "a742d635d04f85ace",
+          "status": "done",
+          "currentStep": null,
+          "latestUpdate": "completed",
+          "completedSummary": null,
+          "updatedAt": "2026-04-13T06:06:18.781Z"
+        },
+        {
+          "name": "Plan:aa40325",
+          "role": "Plan",
+          "ownership": "aa40325a08e67940f",
+          "status": "running",
+          "currentStep": null,
+          "latestUpdate": null,
+          "completedSummary": null,
+          "updatedAt": "2026-04-13T06:08:41.931Z"
+        }
+      ],
+      "timeline": [
+        {
+          "id": "session-stop:a742d635d04f85ace:2026-04-13T06:06:18.781Z",
+          "at": "2026-04-13T06:06:18.781Z",
+          "kind": "completion",
+          "agent": "Explore:a742d63",
+          "detail": "completed",
+          "sourceKey": "session-stop:a742d635d04f85ace"
+        },
+        {
+          "id": "session-stop:a1b7011953e887f2b:2026-04-13T06:06:25.136Z",
+          "at": "2026-04-13T06:06:25.136Z",
+          "kind": "completion",
+          "agent": "Explore:a1b7011",
+          "detail": "completed",
+          "sourceKey": "session-stop:a1b7011953e887f2b"
+        },
+        {
+          "id": "session-start:aa40325a08e67940f:2026-04-13T06:08:41.931Z",
+          "at": "2026-04-13T06:08:41.931Z",
+          "kind": "update",
+          "agent": "Plan:aa40325",
+          "detail": "started Plan:aa40325",
+          "sourceKey": "session-start:aa40325a08e67940f"
         }
       ]
     }
