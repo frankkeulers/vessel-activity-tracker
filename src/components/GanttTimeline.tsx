@@ -1,5 +1,6 @@
 import * as React from "react"
 import { useAppStore } from "@/store/useAppStore"
+import type { GanttGroupMode } from "@/store/useAppStore"
 import type {
   ActivityEvent,
   EventCategory,
@@ -15,6 +16,7 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { useDataStatus } from "@/components/DataOrchestrator"
 import { CalendarOffIcon } from "lucide-react"
 import { EVENT_COLOURS, CATEGORY_LABELS } from "@/config/constants"
+import { cn } from "@/lib/utils"
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -22,11 +24,36 @@ const CATEGORY_ORDER: EventCategory[] = [
   "port", "zone", "ais_gap", "sts", "discrepancy", "psc",
 ]
 
-const SIDEBAR_W = 180
-const ROW_H = 32
-const HEADER_H = 40
-const TICK_W = 3       // px width of a point-event tick mark
-const MIN_BAR_PX = 4   // minimum px width for duration bars
+const SIDEBAR_W    = 180
+const GROUP_HEADER_H = 24  // visual separator header rows (no bars)
+const LANE_ROW_H   = 32   // event lane rows (bars rendered here)
+const HEADER_H     = 40
+const TICK_W       = 3
+const MIN_BAR_PX   = 4
+
+// ─── Port type helpers ────────────────────────────────────────────────────────
+
+type PortTypeKey = "port-area" | "port" | "berth"
+
+const PORT_TYPE_ORDER: PortTypeKey[] = ["port-area", "port", "berth"]
+
+const PORT_TYPE_LABELS: Record<PortTypeKey, string> = {
+  "port-area": "Port Area",
+  "port":      "Port",
+  "berth":     "Berth",
+}
+
+const PORT_GROUP_LABELS: Record<PortTypeKey, string> = {
+  "port-area": "PORT AREA",
+  "port":      "PORT",
+  "berth":     "BERTH",
+}
+
+function getPortTypeKey(subType: string): PortTypeKey {
+  if (subType.includes("PORT_AREA")) return "port-area"
+  if (subType.includes("BERTH"))     return "berth"
+  return "port"
+}
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -34,17 +61,21 @@ interface Row {
   id: string
   label: string
   category: EventCategory
+  isGroupHeader: boolean  // true = visual separator, no bars rendered
+  isIndented: boolean     // true = sidebar label indented 20px
+  height: number          // GROUP_HEADER_H or LANE_ROW_H
 }
 
 interface Bar {
   eventId: string
   rowId: string
   label: string
+  locationLabel: string  // ev.label — for bar text (duration + name)
   startMs: number
-  endMs: number | null  // null = point event → rendered as tick
+  endMs: number | null   // null = point event → rendered as tick
   colour: string
   tooltip: string
-  event: ActivityEvent  // reference to full event for metadata
+  event: ActivityEvent
 }
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
@@ -57,6 +88,14 @@ function formatDuration(ms: number): string {
   return m > 0 ? `${h}h ${m}m` : `${h}h`
 }
 
+function formatDurationShort(ms: number): string {
+  const mins = Math.round(ms / 60_000)
+  if (mins < 60) return `${mins}m`
+  const h = mins / 60
+  if (h < 24)   return `${h.toFixed(1)}h`
+  return `${(h / 24).toFixed(1)}d`
+}
+
 function fmtUtc(iso: string | null | undefined): string {
   if (!iso) return "—"
   const d = new Date(iso)
@@ -66,92 +105,225 @@ function fmtUtc(iso: string | null | undefined): string {
 function buildRowsAndBars(
   events: ActivityEvent[],
   filters: Record<EventCategory, boolean>,
+  mode: GanttGroupMode,
 ): { rows: Row[]; bars: Bar[]; minMs: number; maxMs: number } {
   const rows: Row[] = []
   const bars: Bar[] = []
   let minMs = Infinity
   let maxMs = -Infinity
 
-  for (const category of CATEGORY_ORDER) {
-    if (!filters[category]) continue
-    const catEvents = events.filter((e) => e.category === category)
-    if (catEvents.length === 0) continue
+  function processEvent(ev: ActivityEvent, rowId: string): void {
+    const startMs = new Date(ev.startTime).getTime()
+    if (isNaN(startMs)) return
+    const rawEndMs = ev.endTime ? new Date(ev.endTime).getTime() : null
+    const validRawEnd = rawEndMs && !isNaN(rawEndMs) ? rawEndMs : null
 
-    // Create separate rows for different event types to handle nesting
-    const eventTypeRows = new Map<string, Row>()
-    
-    for (const ev of catEvents) {
-      const startMs = new Date(ev.startTime).getTime()
-      if (isNaN(startMs)) continue
-      const rawEndMs = ev.endTime ? new Date(ev.endTime).getTime() : null
-      const validRawEnd = rawEndMs && !isNaN(rawEndMs) ? rawEndMs : null
+    minMs = Math.min(minMs, startMs)
+    maxMs = Math.max(maxMs, validRawEnd ?? startMs)
 
-      minMs = Math.min(minMs, startMs)
-      maxMs = Math.max(maxMs, validRawEnd ?? startMs)
+    const durMs = validRawEnd ? validRawEnd - startMs : 0
+    const isPoint = validRawEnd === null || durMs < 60_000
 
-      const durMs = validRawEnd ? validRawEnd - startMs : 0
-      const isPoint = validRawEnd === null || durMs < 60_000
+    const tooltip = [
+      `${ev.subType}`,
+      ev.label ? ev.label : null,
+      `Time: ${fmtUtc(ev.startTime)}`,
+      !isPoint && validRawEnd ? `End:  ${fmtUtc(ev.endTime!)}` : null,
+      durMs > 0 ? `Duration: ${formatDuration(durMs)}` : null,
+    ].filter(Boolean).join("\n")
 
-      // Determine row based on event type
-      let rowId: string
-      let rowLabel: string
-      
+    bars.push({
+      eventId:       ev.id,
+      rowId,
+      label:         ev.label || ev.subType,
+      locationLabel: ev.label,
+      startMs,
+      endMs:   isPoint ? null : validRawEnd,
+      colour:  EVENT_COLOURS[ev.category],
+      tooltip,
+      event:   ev,
+    })
+  }
+
+  if (mode === "by-event-type") {
+    for (const category of CATEGORY_ORDER) {
+      if (!filters[category]) continue
+      const catEvents = events.filter((e) => e.category === category)
+      if (catEvents.length === 0) continue
+
       if (category === "port") {
-        if (ev.subType.includes("PORT_AREA")) {
-          rowId = `port-area`
-          rowLabel = "Port Area"
-        } else if (ev.subType.includes("PORT_ARRIVAL") || ev.subType.includes("PORT_DEPARTURE")) {
-          rowId = `port`
-          rowLabel = "Port"
-        } else {
-          // BERTH events or others
-          rowId = `berth`
-          rowLabel = "Berth"
+        // Collect unique locations per port type key (preserve insertion/chronological order)
+        const groups = new Map<PortTypeKey, Map<string, true>>()
+        PORT_TYPE_ORDER.forEach((k) => groups.set(k, new Map()))
+
+        for (const ev of catEvents) {
+          const ptk = getPortTypeKey(ev.subType)
+          groups.get(ptk)!.set(ev.label, true)
         }
+
+        for (const ptk of PORT_TYPE_ORDER) {
+          const locations = groups.get(ptk)!
+          if (locations.size === 0) continue
+
+          rows.push({
+            id:            `group::${ptk}`,
+            label:         PORT_GROUP_LABELS[ptk],
+            category:      "port",
+            isGroupHeader: true,
+            isIndented:    false,
+            height:        GROUP_HEADER_H,
+          })
+
+          for (const loc of locations.keys()) {
+            rows.push({
+              id:            `${ptk}::${loc}`,
+              label:         loc,
+              category:      "port",
+              isGroupHeader: false,
+              isIndented:    true,
+              height:        LANE_ROW_H,
+            })
+          }
+        }
+
+        for (const ev of catEvents) {
+          const ptk = getPortTypeKey(ev.subType)
+          processEvent(ev, `${ptk}::${ev.label}`)
+        }
+
       } else if (category === "zone") {
-        rowId = `zone`
-        rowLabel = "Zone"
+        const locations = new Map<string, true>()
+        for (const ev of catEvents) locations.set(ev.label, true)
+
+        rows.push({
+          id:            "group::zone",
+          label:         "ZONE EVENTS",
+          category:      "zone",
+          isGroupHeader: true,
+          isIndented:    false,
+          height:        GROUP_HEADER_H,
+        })
+
+        for (const loc of locations.keys()) {
+          rows.push({
+            id:            `zone::${loc}`,
+            label:         loc,
+            category:      "zone",
+            isGroupHeader: false,
+            isIndented:    true,
+            height:        LANE_ROW_H,
+          })
+        }
+
+        for (const ev of catEvents) {
+          processEvent(ev, `zone::${ev.label}`)
+        }
+
       } else {
-        // Other categories use single row
-        rowId = `cat::${category}`
-        rowLabel = CATEGORY_LABELS[category]
+        rows.push({
+          id:            `cat::${category}`,
+          label:         CATEGORY_LABELS[category],
+          category,
+          isGroupHeader: false,
+          isIndented:    false,
+          height:        LANE_ROW_H,
+        })
+
+        for (const ev of catEvents) {
+          processEvent(ev, `cat::${category}`)
+        }
       }
+    }
+  } else {
+    // mode === "by-location"
+    // First pass: collect unique locations in chronological order
+    const portByLoc = new Map<string, Set<PortTypeKey>>()
+    const zoneByLoc = new Map<string, true>()
 
-      // Create row if it doesn't exist
-      if (!eventTypeRows.has(rowId)) {
-        eventTypeRows.set(rowId, { id: rowId, label: rowLabel, category })
+    for (const ev of events) {
+      if (!filters[ev.category]) continue
+      if (ev.category === "port") {
+        if (!portByLoc.has(ev.label)) portByLoc.set(ev.label, new Set())
+        portByLoc.get(ev.label)!.add(getPortTypeKey(ev.subType))
+      } else if (ev.category === "zone") {
+        zoneByLoc.set(ev.label, true)
       }
-
-      const tooltip = [
-        `${ev.subType}`,
-        ev.label ? ev.label : null,
-        `Time: ${fmtUtc(ev.startTime)}`,
-        !isPoint && validRawEnd ? `End:  ${fmtUtc(ev.endTime!)}` : null,
-        durMs > 0 ? `Duration: ${formatDuration(durMs)}` : null,
-      ].filter(Boolean).join("\n")
-
-      bars.push({
-        eventId: ev.id,
-        rowId,
-        label: ev.label || ev.subType,
-        startMs,
-        endMs: isPoint ? null : validRawEnd,
-        colour: EVENT_COLOURS[category],
-        tooltip,
-        event: ev,
-      })
     }
 
-    // Add rows for this category in the correct order for nesting
-    if (category === "port") {
-      // Port events should be ordered: Port Area -> Port -> Berth
-      const order = ["port-area", "port", "berth"]
-      order.forEach(rowId => {
-        const row = eventTypeRows.get(rowId)
-        if (row) rows.push(row)
+    // Port location groups
+    for (const [loc, ptks] of portByLoc) {
+      rows.push({
+        id:            `loc-group::${loc}`,
+        label:         loc.toUpperCase(),
+        category:      "port",
+        isGroupHeader: true,
+        isIndented:    false,
+        height:        GROUP_HEADER_H,
       })
-    } else {
-      rows.push(...eventTypeRows.values())
+
+      for (const ptk of PORT_TYPE_ORDER) {
+        if (!ptks.has(ptk)) continue
+        rows.push({
+          id:            `${loc}::${ptk}`,
+          label:         PORT_TYPE_LABELS[ptk],
+          category:      "port",
+          isGroupHeader: false,
+          isIndented:    true,
+          height:        LANE_ROW_H,
+        })
+      }
+    }
+
+    if (filters["port"]) {
+      for (const ev of events.filter((e) => e.category === "port")) {
+        processEvent(ev, `${ev.label}::${getPortTypeKey(ev.subType)}`)
+      }
+    }
+
+    // Zone location groups
+    if (filters["zone"] && zoneByLoc.size > 0) {
+      for (const loc of zoneByLoc.keys()) {
+        rows.push({
+          id:            `zone-group::${loc}`,
+          label:         loc.toUpperCase(),
+          category:      "zone",
+          isGroupHeader: true,
+          isIndented:    false,
+          height:        GROUP_HEADER_H,
+        })
+        rows.push({
+          id:            `${loc}::zone`,
+          label:         "Zone",
+          category:      "zone",
+          isGroupHeader: false,
+          isIndented:    true,
+          height:        LANE_ROW_H,
+        })
+      }
+
+      for (const ev of events.filter((e) => e.category === "zone")) {
+        processEvent(ev, `${ev.label}::zone`)
+      }
+    }
+
+    // Flat categories
+    for (const category of ["ais_gap", "sts", "discrepancy", "psc"] as EventCategory[]) {
+      if (!filters[category]) continue
+      const catEvents = events.filter((e) => e.category === category)
+      if (catEvents.length === 0) continue
+
+      rows.push({
+        id:            `cat::${category}`,
+        label:         CATEGORY_LABELS[category],
+        category,
+        isGroupHeader: false,
+        isIndented:    false,
+        height:        LANE_ROW_H,
+      })
+
+      for (const ev of catEvents) {
+        processEvent(ev, `cat::${category}`)
+      }
     }
   }
 
@@ -183,7 +355,11 @@ function getTicks(startMs: number, endMs: number, width: number): { ms: number; 
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export function GanttTimeline() {
-  const { ganttEvents, filters, dateRange, fetchKey, highlightedEventId, setHighlightedEventId } = useAppStore()
+  const {
+    ganttEvents, filters, dateRange, fetchKey,
+    highlightedEventId, setHighlightedEventId,
+    ganttGroupMode, setGanttGroupMode,
+  } = useAppStore()
   const { isLoading } = useDataStatus()
   const containerRef = React.useRef<HTMLDivElement>(null)
   const canvasRef = React.useRef<HTMLDivElement>(null)
@@ -194,74 +370,62 @@ export function GanttTimeline() {
       const el = canvasRef.current
       const containerEl = containerRef.current
       if (!el || !containerEl) return
-      
+
       const rect = el.getBoundingClientRect()
       const containerRect = containerEl.getBoundingClientRect()
-      
-      // With grid layout, the canvas should take the remaining space
       const expectedWidth = containerRect.width - SIDEBAR_W
-      
-      // Use the expected width if the canvas hasn't been measured properly yet
       const actualWidth = rect.width > 0 ? rect.width : expectedWidth
       setCanvasW(Math.max(actualWidth, 1))
     }
-    
-    // Initial measurement
+
     updateWidth()
-    
-    const ro = new ResizeObserver(() => {
-      updateWidth()
-    })
-    
-    if (canvasRef.current) {
-      ro.observe(canvasRef.current)
-    }
-    
-    window.addEventListener('resize', updateWidth)
+
+    const ro = new ResizeObserver(() => { updateWidth() })
+    if (canvasRef.current) ro.observe(canvasRef.current)
+    window.addEventListener("resize", updateWidth)
     return () => {
       ro.disconnect()
-      window.removeEventListener('resize', updateWidth)
+      window.removeEventListener("resize", updateWidth)
     }
   }, [])
 
   const { rows, bars, minMs, maxMs } = React.useMemo(
-    () => buildRowsAndBars(ganttEvents, filters),
-    [ganttEvents, filters],
+    () => buildRowsAndBars(ganttEvents, filters, ganttGroupMode),
+    [ganttEvents, filters, ganttGroupMode],
   )
 
-  // Static timeline - always show full date range
+  const { rowTops, totalH } = React.useMemo(() => {
+    const tops = new Map<string, number>()
+    let y = 0
+    for (const row of rows) {
+      tops.set(row.id, y)
+      y += row.height
+    }
+    return { rowTops: tops, totalH: y }
+  }, [rows])
+
   const { viewStart, viewEnd, msPerPx } = React.useMemo(() => {
     if (rows.length === 0 || minMs === Infinity) {
       const startMs = dateRange.from.getTime()
       const endMs = dateRange.to.getTime()
       return {
         viewStart: startMs,
-        viewEnd: endMs,
-        msPerPx: (endMs - startMs) / Math.max(canvasW, 1)
+        viewEnd:   endMs,
+        msPerPx:   (endMs - startMs) / Math.max(canvasW, 1),
       }
     }
-    
-    // Show full event range with small padding
+
     const pad = (maxMs - minMs) * 0.04 || 3_600_000
     const startMs = minMs - pad
-    const endMs = maxMs + pad
-    const span = endMs - startMs
-    
+    const endMs   = maxMs + pad
+    const span    = endMs - startMs
+
     return {
       viewStart: startMs,
-      viewEnd: endMs,
-      msPerPx: span / Math.max(canvasW, 1)
+      viewEnd:   endMs,
+      msPerPx:   span / Math.max(canvasW, 1),
     }
   }, [rows, minMs, maxMs, dateRange, canvasW])
-
-  // Remove wheel zoom - make it static
-  // function handleWheel(e: React.WheelEvent) { ... }
-
-  // Remove drag pan - make it completely static
-  // const dragRef = React.useRef<{ startX: number; startViewStart: number } | null>(null)
-  // function handleMouseDown(e: React.MouseEvent) { ... }
-  // function handleMouseMove(e: React.MouseEvent) { ... }
-  // function handleMouseUp() { ... }
 
   if (isLoading && fetchKey > 0) {
     return (
@@ -288,7 +452,9 @@ export function GanttTimeline() {
       </div>
     )
   }
-  if (rows.length === 0) {
+
+  const hasLaneRows = rows.some((r) => !r.isGroupHeader)
+  if (!hasLaneRows) {
     return (
       <div className="flex h-full flex-col items-center justify-center gap-2 text-center">
         <CalendarOffIcon className="size-5 text-muted-foreground/50" />
@@ -298,7 +464,6 @@ export function GanttTimeline() {
   }
 
   const ticks = getTicks(viewStart, viewEnd, canvasW)
-  const totalH = rows.length * ROW_H
 
   function xOf(ms: number) { return Math.round((ms - viewStart) / msPerPx) }
 
@@ -309,12 +474,36 @@ export function GanttTimeline() {
     >
       {/* Header */}
       <div className="flex shrink-0 border-b border-border" style={{ height: HEADER_H }}>
+        {/* Sidebar: segmented toggle */}
         <div
-          className="shrink-0 border-r border-border bg-muted/40 px-2 flex items-end pb-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground"
+          className="shrink-0 border-r border-border bg-muted/40 px-2 flex items-center gap-0"
           style={{ width: SIDEBAR_W }}
         >
-          Category
+          <button
+            onClick={() => setGanttGroupMode("by-event-type")}
+            className={cn(
+              "rounded-l border px-2 py-0.5 text-[10px] font-semibold transition-colors focus-visible:outline-none",
+              ganttGroupMode === "by-event-type"
+                ? "bg-primary text-primary-foreground border-primary"
+                : "bg-muted text-muted-foreground border-border hover:bg-muted/80",
+            )}
+          >
+            By Type
+          </button>
+          <button
+            onClick={() => setGanttGroupMode("by-location")}
+            className={cn(
+              "rounded-r border border-l-0 px-2 py-0.5 text-[10px] font-semibold transition-colors focus-visible:outline-none",
+              ganttGroupMode === "by-location"
+                ? "bg-primary text-primary-foreground border-primary"
+                : "bg-muted text-muted-foreground border-border hover:bg-muted/80",
+            )}
+          >
+            By Location
+          </button>
         </div>
+
+        {/* Tick labels */}
         <div className="relative flex-1 overflow-hidden bg-muted/20">
           {ticks.map(({ ms, label }) => {
             const x = xOf(ms)
@@ -333,10 +522,33 @@ export function GanttTimeline() {
       </div>
 
       {/* Body */}
-      <div className="flex flex-1 overflow-hidden" style={{ display: 'grid', gridTemplateColumns: `${SIDEBAR_W}px 1fr` }}>
+      <div
+        className="flex flex-1 overflow-hidden"
+        style={{ display: "grid", gridTemplateColumns: `${SIDEBAR_W}px 1fr` }}
+      >
         {/* Sidebar */}
-        <div className="border-r border-border" style={{ minHeight: totalH }}>
+        <div className="border-r border-border overflow-y-auto" style={{ minHeight: totalH }}>
           {rows.map((row) => {
+            if (row.isGroupHeader) {
+              return (
+                <div
+                  key={row.id}
+                  className="flex items-center border-b border-border/40 px-2"
+                  style={{
+                    height:     row.height,
+                    background: `${EVENT_COLOURS[row.category]}18`,
+                  }}
+                >
+                  <span
+                    className="text-[9px] font-bold uppercase tracking-widest truncate"
+                    style={{ color: EVENT_COLOURS[row.category] }}
+                  >
+                    {row.label}
+                  </span>
+                </div>
+              )
+            }
+
             const isRowHighlighted = bars.some(
               (b) =>
                 b.rowId === row.id &&
@@ -344,20 +556,22 @@ export function GanttTimeline() {
                 (b.eventId === highlightedEventId ||
                   (b.event.sourceIds?.includes(highlightedEventId) ?? false)),
             )
+
             return (
               <div
                 key={row.id}
                 title={row.label}
-                className="flex items-center truncate border-b border-border/30 text-xs"
+                className="flex items-center truncate border-b border-border/20 text-xs"
                 style={{
-                  height: ROW_H,
-                  paddingLeft: 8,
-                  fontWeight: isRowHighlighted ? 700 : 600,
-                  color: EVENT_COLOURS[row.category],
-                  borderLeft: `3px solid ${EVENT_COLOURS[row.category]}`,
+                  height:      row.height,
+                  paddingLeft: row.isIndented ? 20 : 8,
+                  fontWeight:  isRowHighlighted ? 600 : 400,
+                  color:       isRowHighlighted
+                    ? EVENT_COLOURS[row.category]
+                    : "var(--muted-foreground)",
                   background: isRowHighlighted
-                    ? `${EVENT_COLOURS[row.category]}30`
-                    : `${EVENT_COLOURS[row.category]}12`,
+                    ? `${EVENT_COLOURS[row.category]}18`
+                    : "transparent",
                 }}
               >
                 {row.label}
@@ -367,7 +581,7 @@ export function GanttTimeline() {
         </div>
 
         {/* Canvas */}
-        <div ref={canvasRef} className="relative" style={{ minHeight: totalH }}>
+        <div ref={canvasRef} className="relative overflow-y-auto" style={{ minHeight: totalH }}>
           {/* Grid lines */}
           {ticks.map(({ ms }) => {
             const x = xOf(ms)
@@ -375,17 +589,22 @@ export function GanttTimeline() {
           })}
 
           {/* Row backgrounds */}
-          {rows.map((row, i) => (
-            <div
-              key={row.id}
-              className="absolute left-0 right-0 border-b border-border/20"
-              style={{
-                top: i * ROW_H,
-                height: ROW_H,
-                background: `${EVENT_COLOURS[row.category]}08`,
-              }}
-            />
-          ))}
+          {rows.map((row) => {
+            const top = rowTops.get(row.id) ?? 0
+            return (
+              <div
+                key={row.id}
+                className="absolute left-0 right-0 border-b border-border/20"
+                style={{
+                  top,
+                  height:     row.height,
+                  background: row.isGroupHeader
+                    ? `${EVENT_COLOURS[row.category]}18`
+                    : "transparent",
+                }}
+              />
+            )
+          })}
 
           {/* Highlighted row strip */}
           {bars.map((bar) => {
@@ -394,17 +613,17 @@ export function GanttTimeline() {
               (bar.eventId === highlightedEventId ||
                 (bar.event.sourceIds?.includes(highlightedEventId) ?? false))
             if (!isHighlightedBar) return null
-            const rowIndex = rows.findIndex((r) => r.id === bar.rowId)
-            if (rowIndex === -1) return null
+            const top = rowTops.get(bar.rowId)
+            if (top === undefined) return null
             return (
               <div
                 key={`hl-row-${bar.eventId}`}
                 className="absolute left-0 right-0 pointer-events-none"
                 style={{
-                  top: rowIndex * ROW_H,
-                  height: ROW_H,
-                  background: `${bar.colour}22`,
-                  borderTop: `1px solid ${bar.colour}80`,
+                  top,
+                  height:        LANE_ROW_H,
+                  background:    `${bar.colour}22`,
+                  borderTop:    `1px solid ${bar.colour}80`,
                   borderBottom: `1px solid ${bar.colour}80`,
                   zIndex: 0,
                 }}
@@ -414,14 +633,13 @@ export function GanttTimeline() {
 
           {/* Bars and tick marks */}
           {bars.map((bar) => {
-            const rowIndex = rows.findIndex((r) => r.id === bar.rowId)
-            if (rowIndex === -1) return null
+            const top = rowTops.get(bar.rowId)
+            if (top === undefined) return null
             const x1 = xOf(bar.startMs)
             const isHighlighted =
               highlightedEventId != null &&
               (bar.eventId === highlightedEventId ||
                 (bar.event.sourceIds?.includes(highlightedEventId) ?? false))
-            const top = rowIndex * ROW_H
 
             const tooltipContent = <EventTooltipContent bar={bar} />
 
@@ -446,15 +664,14 @@ export function GanttTimeline() {
                       }}
                       className="absolute cursor-pointer"
                       style={{
-                        top: top + 3,
-                        left: x1 - Math.floor(TICK_W / 2),
-                        width: TICK_W,
-                      height: ROW_H - 6,
-                        background: isHighlighted ? `#fff` : bar.colour,
+                        top:          top + 3,
+                        left:         x1 - Math.floor(TICK_W / 2),
+                        width:        TICK_W,
+                        height:       LANE_ROW_H - 6,
+                        background:   isHighlighted ? "#fff" : bar.colour,
                         borderRadius: 2,
-                        opacity: 1,
-                        border: isHighlighted ? `2px solid ${bar.colour}` : undefined,
-                        zIndex: isHighlighted ? 10 : 2,
+                        border:       isHighlighted ? `2px solid ${bar.colour}` : undefined,
+                        zIndex:       isHighlighted ? 10 : 2,
                       }}
                     />
                   </TooltipTrigger>
@@ -472,9 +689,16 @@ export function GanttTimeline() {
             }
 
             // Duration bar
-            const x2 = xOf(bar.endMs)
-            const barW = Math.max(x2 - x1, MIN_BAR_PX)
+            const x2   = xOf(bar.endMs)
+            const barW  = Math.max(x2 - x1, MIN_BAR_PX)
             if (x2 < 0 || x1 > canvasW) return null
+
+            const durLabel = formatDurationShort(bar.endMs - bar.startMs)
+            const displayLabel =
+              barW > 80 ? `${durLabel} ${bar.locationLabel}`.trim()
+              : barW > 36 ? durLabel
+              : ""
+
             return (
               <Tooltip key={bar.eventId}>
                 <TooltipTrigger asChild>
@@ -491,23 +715,24 @@ export function GanttTimeline() {
                         setHighlightedEventId(highlightedEventId === bar.eventId ? null : bar.eventId)
                       }
                     }}
-                    className="absolute cursor-pointer truncate px-1 text-[10px] font-medium text-white"
+                    className="absolute cursor-pointer truncate px-1.5 text-[10px] font-medium text-white"
                     style={{
-                      top: top + 4,
-                      left: Math.max(x1, 0),
-                      width: barW,
-                      height: ROW_H - 8,
-                      lineHeight: `${ROW_H - 8}px`,
-                      background: isHighlighted ? `repeating-linear-gradient(45deg, #fff, #fff 2px, ${bar.colour} 2px, ${bar.colour} 4px)` : bar.colour,
-                      borderRadius: 3,
-                      opacity: 1,
-                      border: isHighlighted ? `2px solid ${bar.colour}` : undefined,
-                      color: isHighlighted ? bar.colour : "#fff",
-                      fontWeight: isHighlighted ? 700 : 500,
-                      zIndex: isHighlighted ? 10 : 1,
+                      top:          top + 4,
+                      left:         Math.max(x1, 0),
+                      width:        barW,
+                      height:       LANE_ROW_H - 8,
+                      lineHeight:   `${LANE_ROW_H - 8}px`,
+                      background:   isHighlighted
+                        ? `repeating-linear-gradient(45deg, #fff, #fff 2px, ${bar.colour} 2px, ${bar.colour} 4px)`
+                        : bar.colour,
+                      borderRadius: 6,
+                      border:       isHighlighted ? `2px solid ${bar.colour}` : undefined,
+                      color:        isHighlighted ? bar.colour : "#fff",
+                      fontWeight:   isHighlighted ? 700 : 500,
+                      zIndex:       isHighlighted ? 10 : 1,
                     }}
                   >
-                    {barW > 40 ? bar.label : ""}
+                    {displayLabel}
                   </div>
                 </TooltipTrigger>
                 <TooltipContent
@@ -726,12 +951,12 @@ function PSCTooltipMeta({ event }: { event: ActivityEvent }) {
 }
 
 const TOOLTIP_META: Record<EventCategory, React.ComponentType<{ event: ActivityEvent }>> = {
-  port: PortTooltipMeta,
-  zone: ZoneTooltipMeta,
-  ais_gap: AISGapTooltipMeta,
-  sts: STSTooltipMeta,
+  port:        PortTooltipMeta,
+  zone:        ZoneTooltipMeta,
+  ais_gap:     AISGapTooltipMeta,
+  sts:         STSTooltipMeta,
   discrepancy: DiscrepancyTooltipMeta,
-  psc: PSCTooltipMeta,
+  psc:         PSCTooltipMeta,
 }
 
 // ─── Event Tooltip Component ───────────────────────────────────────────────

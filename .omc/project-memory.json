@@ -205,8 +205,14 @@
     },
     {
       "path": "src/components/EventsTimelineSidepanel.tsx",
-      "accessCount": 13,
-      "lastAccessed": 1776060801684,
+      "accessCount": 14,
+      "lastAccessed": 1776061083187,
+      "type": "file"
+    },
+    {
+      "path": "src/store/useAppStore.ts",
+      "accessCount": 11,
+      "lastAccessed": 1776060948995,
       "type": "file"
     },
     {
@@ -217,20 +223,14 @@
     },
     {
       "path": "src",
-      "accessCount": 8,
-      "lastAccessed": 1776060495766,
+      "accessCount": 9,
+      "lastAccessed": 1776064129248,
       "type": "directory"
     },
     {
       "path": "src/types/index.ts",
       "accessCount": 8,
       "lastAccessed": 1776060529138,
-      "type": "file"
-    },
-    {
-      "path": "src/store/useAppStore.ts",
-      "accessCount": 8,
-      "lastAccessed": 1776060894148,
       "type": "file"
     },
     {
@@ -265,8 +265,8 @@
     },
     {
       "path": "src/components/GanttTimeline.tsx",
-      "accessCount": 4,
-      "lastAccessed": 1776060644939,
+      "accessCount": 5,
+      "lastAccessed": 1776061064216,
       "type": "file"
     },
     {

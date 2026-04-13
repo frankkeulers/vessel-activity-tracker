@@ -3,6 +3,8 @@ import { subDays, startOfDay } from "date-fns"
 import type { VesselSearchResult, FilterState, EventCategory, ActivityEvent } from "@/types"
 import { getApiKey as readApiKey, setApiKey as writeApiKey } from "@/lib/api"
 
+export type GanttGroupMode = "by-event-type" | "by-location"
+
 interface DateRange {
   from: Date
   to: Date
@@ -49,6 +51,10 @@ interface AppState {
   // Gantt-specific events (with paired ranges for timeline view)
   ganttEvents: ActivityEvent[]
   setGanttEvents: (events: ActivityEvent[]) => void
+
+  // Gantt grouping mode
+  ganttGroupMode: GanttGroupMode
+  setGanttGroupMode: (mode: GanttGroupMode) => void
 }
 
 const DEFAULT_FILTERS: FilterState = {
@@ -105,4 +111,7 @@ export const useAppStore = create<AppState>((set) => ({
 
   ganttEvents: [],
   setGanttEvents: (events) => set({ ganttEvents: events }),
+
+  ganttGroupMode: "by-event-type",
+  setGanttGroupMode: (mode) => set({ ganttGroupMode: mode }),
 }))
