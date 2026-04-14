@@ -1,13 +1,9 @@
 services:
   - type: web
-    name: polestar-proxy
-    runtime: node
-    rootDir: proxy
-    buildCommand: npm install
-    startCommand: node index.js
-    plan: free
+    name: vessel-activity-tracker
+    env: static
+    buildCommand: npm install && npm run build
+    staticPublishPath: ./dist
     envVars:
-      - key: PORT
-        value: 3000
-      - key: NODE_ENV
-        value: production
+      - key: VITE_API_BASE_URL
+        value: https://ymxwhoamujarjhfbnuaj.supabase.co

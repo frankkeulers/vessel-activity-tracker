@@ -129,3 +129,9 @@ This file contains a list of formatting instructions for Meridia IQ2 agents.
 - Do not create tables with only one row, pivot the data instead
 
 ### Map View
+
+- ALWAYS include a map view when the user asks for it or when the question requires spatial data
+  - The map should show the relevant locations, vessels, or events
+  - Use appropriate markers or icons to represent different types of data
+  - Include a legend or key if necessary to explain the symbols used
+  - The zoom level should be appropriate for the data being displayed. ALL data should be visible on the map

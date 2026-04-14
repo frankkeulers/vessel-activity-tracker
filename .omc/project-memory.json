@@ -198,9 +198,21 @@
       "type": "file"
     },
     {
+      "path": "src/App.tsx",
+      "accessCount": 22,
+      "lastAccessed": 1776177617658,
+      "type": "file"
+    },
+    {
       "path": "src/components/EventsTimelineSidepanel.tsx",
       "accessCount": 20,
       "lastAccessed": 1776154255467,
+      "type": "file"
+    },
+    {
+      "path": "src/store/useAppStore.ts",
+      "accessCount": 18,
+      "lastAccessed": 1776177613881,
       "type": "file"
     },
     {
@@ -210,22 +222,16 @@
       "type": "file"
     },
     {
-      "path": "src/App.tsx",
-      "accessCount": 15,
-      "lastAccessed": 1776153664977,
-      "type": "file"
-    },
-    {
-      "path": "src/store/useAppStore.ts",
-      "accessCount": 14,
-      "lastAccessed": 1776154717908,
-      "type": "file"
-    },
-    {
       "path": "src",
-      "accessCount": 9,
-      "lastAccessed": 1776153568130,
+      "accessCount": 10,
+      "lastAccessed": 1776177349835,
       "type": "directory"
+    },
+    {
+      "path": "src/components/VesselSearch.tsx",
+      "accessCount": 7,
+      "lastAccessed": 1776177642452,
+      "type": "file"
     },
     {
       "path": "",
@@ -258,6 +264,12 @@
       "type": "file"
     },
     {
+      "path": "src/lib/api.ts",
+      "accessCount": 4,
+      "lastAccessed": 1776177514890,
+      "type": "file"
+    },
+    {
       "path": "src/types/index.ts",
       "accessCount": 3,
       "lastAccessed": 1776153379859,
@@ -270,15 +282,33 @@
       "type": "file"
     },
     {
-      "path": "src/lib/api.ts",
-      "accessCount": 2,
-      "lastAccessed": 1776153565504,
+      "path": "render.yaml",
+      "accessCount": 3,
+      "lastAccessed": 1776177556526,
+      "type": "file"
+    },
+    {
+      "path": ".env",
+      "accessCount": 3,
+      "lastAccessed": 1776177557653,
+      "type": "file"
+    },
+    {
+      "path": ".env.example",
+      "accessCount": 3,
+      "lastAccessed": 1776177558764,
       "type": "file"
     },
     {
       "path": "proxy/.env.example",
       "accessCount": 2,
       "lastAccessed": 1776153570815,
+      "type": "file"
+    },
+    {
+      "path": "supabase/functions/vessel-tracker-proxy/index.ts",
+      "accessCount": 2,
+      "lastAccessed": 1776177552054,
       "type": "file"
     },
     {
@@ -324,12 +354,6 @@
       "type": "file"
     },
     {
-      "path": ".env.example",
-      "accessCount": 1,
-      "lastAccessed": 1776153559282,
-      "type": "file"
-    },
-    {
       "path": "vite.config.ts",
       "accessCount": 1,
       "lastAccessed": 1776153559611,
@@ -339,18 +363,6 @@
       "path": "AGENTS.md",
       "accessCount": 1,
       "lastAccessed": 1776153566052,
-      "type": "file"
-    },
-    {
-      "path": ".env",
-      "accessCount": 1,
-      "lastAccessed": 1776153570593,
-      "type": "file"
-    },
-    {
-      "path": "render.yaml",
-      "accessCount": 1,
-      "lastAccessed": 1776153570748,
       "type": "file"
     },
     {
@@ -370,6 +382,12 @@
       "accessCount": 1,
       "lastAccessed": 1776170462727,
       "type": "file"
+    },
+    {
+      "path": "src/components",
+      "accessCount": 1,
+      "lastAccessed": 1776177312559,
+      "type": "directory"
     }
   ],
   "userDirectives": []

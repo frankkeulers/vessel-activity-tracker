@@ -1,13 +1,4 @@
-const BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:3000"
-const API_KEY_STORAGE_KEY = "psg-api-key"
-
-export function getApiKey(): string {
-  return localStorage.getItem(API_KEY_STORAGE_KEY) ?? ""
-}
-
-export function setApiKey(key: string): void {
-  localStorage.setItem(API_KEY_STORAGE_KEY, key)
-}
+const BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:54321"
 
 export class ApiError extends Error {
   status: number
@@ -28,12 +19,7 @@ export async function apiFetch<T>(
   path: string,
   { method = "GET", params, body }: RequestOptions = {},
 ): Promise<T> {
-  const apiKey = getApiKey()
-  if (!apiKey) {
-    throw new ApiError(401, "No API key set. Enter your Pole Star API key.")
-  }
-
-  const url = new URL(`${BASE_URL}/proxy`)
+  const url = new URL(`${BASE_URL}/functions/v1/vessel-tracker-proxy`)
   url.searchParams.set("path", path)
   if (params) {
     for (const [k, v] of Object.entries(params)) {
@@ -46,7 +32,6 @@ export async function apiFetch<T>(
   const res = await fetch(url.toString(), {
     method,
     headers: {
-      "api-key": apiKey,
       "Content-Type": "application/json",
       Accept: "application/json",
     },

@@ -1,6 +1,5 @@
 import * as React from "react"
 import {
-  KeyRoundIcon,
   MoonIcon,
   SunIcon,
   MapIcon,
@@ -13,7 +12,6 @@ import {
 import { Panel, Group as PanelGroup, Separator as PanelResizeHandle } from "react-resizable-panels"
 import { useTheme } from "@/components/theme-provider"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 import { Separator } from "@/components/ui/separator"
 import { VesselSearch } from "@/components/VesselSearch"
 import { VesselCard } from "@/components/VesselCard"
@@ -21,7 +19,6 @@ import { DateRangePicker } from "@/components/DateRangePicker"
 import { DataOrchestrator, useDataStatus } from "@/components/DataOrchestrator"
 import { GanttTimeline } from "@/components/GanttTimeline"
 import { MapView } from "@/components/MapView"
-import { getApiKey } from "@/lib/api"
 import { useAppStore } from "@/store/useAppStore"
 import { ErrorBoundary } from "@/components/ErrorBoundary"
 import { useToast } from "@/components/Toaster"
@@ -43,35 +40,6 @@ function ThemeToggle() {
     >
       {isDark ? <SunIcon /> : <MoonIcon />}
     </Button>
-  )
-}
-
-function ApiKeyInput() {
-  const [value, setValue] = React.useState(getApiKey)
-  const [saved, setSaved] = React.useState(false)
-  const saveApiKey = useAppStore((s) => s.saveApiKey)
-
-  function handleSave() {
-    saveApiKey(value.trim())
-    setSaved(true)
-    setTimeout(() => setSaved(false), 2000)
-  }
-
-  return (
-    <div className="flex items-center gap-2">
-      <KeyRoundIcon className="size-4 shrink-0 text-muted-foreground" />
-      <Input
-        type="password"
-        placeholder="Pole Star API key"
-        value={value}
-        onChange={(e) => setValue(e.target.value)}
-        className="w-52"
-        onKeyDown={(e) => e.key === "Enter" && handleSave()}
-      />
-      <Button size="sm" variant="outline" onClick={handleSave}>
-        {saved ? "Saved!" : "Save"}
-      </Button>
-    </div>
   )
 }
 
@@ -237,8 +205,6 @@ export default function App() {
           {!isMobile && (
             <>
               <Separator orientation="vertical" className="h-5" />
-              <ApiKeyInput />
-              <Separator orientation="vertical" className="h-5" />
               <EventFilterChips />
             </>
           )}
@@ -262,12 +228,6 @@ export default function App() {
                 isMobile ? "absolute inset-y-0 left-0 z-50 shadow-xl" : "",
               ].join(" ")}
             >
-              {isMobile && (
-                <>
-                  <ApiKeyInput />
-                  <Separator />
-                </>
-              )}
               <SidebarSection label="Vessel">
                 <VesselSearch />
                 <VesselCard />
