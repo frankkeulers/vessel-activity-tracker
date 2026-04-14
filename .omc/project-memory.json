@@ -324,6 +324,12 @@
       "type": "file"
     },
     {
+      "path": "src/main.tsx",
+      "accessCount": 3,
+      "lastAccessed": 1776181029536,
+      "type": "file"
+    },
+    {
       "path": "proxy/.env.example",
       "accessCount": 2,
       "lastAccessed": 1776153570815,
@@ -351,6 +357,12 @@
       "path": "src/components/ReplayBar.tsx",
       "accessCount": 2,
       "lastAccessed": 1776180341143,
+      "type": "file"
+    },
+    {
+      "path": "src/components/theme-provider.tsx",
+      "accessCount": 2,
+      "lastAccessed": 1776181016513,
       "type": "file"
     },
     {
@@ -408,21 +420,9 @@
       "type": "directory"
     },
     {
-      "path": "src/main.tsx",
-      "accessCount": 1,
-      "lastAccessed": 1776177965284,
-      "type": "file"
-    },
-    {
       "path": "tsconfig.json",
       "accessCount": 1,
       "lastAccessed": 1776177969368,
-      "type": "file"
-    },
-    {
-      "path": "src/components/theme-provider.tsx",
-      "accessCount": 1,
-      "lastAccessed": 1776178308034,
       "type": "file"
     },
     {

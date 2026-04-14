@@ -20,7 +20,7 @@ const queryClient = new QueryClient({
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <QueryClientProvider client={queryClient}>
-      <ThemeProvider defaultTheme="dark" storageKey="theme">
+      <ThemeProvider defaultTheme="light" storageKey="theme">
         <ToastProvider>
           <TooltipProvider>
             <ErrorBoundary label="Application error">
