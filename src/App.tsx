@@ -264,6 +264,7 @@ export default function App() {
 
           {/* Centre pane: map + Gantt — vertically resizable */}
           <main className={["flex flex-1 flex-col overflow-hidden", replayAt !== null ? "border-t-2 border-psg-orange-700" : ""].join(" ")}>
+            <ReplayBar />
             <PanelGroup orientation="vertical">
               <Panel defaultSize={65} minSize={25}>
                 <div className="h-full overflow-hidden">
@@ -283,7 +284,6 @@ export default function App() {
                 </div>
               </Panel>
             </PanelGroup>
-            <ReplayBar />
           </main>
 
           {/* Right sidepanel: events timeline */}

@@ -193,8 +193,8 @@
   "hotPaths": [
     {
       "path": "src/components/MapView.tsx",
-      "accessCount": 39,
-      "lastAccessed": 1776179501004,
+      "accessCount": 40,
+      "lastAccessed": 1776180341258,
       "type": "file"
     },
     {
@@ -205,9 +205,15 @@
     },
     {
       "path": "src/App.tsx",
-      "accessCount": 23,
-      "lastAccessed": 1776177965026,
+      "accessCount": 30,
+      "lastAccessed": 1776180385685,
       "type": "file"
+    },
+    {
+      "path": "",
+      "accessCount": 22,
+      "lastAccessed": 1776180358029,
+      "type": "directory"
     },
     {
       "path": "src/components/EventsTimelineSidepanel.tsx",
@@ -220,12 +226,6 @@
       "accessCount": 19,
       "lastAccessed": 1776179182257,
       "type": "file"
-    },
-    {
-      "path": "",
-      "accessCount": 17,
-      "lastAccessed": 1776178313916,
-      "type": "directory"
     },
     {
       "path": "src",
@@ -288,6 +288,18 @@
       "type": "file"
     },
     {
+      "path": "package.json",
+      "accessCount": 4,
+      "lastAccessed": 1776180357571,
+      "type": "file"
+    },
+    {
+      "path": "README.md",
+      "accessCount": 4,
+      "lastAccessed": 1776180370882,
+      "type": "file"
+    },
+    {
       "path": "render.yaml",
       "accessCount": 3,
       "lastAccessed": 1776177556526,
@@ -306,9 +318,9 @@
       "type": "file"
     },
     {
-      "path": "package.json",
+      "path": "docs/DESIGN_SPEC.md",
       "accessCount": 3,
-      "lastAccessed": 1776178316683,
+      "lastAccessed": 1776180360329,
       "type": "file"
     },
     {
@@ -324,18 +336,6 @@
       "type": "file"
     },
     {
-      "path": "docs/DESIGN_SPEC.md",
-      "accessCount": 2,
-      "lastAccessed": 1776177962072,
-      "type": "file"
-    },
-    {
-      "path": "README.md",
-      "accessCount": 2,
-      "lastAccessed": 1776178019998,
-      "type": "file"
-    },
-    {
       "path": "index.html",
       "accessCount": 2,
       "lastAccessed": 1776178183346,
@@ -345,6 +345,12 @@
       "path": "sample_data/positions.json",
       "accessCount": 2,
       "lastAccessed": 1776178958850,
+      "type": "file"
+    },
+    {
+      "path": "src/components/ReplayBar.tsx",
+      "accessCount": 2,
+      "lastAccessed": 1776180341143,
       "type": "file"
     },
     {
@@ -390,12 +396,6 @@
       "type": "file"
     },
     {
-      "path": "src/components/ReplayBar.tsx",
-      "accessCount": 1,
-      "lastAccessed": 1776153608939,
-      "type": "file"
-    },
-    {
       "path": "docs/supabase-edge-function-migration.md",
       "accessCount": 1,
       "lastAccessed": 1776170462727,
@@ -429,6 +429,12 @@
       "path": "src/components/ui/tooltip.tsx",
       "accessCount": 1,
       "lastAccessed": 1776178912692,
+      "type": "file"
+    },
+    {
+      "path": "docs/USER_GUIDE.md",
+      "accessCount": 1,
+      "lastAccessed": 1776180387957,
       "type": "file"
     }
   ],
