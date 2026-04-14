@@ -16,7 +16,8 @@
       "Bash(supabase init:*)",
       "mcp__supabase-polestar__list_projects",
       "Bash(supabase functions:*)",
-      "Bash(supabase link:*)"
+      "Bash(supabase link:*)",
+      "Bash(lsof -i :5173 -sTCP:LISTEN)"
     ]
   }
 }

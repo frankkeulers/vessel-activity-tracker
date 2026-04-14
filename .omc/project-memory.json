@@ -216,6 +216,12 @@
       "type": "file"
     },
     {
+      "path": "",
+      "accessCount": 17,
+      "lastAccessed": 1776178313916,
+      "type": "directory"
+    },
+    {
       "path": "src/components/MapView.tsx",
       "accessCount": 16,
       "lastAccessed": 1776155290856,
@@ -223,14 +229,8 @@
     },
     {
       "path": "src",
-      "accessCount": 10,
-      "lastAccessed": 1776177349835,
-      "type": "directory"
-    },
-    {
-      "path": "",
-      "accessCount": 10,
-      "lastAccessed": 1776178174210,
+      "accessCount": 11,
+      "lastAccessed": 1776178319629,
       "type": "directory"
     },
     {
@@ -243,6 +243,12 @@
       "path": "docs/PRD.md",
       "accessCount": 7,
       "lastAccessed": 1776177965670,
+      "type": "file"
+    },
+    {
+      "path": "src/index.css",
+      "accessCount": 6,
+      "lastAccessed": 1776178357729,
       "type": "file"
     },
     {
@@ -282,12 +288,6 @@
       "type": "file"
     },
     {
-      "path": "src/index.css",
-      "accessCount": 3,
-      "lastAccessed": 1776153846638,
-      "type": "file"
-    },
-    {
       "path": "render.yaml",
       "accessCount": 3,
       "lastAccessed": 1776177556526,
@@ -297,6 +297,18 @@
       "path": ".env",
       "accessCount": 3,
       "lastAccessed": 1776177557653,
+      "type": "file"
+    },
+    {
+      "path": "vite.config.ts",
+      "accessCount": 3,
+      "lastAccessed": 1776178316085,
+      "type": "file"
+    },
+    {
+      "path": "package.json",
+      "accessCount": 3,
+      "lastAccessed": 1776178316683,
       "type": "file"
     },
     {
@@ -312,21 +324,9 @@
       "type": "file"
     },
     {
-      "path": "package.json",
-      "accessCount": 2,
-      "lastAccessed": 1776177956480,
-      "type": "file"
-    },
-    {
       "path": "docs/DESIGN_SPEC.md",
       "accessCount": 2,
       "lastAccessed": 1776177962072,
-      "type": "file"
-    },
-    {
-      "path": "vite.config.ts",
-      "accessCount": 2,
-      "lastAccessed": 1776177969127,
       "type": "file"
     },
     {
@@ -411,6 +411,12 @@
       "path": "tsconfig.json",
       "accessCount": 1,
       "lastAccessed": 1776177969368,
+      "type": "file"
+    },
+    {
+      "path": "src/components/theme-provider.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1776178308034,
       "type": "file"
     }
   ],

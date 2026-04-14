@@ -10,7 +10,7 @@
     --color-chart-accent: var(--color-psg-green-500);
     --color-chart-accent-mid: var(--color-psg-green-400);
     --color-chart-accent-dim: var(--color-psg-green-700);
-    --background: oklch(0.963 0.002 197.1);
+    --background: oklch(1 0 0);
     --foreground: oklch(0.148 0.004 228.8);
     --card: oklch(1 0 0);
     --card-foreground: oklch(0.148 0.004 228.8);
