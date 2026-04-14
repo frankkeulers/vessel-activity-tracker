@@ -16,7 +16,13 @@ import { useAppStore } from "@/store/useAppStore"
 import { useAISPositions } from "@/lib/hooks"
 import { useDataStatus } from "@/components/DataOrchestrator"
 import type { ActivityEvent, AISGapEvent, EventCategory } from "@/types"
-import { EVENT_COLOURS, CATEGORY_LABELS } from "@/config/constants"
+import { EVENT_COLOURS, CATEGORY_LABELS, REPLAY_GHOST_OPACITY, REPLAY_VESSEL_COLOR } from "@/config/constants"
+import {
+  buildPositionArrays,
+  interpolatePosition,
+  findTrackSplitIndex,
+  type PositionArrays,
+} from "@/lib/replay"
 import { Skeleton } from "@/components/ui/skeleton"
 import {
   Anchor,
@@ -183,58 +189,126 @@ function FitBounds({
 
 // ─── AIS Track layer ──────────────────────────────────────────────────────────
 
+const ARROW_INTERVAL = 5
+
+// Isolated sub-component: subscribes to replayAt at full 20 Hz so only the
+// moving marker re-renders on each tick — not the entire track layer.
+function ReplayVesselMarker({ posArrays }: { posArrays: PositionArrays }) {
+  const replayAt = useAppStore((s) => s.replayAt)
+  if (replayAt === null) return null
+  const interpPos = interpolatePosition(posArrays, replayAt.getTime())
+  if (interpPos === null) return null
+  return (
+    <Marker
+      position={[interpPos.latitude, interpPos.longitude]}
+      icon={createVesselPositionIcon(interpPos.heading)}
+      pane="replayPositionPane"
+      interactive={false}
+    />
+  )
+}
+
 function AISTrack({ imo, from, to, fetchKey }: { imo: number; from: Date; to: Date; fetchKey: number }) {
   const { data } = useAISPositions(imo, from, to, fetchKey)
   const positions = data ?? []
+  const posArrays = React.useMemo(() => buildPositionArrays(positions), [positions])
+
+  // Throttle the past/ghost split to ~2 Hz by polling the store instead of
+  // subscribing via a selector. Only ReplayVesselMarker subscribes at full 20 Hz.
+  const [splitIdx, setSplitIdx] = React.useState(() => positions.length - 1)
+  const [inReplay, setInReplay] = React.useState(false)
+  React.useEffect(() => {
+    function sync() {
+      const { replayAt } = useAppStore.getState()
+      setInReplay(replayAt !== null)
+      setSplitIdx(
+        replayAt !== null
+          ? findTrackSplitIndex(posArrays.timestampMs, replayAt.getTime())
+          : positions.length - 1,
+      )
+    }
+    sync()
+    const id = setInterval(sync, 500)
+    return () => clearInterval(id)
+  }, [posArrays, positions.length])
+
+  // Merge consecutive same-colour positions into single Polylines.
+  // A voyage typically has 3–10 colour groups vs hundreds of individual segments,
+  // so this reduces Leaflet DOM elements from O(n) to O(colour transitions).
+  const { pastLines, ghostLines } = React.useMemo(() => {
+    if (positions.length === 0) return { pastLines: [], ghostLines: [] }
+    function mergeLines(start: number, end: number) {
+      const out: { pts: [number, number][]; col: string }[] = []
+      const clampedEnd = Math.min(end, positions.length - 1)
+      if (start > clampedEnd) return out
+      let cur: { pts: [number, number][]; col: string } | null = null
+      for (let i = start; i <= clampedEnd; i++) {
+        const p = positions[i]
+        const col = navStatusColour(p.navigational_status?.status)
+        if (!cur || cur.col !== col) {
+          if (cur) out.push(cur)
+          cur = { pts: [[p.latitude, p.longitude]], col }
+        } else {
+          cur.pts.push([p.latitude, p.longitude])
+        }
+      }
+      if (cur) out.push(cur)
+      return out
+    }
+    const past = mergeLines(0, splitIdx)
+    // Ghost overlaps by one point for visual continuity at the split boundary
+    const ghost = inReplay ? mergeLines(Math.max(0, splitIdx), positions.length - 1) : []
+    return { pastLines: past, ghostLines: ghost }
+  }, [positions, splitIdx, inReplay])
+
+  const arrows = React.useMemo(() => {
+    const out: { position: [number, number]; bearing: number; colour: string }[] = []
+    const limit = Math.min(splitIdx, positions.length - 2)
+    for (let i = 0; i <= limit; i += ARROW_INTERVAL) {
+      if (i + 1 >= positions.length) break
+      const a = positions[i]
+      const b = positions[i + 1]
+      out.push({
+        position: [(a.latitude + b.latitude) / 2, (a.longitude + b.longitude) / 2],
+        bearing: calculateBearing(a.latitude, a.longitude, b.latitude, b.longitude),
+        colour: navStatusColour(a.navigational_status?.status),
+      })
+    }
+    return out
+  }, [positions, splitIdx])
+
+  const allLatLngs = React.useMemo(
+    () => positions.map((p) => [p.latitude, p.longitude] as [number, number]),
+    [positions],
+  )
 
   if (positions.length === 0) return null
-
-  // Build coloured segments between consecutive points
-  const segments: { points: [number, number][]; colour: string }[] = []
-  for (let i = 0; i < positions.length - 1; i++) {
-    const a = positions[i]
-    const b = positions[i + 1]
-    segments.push({
-      points: [
-        [a.latitude, a.longitude],
-        [b.latitude, b.longitude],
-      ],
-      colour: navStatusColour(a.navigational_status?.status),
-    })
-  }
-
-  // Build direction arrows at intervals (every 5th segment to avoid clutter)
-  const ARROW_INTERVAL = 5
-  const arrows: { position: [number, number]; bearing: number; colour: string }[] = []
-  for (let i = 0; i < positions.length - 1; i += ARROW_INTERVAL) {
-    const a = positions[i]
-    const b = positions[i + 1]
-    // Midpoint of segment
-    const midLat = (a.latitude + b.latitude) / 2
-    const midLng = (a.longitude + b.longitude) / 2
-    const bearing = calculateBearing(a.latitude, a.longitude, b.latitude, b.longitude)
-    arrows.push({
-      position: [midLat, midLng],
-      bearing,
-      colour: navStatusColour(a.navigational_status?.status),
-    })
-  }
-
-  const markers = positions
-  const allLatLngs: [number, number][] = positions.map((p) => [p.latitude, p.longitude])
 
   return (
     <>
       <FitBounds positions={allLatLngs} />
-      {segments.map((seg, i) => (
+
+      {/* Past track — merged Polylines at full opacity */}
+      {pastLines.map((seg, i) => (
         <Polyline
-          key={i}
-          positions={seg.points}
+          key={`past-${i}`}
+          positions={seg.pts}
           pane="aisTrackPane"
-          pathOptions={{ color: seg.colour, weight: 2, opacity: 0.8 }}
+          pathOptions={{ color: seg.col, weight: 2, opacity: 0.8 }}
         />
       ))}
-      {/* Direction arrows showing vessel travel direction */}
+
+      {/* Ghost track — merged Polylines at low opacity (replay only) */}
+      {ghostLines.map((seg, i) => (
+        <Polyline
+          key={`ghost-${i}`}
+          positions={seg.pts}
+          pane="aisTrackPane"
+          pathOptions={{ color: seg.col, weight: 2, opacity: REPLAY_GHOST_OPACITY }}
+        />
+      ))}
+
+      {/* Direction arrows — past track only */}
       {arrows.map((arrow, i) => (
         <Marker
           key={`arrow-${i}`}
@@ -244,28 +318,40 @@ function AISTrack({ imo, from, to, fetchKey }: { imo: number; from: Date; to: Da
           interactive={false}
         />
       ))}
-      {markers.map((pos, i) => (
-        <CircleMarker
-          key={i}
-          center={[pos.latitude, pos.longitude]}
-          radius={3}
-          pane="aisTrackPane"
-          pathOptions={{
-            color: navStatusColour(pos.navigational_status?.status),
-            fillColor: navStatusColour(pos.navigational_status?.status),
-            fillOpacity: 0.9,
-            weight: 1,
-          }}
-        >
-          <Popup>
-            <div className="text-xs">
-              <div className="font-medium">{pos.navigational_status?.status ?? "Unknown"}</div>
-              <div className="text-muted-foreground">{fmtUtc(pos.timestamp)}</div>
-              {pos.speed != null && <div>Speed: {pos.speed} kn</div>}
-            </div>
-          </Popup>
-        </CircleMarker>
-      ))}
+
+      {/* Position dots — past: full opacity; ghost: faint */}
+      {positions.map((pos, i) => {
+        const isPast = !inReplay || i <= splitIdx
+        const col = navStatusColour(pos.navigational_status?.status)
+        return (
+          <CircleMarker
+            key={i}
+            center={[pos.latitude, pos.longitude]}
+            radius={3}
+            pane="aisTrackPane"
+            pathOptions={{
+              color: col,
+              fillColor: col,
+              fillOpacity: isPast ? 0.9 : REPLAY_GHOST_OPACITY,
+              opacity: isPast ? 1 : REPLAY_GHOST_OPACITY,
+              weight: 1,
+            }}
+          >
+            {isPast && (
+              <Popup>
+                <div className="text-xs">
+                  <div className="font-medium">{pos.navigational_status?.status ?? "Unknown"}</div>
+                  <div className="text-muted-foreground">{fmtUtc(pos.timestamp)}</div>
+                  {pos.speed != null && <div>Speed: {pos.speed} kn</div>}
+                </div>
+              </Popup>
+            )}
+          </CircleMarker>
+        )
+      })}
+
+      {/* Moving vessel marker — isolated sub-component, updates at full 20 Hz */}
+      <ReplayVesselMarker posArrays={posArrays} />
     </>
   )
 }
@@ -282,9 +368,21 @@ function AISGapLayer({
   enabled: boolean
 }) {
   const { highlightedEventId, setHighlightedEventId } = useAppStore()
+  // Poll at 1 Hz — gap appearance/disappearance doesn't need 20 Hz precision
+  const [replayAt, setReplayAt] = React.useState<Date | null>(() => useAppStore.getState().replayAt)
+  React.useEffect(() => {
+    const sync = () => setReplayAt(useAppStore.getState().replayAt)
+    const id = setInterval(sync, 1000)
+    return () => clearInterval(id)
+  }, [])
   if (!enabled) return null
 
-  const gaps = events.filter((e) => e.category === "ais_gap")
+  const cursorMs = replayAt?.getTime() ?? Infinity
+  const gaps = events.filter((e) => {
+    if (e.category !== "ais_gap") return false
+    if (replayAt !== null && new Date(e.startTime).getTime() > cursorMs) return false
+    return true
+  })
 
   return (
     <>
@@ -385,6 +483,13 @@ function EventMarkers({
   filters: Record<EventCategory, boolean>
 }) {
   const { highlightedEventId, setHighlightedEventId } = useAppStore()
+  // Poll at 1 Hz — event appearance/disappearance doesn't need 20 Hz precision
+  const [replayAt, setReplayAt] = React.useState<Date | null>(() => useAppStore.getState().replayAt)
+  React.useEffect(() => {
+    const sync = () => setReplayAt(useAppStore.getState().replayAt)
+    const id = setInterval(sync, 1000)
+    return () => clearInterval(id)
+  }, [])
 
   return (
     <>
@@ -392,6 +497,8 @@ function EventMarkers({
         if (!filters[ev.category]) return null
         if (ev.category === "ais_gap") return null  // rendered by AISGapLayer
         if (ev.latitude == null || ev.longitude == null) return null
+        // In replay mode, hide events that haven't started yet
+        if (replayAt !== null && new Date(ev.startTime).getTime() > replayAt.getTime()) return null
 
         const colour = EVENT_COLOURS[ev.category]
         const isHighlighted = highlightedEventId === ev.id
@@ -435,20 +542,42 @@ const CATEGORY_ORDER: EventCategory[] = [
   "port", "zone", "ais_gap", "sts", "discrepancy", "psc",
 ]
 
+// Create the pulsing vessel-position icon for replay mode
+function createVesselPositionIcon(heading: number | null): L.DivIcon {
+  const rot = heading ?? 0
+  return L.divIcon({
+    className: "replay-vessel-marker",
+    html: `<div style="
+      width: 16px; height: 16px;
+      border-radius: 50%;
+      background: ${REPLAY_VESSEL_COLOR};
+      border: 2.5px solid white;
+      box-shadow: 0 0 0 5px ${REPLAY_VESSEL_COLOR}40, 0 2px 6px rgba(0,0,0,0.4);
+      animation: vessel-pulse 1.5s ease-in-out infinite;
+      transform: rotate(${rot}deg);
+    "></div>`,
+    iconSize: [16, 16],
+    iconAnchor: [8, 8],
+  })
+}
+
 // ─── Pane setup for layer ordering ────────────────────────────────────────────
 
 function PaneSetup() {
   const map = useMap()
   React.useEffect(() => {
-    // Create panes with explicit z-index if they don't exist
     // Default leaflet panes: tilePane(200), overlayPane(400), shadowPane(500), markerPane(600), tooltipPane(650), popupPane(700)
-    if (!map.getPane("eventMarkersPane")) {
-      map.createPane("eventMarkersPane")
-      map.getPane("eventMarkersPane")!.style.zIndex = "620" // Above markerPane(600), below tooltipPane(650)
-    }
     if (!map.getPane("aisTrackPane")) {
       map.createPane("aisTrackPane")
-      map.getPane("aisTrackPane")!.style.zIndex = "400" // Same as overlayPane for polylines
+      map.getPane("aisTrackPane")!.style.zIndex = "400"
+    }
+    if (!map.getPane("eventMarkersPane")) {
+      map.createPane("eventMarkersPane")
+      map.getPane("eventMarkersPane")!.style.zIndex = "620"
+    }
+    if (!map.getPane("replayPositionPane")) {
+      map.createPane("replayPositionPane")
+      map.getPane("replayPositionPane")!.style.zIndex = "650" // Above event markers
     }
   }, [map])
   return null

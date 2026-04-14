@@ -15,7 +15,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
 import { Skeleton } from "@/components/ui/skeleton"
 import { useDataStatus } from "@/components/DataOrchestrator"
 import { CalendarOffIcon } from "lucide-react"
-import { EVENT_COLOURS, CATEGORY_LABELS } from "@/config/constants"
+import { EVENT_COLOURS, CATEGORY_LABELS, REPLAY_PLAYHEAD_COLOR, REPLAY_FUTURE_BAR_OPACITY } from "@/config/constants"
 import { cn } from "@/lib/utils"
 
 // ─── Constants ────────────────────────────────────────────────────────────────
@@ -352,6 +352,50 @@ function getTicks(startMs: number, endMs: number, width: number): { ms: number; 
   return ticks
 }
 
+// ─── Replay helpers ───────────────────────────────────────────────────────────
+
+type BarReplayState = "future" | "active" | "ended" | "normal"
+
+function getBarReplayState(
+  startMs: number,
+  endMs: number | null,
+  cursorMs: number,
+): BarReplayState {
+  if (startMs > cursorMs) return "future"
+  if (endMs !== null && endMs <= cursorMs) return "ended"
+  return "active" // started but not yet ended (or point event)
+}
+
+// Isolated sub-component: subscribes only to replayAt so it re-renders at 20 Hz
+// without causing the full GanttTimeline to re-render.
+function GanttPlayhead({
+  viewStart,
+  msPerPx,
+  totalH,
+}: {
+  viewStart: number
+  msPerPx: number
+  totalH: number
+}) {
+  const replayAt = useAppStore((s) => s.replayAt)
+  if (replayAt === null) return null
+
+  const x = Math.round((replayAt.getTime() - viewStart) / msPerPx)
+
+  return (
+    <div
+      className="absolute top-0 pointer-events-none"
+      style={{
+        left:       x - 1,
+        width:      1.5,
+        height:     totalH,
+        background: REPLAY_PLAYHEAD_COLOR,
+        zIndex:     20,
+      }}
+    />
+  )
+}
+
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export function GanttTimeline() {
@@ -360,6 +404,16 @@ export function GanttTimeline() {
     highlightedEventId, setHighlightedEventId,
     ganttGroupMode, setGanttGroupMode,
   } = useAppStore()
+  // Throttle bar replay states to ~2 Hz via polling — the playhead smoothness
+  // comes from the isolated GanttPlayhead sub-component, not from here.
+  const [replayAtThrottled, setReplayAtThrottled] = React.useState<Date | null>(
+    () => useAppStore.getState().replayAt,
+  )
+  React.useEffect(() => {
+    const sync = () => setReplayAtThrottled(useAppStore.getState().replayAt)
+    const id = setInterval(sync, 500)
+    return () => clearInterval(id)
+  }, [])
   const { isLoading } = useDataStatus()
   const containerRef = React.useRef<HTMLDivElement>(null)
   const canvasRef = React.useRef<HTMLDivElement>(null)
@@ -582,6 +636,9 @@ export function GanttTimeline() {
 
         {/* Canvas */}
         <div ref={canvasRef} className="relative" style={{ height: totalH }}>
+          {/* Replay playhead — isolated sub-component, only it re-renders at 20 Hz */}
+          <GanttPlayhead viewStart={viewStart} msPerPx={msPerPx} totalH={totalH} />
+
           {/* Grid lines */}
           {ticks.map(({ ms }) => {
             const x = xOf(ms)
@@ -641,6 +698,12 @@ export function GanttTimeline() {
               (bar.eventId === highlightedEventId ||
                 (bar.event.sourceIds?.includes(highlightedEventId) ?? false))
 
+            const cursorMs = replayAtThrottled?.getTime() ?? Infinity
+            const replayState: BarReplayState =
+              replayAtThrottled !== null
+                ? getBarReplayState(bar.startMs, bar.endMs, cursorMs)
+                : "normal"
+
             const tooltipContent = <EventTooltipContent bar={bar} />
 
             if (bar.endMs === null) {
@@ -671,6 +734,7 @@ export function GanttTimeline() {
                         background:   isHighlighted ? "#fff" : bar.colour,
                         borderRadius: 2,
                         border:       isHighlighted ? `2px solid ${bar.colour}` : undefined,
+                        opacity:      replayState === "future" ? REPLAY_FUTURE_BAR_OPACITY : 1,
                         zIndex:       isHighlighted ? 10 : 2,
                       }}
                     />
@@ -726,9 +790,15 @@ export function GanttTimeline() {
                         ? `repeating-linear-gradient(45deg, #fff, #fff 2px, ${bar.colour} 2px, ${bar.colour} 4px)`
                         : bar.colour,
                       borderRadius: 6,
-                      border:       isHighlighted ? `2px solid ${bar.colour}` : undefined,
+                      border:       (isHighlighted || replayState === "active")
+                        ? `2px solid ${bar.colour}`
+                        : undefined,
                       color:        isHighlighted ? bar.colour : "#fff",
-                      fontWeight:   isHighlighted ? 700 : 500,
+                      fontWeight:   (isHighlighted || replayState === "active") ? 700 : 500,
+                      filter:       replayState === "active" && !isHighlighted
+                        ? "brightness(1.15)"
+                        : undefined,
+                      opacity:      replayState === "future" ? REPLAY_FUTURE_BAR_OPACITY : 1,
                       zIndex:       isHighlighted ? 10 : 1,
                     }}
                   >

@@ -40,3 +40,26 @@ export const CATEGORY_LABELS_SHORT: Record<EventCategory, string> = {
   discrepancy: "Discrepancy",
   psc: "PSC",
 }
+
+// ─── Vessel Replay ─────────────────────────────────────────────────────────
+
+/** Entire selected range plays in this many wall-clock seconds at 1× speed */
+export const REPLAY_FULL_PLAY_SECS = 120
+
+/** Playback timer interval in ms (20 Hz) */
+export const REPLAY_TICK_MS = 50
+
+/** Available speed multipliers relative to the base rate */
+export const REPLAY_SPEED_OPTIONS = [0.5, 1, 2, 5, 10] as const
+
+/** PSG Orange — Gantt playhead line */
+export const REPLAY_PLAYHEAD_COLOR = "#F88E63"
+
+/** PSG Green — interpolated vessel position marker */
+export const REPLAY_VESSEL_COLOR = "#2B969C"
+
+/** Opacity for the "ghost" future AIS track segment */
+export const REPLAY_GHOST_OPACITY = 0.15
+
+/** Opacity for Gantt bars that haven't started yet */
+export const REPLAY_FUTURE_BAR_OPACITY = 0.25

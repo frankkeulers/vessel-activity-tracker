@@ -1,0 +1,6 @@
+{"t":0,"agent":"a013f75","agent_type":"designer","event":"agent_start","parent_mode":"none"}
+{"t":0,"agent":"a0ae953","agent_type":"architect","event":"agent_start","parent_mode":"none"}
+{"t":0,"agent":"a013f75","agent_type":"designer","event":"agent_stop","success":true,"duration_ms":248663}
+{"t":0,"agent":"a0ae953","agent_type":"architect","event":"agent_stop","success":true,"duration_ms":271291}
+{"t":0,"agent":"ad4aabd","agent_type":"unknown","event":"agent_stop","success":true}
+{"t":0,"agent":"a5da0b7","agent_type":"unknown","event":"agent_stop","success":true}

@@ -193,56 +193,176 @@
   "hotPaths": [
     {
       "path": "src/components/GanttTimeline.tsx",
-      "accessCount": 10,
-      "lastAccessed": 1776152055699,
+      "accessCount": 38,
+      "lastAccessed": 1776155306430,
       "type": "file"
     },
     {
-      "path": "src/App.tsx",
-      "accessCount": 5,
-      "lastAccessed": 1776152115139,
-      "type": "file"
-    },
-    {
-      "path": "src",
-      "accessCount": 3,
-      "lastAccessed": 1776152049874,
-      "type": "directory"
-    },
-    {
-      "path": "src/components/DataOrchestrator.tsx",
-      "accessCount": 3,
-      "lastAccessed": 1776152094855,
-      "type": "file"
-    },
-    {
-      "path": "docs/PRD.md",
-      "accessCount": 3,
-      "lastAccessed": 1776152165809,
-      "type": "file"
-    },
-    {
-      "path": "src/lib/hooks.ts",
-      "accessCount": 1,
-      "lastAccessed": 1776152051624,
-      "type": "file"
-    },
-    {
-      "path": "src/lib/api.ts",
-      "accessCount": 1,
-      "lastAccessed": 1776152051896,
-      "type": "file"
-    },
-    {
-      "path": "src/store/useAppStore.ts",
-      "accessCount": 1,
-      "lastAccessed": 1776152055476,
+      "path": "src/components/EventsTimelineSidepanel.tsx",
+      "accessCount": 20,
+      "lastAccessed": 1776154255467,
       "type": "file"
     },
     {
       "path": "src/components/MapView.tsx",
+      "accessCount": 16,
+      "lastAccessed": 1776155290856,
+      "type": "file"
+    },
+    {
+      "path": "src/App.tsx",
+      "accessCount": 15,
+      "lastAccessed": 1776153664977,
+      "type": "file"
+    },
+    {
+      "path": "src/store/useAppStore.ts",
+      "accessCount": 14,
+      "lastAccessed": 1776154717908,
+      "type": "file"
+    },
+    {
+      "path": "src",
+      "accessCount": 9,
+      "lastAccessed": 1776153568130,
+      "type": "directory"
+    },
+    {
+      "path": "docs/PRD.md",
+      "accessCount": 5,
+      "lastAccessed": 1776153553885,
+      "type": "file"
+    },
+    {
+      "path": "src/config/constants.ts",
+      "accessCount": 5,
+      "lastAccessed": 1776153565569,
+      "type": "file"
+    },
+    {
+      "path": "",
+      "accessCount": 5,
+      "lastAccessed": 1776153570892,
+      "type": "directory"
+    },
+    {
+      "path": "src/components/DataOrchestrator.tsx",
+      "accessCount": 4,
+      "lastAccessed": 1776152411394,
+      "type": "file"
+    },
+    {
+      "path": "src/lib/hooks.ts",
+      "accessCount": 4,
+      "lastAccessed": 1776153567527,
+      "type": "file"
+    },
+    {
+      "path": "src/types/index.ts",
+      "accessCount": 3,
+      "lastAccessed": 1776153379859,
+      "type": "file"
+    },
+    {
+      "path": "src/index.css",
+      "accessCount": 3,
+      "lastAccessed": 1776153846638,
+      "type": "file"
+    },
+    {
+      "path": "src/lib/api.ts",
+      "accessCount": 2,
+      "lastAccessed": 1776153565504,
+      "type": "file"
+    },
+    {
+      "path": "proxy/.env.example",
+      "accessCount": 2,
+      "lastAccessed": 1776153570815,
+      "type": "file"
+    },
+    {
+      "path": "src/lib/replay.ts",
       "accessCount": 1,
-      "lastAccessed": 1776152055657,
+      "lastAccessed": 1776153434337,
+      "type": "file"
+    },
+    {
+      "path": "docs/AGENTS.md",
+      "accessCount": 1,
+      "lastAccessed": 1776153553974,
+      "type": "file"
+    },
+    {
+      "path": "docs/DESIGN_SPEC.md",
+      "accessCount": 1,
+      "lastAccessed": 1776153554031,
+      "type": "file"
+    },
+    {
+      "path": "docs/ux-ui-backlog.md",
+      "accessCount": 1,
+      "lastAccessed": 1776153554211,
+      "type": "file"
+    },
+    {
+      "path": "proxy/index.js",
+      "accessCount": 1,
+      "lastAccessed": 1776153558588,
+      "type": "file"
+    },
+    {
+      "path": "proxy/package.json",
+      "accessCount": 1,
+      "lastAccessed": 1776153558794,
+      "type": "file"
+    },
+    {
+      "path": "package.json",
+      "accessCount": 1,
+      "lastAccessed": 1776153558987,
+      "type": "file"
+    },
+    {
+      "path": ".env.example",
+      "accessCount": 1,
+      "lastAccessed": 1776153559282,
+      "type": "file"
+    },
+    {
+      "path": "vite.config.ts",
+      "accessCount": 1,
+      "lastAccessed": 1776153559611,
+      "type": "file"
+    },
+    {
+      "path": "AGENTS.md",
+      "accessCount": 1,
+      "lastAccessed": 1776153566052,
+      "type": "file"
+    },
+    {
+      "path": ".env",
+      "accessCount": 1,
+      "lastAccessed": 1776153570593,
+      "type": "file"
+    },
+    {
+      "path": "render.yaml",
+      "accessCount": 1,
+      "lastAccessed": 1776153570748,
+      "type": "file"
+    },
+    {
+      "path": "proxy/AGENTS.md",
+      "accessCount": 1,
+      "lastAccessed": 1776153572343,
+      "type": "file"
+    },
+    {
+      "path": "src/components/ReplayBar.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1776153608939,
       "type": "file"
     }
   ],

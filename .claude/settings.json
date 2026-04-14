@@ -11,7 +11,8 @@
       "Bash(node_modules/.bin/tsc --noEmit)",
       "mcp__plugin_oh-my-claudecode_t__lsp_document_symbols",
       "Bash(echo \"exit:$?\")",
-      "Bash(python3 -c ':*)"
+      "Bash(python3 -c ':*)",
+      "Read(//Users/frankkeulers/Code/work/**)"
     ]
   }
 }

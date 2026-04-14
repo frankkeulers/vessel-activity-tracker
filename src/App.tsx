@@ -26,6 +26,7 @@ import { useAppStore } from "@/store/useAppStore"
 import { ErrorBoundary } from "@/components/ErrorBoundary"
 import { useToast } from "@/components/Toaster"
 import { EventsTimelineSidepanel, CategoryChip, ALL_CATEGORIES } from "@/components/EventsTimelineSidepanel"
+import { ReplayBar } from "@/components/ReplayBar"
 import { useIsMobile } from "@/hooks/use-mobile"
 
 function ThemeToggle() {
@@ -202,6 +203,13 @@ function DataStatusBar() {
 export default function App() {
   const isMobile = useIsMobile()
   const [mobileSidebarOpen, setMobileSidebarOpen] = React.useState(false)
+  const replayAt = useAppStore((s) => s.replayAt)
+  const resetReplay = useAppStore((s) => s.resetReplay)
+
+  // Exit replay when switching to mobile (no replay bar on mobile)
+  React.useEffect(() => {
+    if (isMobile && replayAt !== null) resetReplay()
+  }, [isMobile]) // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <>
@@ -234,7 +242,12 @@ export default function App() {
               <EventFilterChips />
             </>
           )}
-          <div className="ml-auto">
+          <div className="ml-auto flex items-center gap-2">
+            {replayAt !== null && (
+              <span className="animate-pulse rounded-sm bg-psg-orange-700/20 px-1.5 py-0.5 font-mono text-[10px] font-semibold tracking-widest text-psg-orange-700">
+                REPLAY
+              </span>
+            )}
             <ThemeToggle />
           </div>
         </header>
@@ -290,7 +303,7 @@ export default function App() {
           )}
 
           {/* Centre pane: map + Gantt — vertically resizable */}
-          <main className="flex flex-1 flex-col overflow-hidden">
+          <main className={["flex flex-1 flex-col overflow-hidden", replayAt !== null ? "border-t-2 border-psg-orange-700" : ""].join(" ")}>
             <PanelGroup orientation="vertical">
               <Panel defaultSize={65} minSize={25}>
                 <div className="h-full overflow-hidden">
@@ -310,6 +323,7 @@ export default function App() {
                 </div>
               </Panel>
             </PanelGroup>
+            <ReplayBar />
           </main>
 
           {/* Right sidepanel: events timeline */}

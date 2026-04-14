@@ -12,6 +12,8 @@ import { Input } from "@/components/ui/input"
 import { Separator } from "@/components/ui/separator"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import { EVENT_COLOURS, CATEGORY_LABELS_SHORT } from "@/config/constants"
+import { computeEventVisibility } from "@/lib/replay"
+import type { EventVisibility } from "@/lib/replay"
 import type {
   ActivityEvent,
   EventCategory,
@@ -211,26 +213,33 @@ const EventCard = React.memo(function EventCard({
   event,
   isHighlighted,
   onClick,
+  visibility,
 }: {
   event: ActivityEvent
   isHighlighted: boolean
   onClick: () => void
+  visibility?: EventVisibility
 }) {
   const colour = EVENT_COLOURS[event.category]
+  const isDimmed = visibility === "dimmed"
+  const isActive = visibility === "active"
 
   return (
     <Tooltip>
       <TooltipTrigger asChild>
         <div
           role="button"
-          tabIndex={0}
-          onClick={onClick}
-          onKeyDown={(e) => e.key === "Enter" && onClick()}
+          tabIndex={isDimmed ? -1 : 0}
+          onClick={isDimmed ? undefined : onClick}
+          onKeyDown={(e) => !isDimmed && e.key === "Enter" && onClick()}
           className={[
-            "cursor-pointer rounded-lg px-3 py-2.5 transition-colors",
+            "rounded-lg px-3 py-2.5 transition-colors",
+            isDimmed
+              ? "pointer-events-none cursor-default opacity-40 italic"
+              : "cursor-pointer",
             isHighlighted
               ? "bg-primary/5"
-              : "bg-muted/30 hover:bg-muted/60",
+              : isDimmed ? "" : "bg-muted/30 hover:bg-muted/60",
           ].join(" ")}
           style={
             isHighlighted
@@ -238,14 +247,21 @@ const EventCard = React.memo(function EventCard({
               : {}
           }
         >
-          {/* Row 1 — subtype (colored) + timestamp */}
+          {/* Row 1 — subtype (colored) + active badge + timestamp */}
           <div className="flex items-baseline justify-between gap-2">
-            <span
-              className="text-[10px] font-bold uppercase tracking-widest leading-none"
-              style={{ color: colour }}
-            >
-              {formatSubType(event.subType)}
-            </span>
+            <div className="flex items-baseline gap-1.5">
+              <span
+                className="text-[10px] font-bold uppercase tracking-widest leading-none"
+                style={{ color: colour }}
+              >
+                {formatSubType(event.subType)}
+              </span>
+              {isActive && (
+                <span className="animate-pulse rounded-sm bg-primary/15 px-1 py-px text-[9px] font-bold uppercase tracking-widest text-primary">
+                  Active
+                </span>
+              )}
+            </div>
             <span className="shrink-0 text-[10px] tabular-nums text-muted-foreground">
               {formatTimestamp(event.startTime)}
             </span>
@@ -292,13 +308,26 @@ function DateSection({
   events,
   highlightedEventId,
   onEventClick,
+  eventVisibility,
+  forceExpand,
 }: {
   dateLabel: string
   events: ActivityEvent[]
   highlightedEventId: string | null
   onEventClick: (id: string) => void
+  eventVisibility?: Map<string, EventVisibility>
+  forceExpand?: boolean
 }) {
   const [open, setOpen] = React.useState(true)
+
+  // Auto-expand when replay cursor enters this date group (rising-edge only)
+  const prevForceRef = React.useRef(false)
+  React.useEffect(() => {
+    if (forceExpand && !prevForceRef.current) {
+      setOpen(true)
+    }
+    prevForceRef.current = forceExpand ?? false
+  }, [forceExpand])
 
   return (
     <div>
@@ -352,6 +381,9 @@ function DateSection({
                         isHighlighted
                           ? "shadow-[0_0_0_3px_hsl(var(--primary)/0.18)]"
                           : "",
+                        eventVisibility?.get(ev.id) === "active"
+                          ? "animate-pulse"
+                          : "",
                       ].join(" ")}
                       style={{ backgroundColor: colour }}
                     />
@@ -361,11 +393,12 @@ function DateSection({
                   </div>
 
                   {/* Right column: card */}
-                  <div className="flex-1 pb-2">
+                  <div className="flex-1 pb-2" data-event-id={ev.id}>
                     <EventCard
                       event={ev}
                       isHighlighted={isHighlighted}
                       onClick={() => onEventClick(ev.id)}
+                      visibility={eventVisibility?.get(ev.id)}
                     />
                   </div>
                 </div>
@@ -432,15 +465,19 @@ export function EventsTimelineSidepanel() {
   const {
     events,
     filters,
-    toggleFilter,
     highlightedEventId,
     setHighlightedEventId,
     fetchKey,
     timelinePanelOpen,
     setTimelinePanelOpen,
+    replayAt,
+    isReplaying,
   } = useAppStore()
 
   const [searchQuery, setSearchQuery] = React.useState("")
+  const scrollRef = React.useRef<HTMLDivElement>(null)
+  const lastScrollTimeRef = React.useRef(0)
+  const [enteredDates, setEnteredDates] = React.useState<Set<string>>(new Set())
 
   const filteredEvents = React.useMemo(() => {
     const q = searchQuery.trim().toLowerCase()
@@ -465,6 +502,55 @@ export function EventsTimelineSidepanel() {
     }
     return Array.from(map.entries())
   }, [filteredEvents])
+
+  // ── Replay visibility map ──────────────────────────────────────────────────
+  const eventVisibility = React.useMemo(
+    () => computeEventVisibility(filteredEvents, replayAt),
+    [filteredEvents, replayAt],
+  )
+
+  // ── Auto-expand date sections when playback enters them ────────────────────
+  React.useEffect(() => {
+    if (replayAt === null) {
+      setEnteredDates(new Set())
+      return
+    }
+    const cursorMs = replayAt.getTime()
+    setEnteredDates((prev) => {
+      let changed = false
+      const next = new Set(prev)
+      for (const [dateLabel, dateEvents] of groupedByDate) {
+        if (next.has(dateLabel)) continue
+        const entered = dateEvents.some(
+          (ev) => new Date(ev.startTime).getTime() <= cursorMs,
+        )
+        if (entered) {
+          next.add(dateLabel)
+          changed = true
+        }
+      }
+      return changed ? next : prev
+    })
+  }, [replayAt, groupedByDate])
+
+  // ── Auto-scroll to most recently revealed event (1 Hz, replay only) ────────
+  React.useEffect(() => {
+    if (!isReplaying || replayAt === null) return
+    const now = Date.now()
+    if (now - lastScrollTimeRef.current < 1000) return
+    lastScrollTimeRef.current = now
+
+    // filteredEvents is descending; first entry with startTime <= cursor is the latest revealed
+    const cursorMs = replayAt.getTime()
+    const revealedEvent = filteredEvents.find(
+      (ev) => new Date(ev.startTime).getTime() <= cursorMs,
+    )
+    if (!revealedEvent || !scrollRef.current) return
+    const el = scrollRef.current.querySelector(
+      `[data-event-id="${revealedEvent.id}"]`,
+    )
+    el?.scrollIntoView({ behavior: "smooth", block: "nearest" })
+  }, [replayAt, isReplaying, filteredEvents])
 
   function handleEventClick(id: string) {
     setHighlightedEventId(highlightedEventId === id ? null : id)
@@ -539,7 +625,7 @@ export function EventsTimelineSidepanel() {
       <Separator />
 
       {/* Event list */}
-      <div className="flex-1 overflow-y-auto">
+      <div ref={scrollRef} className="flex-1 overflow-y-auto">
         {fetchKey === 0 ? (
           <div className="flex flex-col items-center justify-center gap-2 py-12 text-xs text-muted-foreground">
             <ClockIcon className="size-8 opacity-30" />
@@ -558,6 +644,8 @@ export function EventsTimelineSidepanel() {
               events={dateEvents}
               highlightedEventId={highlightedEventId}
               onEventClick={handleEventClick}
+              eventVisibility={eventVisibility}
+              forceExpand={enteredDates.has(dateLabel)}
             />
           ))
         )}
