@@ -119,24 +119,23 @@ async function fetchAllPositionPages(
   from: Date,
   to: Date,
 ): Promise<PositionsResponse["data"]> {
-  const baseBody = { imo: String(imo), ...dateParams(from, to) }
-  const first = await apiFetch<PositionsResponse>("/unified-position/v1/positions", {
-    method: "POST",
-    body: { ...baseBody, limit: POSITIONS_PAGE_SIZE, offset: 0 },
-  })
-  const items = [...(first.data ?? [])]
-  const total = first.meta?.total_count ?? items.length
-  const extraPages = Math.ceil((total - POSITIONS_PAGE_SIZE) / POSITIONS_PAGE_SIZE)
-  if (extraPages > 0) {
-    const fetches = Array.from({ length: extraPages }, (_, i) =>
-      apiFetch<PositionsResponse>("/unified-position/v1/positions", {
-        method: "POST",
-        body: { ...baseBody, limit: POSITIONS_PAGE_SIZE, offset: (i + 1) * POSITIONS_PAGE_SIZE },
-      }).then((r) => r.data ?? []),
-    )
-    const pages = await Promise.all(fetches)
-    pages.forEach((p) => items.push(...p))
+  const body = { imo: String(imo), ...dateParams(from, to) }
+  const items: PositionsResponse["data"] = []
+  let offset = 0
+
+  // limit/offset are query params, not body fields
+  while (true) {
+    const page = await apiFetch<PositionsResponse>("/unified-position/v1/positions", {
+      method: "POST",
+      params: { limit: POSITIONS_PAGE_SIZE, offset },
+      body,
+    })
+    const pageData = page.data ?? []
+    items.push(...pageData)
+    if (pageData.length < POSITIONS_PAGE_SIZE) break
+    offset += POSITIONS_PAGE_SIZE
   }
+
   items.sort((a, b) => a.timestamp.localeCompare(b.timestamp))
   return items
 }

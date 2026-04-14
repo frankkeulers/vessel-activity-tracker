@@ -192,7 +192,7 @@ function EventMeta({ event }: { event: ActivityEvent }) {
 
 function RawTooltipContent({ event }: { event: ActivityEvent }) {
   return (
-    <div className="max-w-[260px] space-y-1 text-[10px]">
+    <div className="p-3 max-w-[260px] space-y-1 text-[10px]">
       <div className="font-semibold">{event.label || event.subType}</div>
       <div className="text-muted-foreground font-mono">{event.id}</div>
       {event.latitude != null && event.longitude != null && (
@@ -278,7 +278,7 @@ const EventCard = React.memo(function EventCard({
           <EventMeta event={event} />
         </div>
       </TooltipTrigger>
-      <TooltipContent side="left" className="p-2">
+      <TooltipContent side="left" className="max-w-xs p-0 bg-background border border-border shadow-lg z-9999 text-foreground">
         <RawTooltipContent event={event} />
       </TooltipContent>
     </Tooltip>

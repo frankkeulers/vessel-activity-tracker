@@ -91,7 +91,7 @@ export interface AISPosition {
 }
 
 export interface PositionsResponse {
-  meta: { total_count?: number; limit: number; offset: number }
+  meta: { limit: number; offset: number; request_id: string; request_timestamp: string }
   data: AISPosition[]
 }
 
