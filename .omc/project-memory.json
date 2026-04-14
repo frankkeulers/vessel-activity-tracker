@@ -192,6 +192,12 @@
   },
   "hotPaths": [
     {
+      "path": "src/components/MapView.tsx",
+      "accessCount": 39,
+      "lastAccessed": 1776179501004,
+      "type": "file"
+    },
+    {
       "path": "src/components/GanttTimeline.tsx",
       "accessCount": 38,
       "lastAccessed": 1776155306430,
@@ -211,8 +217,8 @@
     },
     {
       "path": "src/store/useAppStore.ts",
-      "accessCount": 18,
-      "lastAccessed": 1776177613881,
+      "accessCount": 19,
+      "lastAccessed": 1776179182257,
       "type": "file"
     },
     {
@@ -222,16 +228,16 @@
       "type": "directory"
     },
     {
-      "path": "src/components/MapView.tsx",
-      "accessCount": 16,
-      "lastAccessed": 1776155290856,
-      "type": "file"
+      "path": "src",
+      "accessCount": 14,
+      "lastAccessed": 1776179299339,
+      "type": "directory"
     },
     {
-      "path": "src",
-      "accessCount": 11,
-      "lastAccessed": 1776178319629,
-      "type": "directory"
+      "path": "src/types/index.ts",
+      "accessCount": 8,
+      "lastAccessed": 1776179327810,
+      "type": "file"
     },
     {
       "path": "src/components/VesselSearch.tsx",
@@ -252,15 +258,21 @@
       "type": "file"
     },
     {
+      "path": "src/lib/api.ts",
+      "accessCount": 6,
+      "lastAccessed": 1776178912883,
+      "type": "file"
+    },
+    {
       "path": "src/config/constants.ts",
       "accessCount": 5,
       "lastAccessed": 1776153565569,
       "type": "file"
     },
     {
-      "path": "src/lib/api.ts",
+      "path": "src/lib/hooks.ts",
       "accessCount": 5,
-      "lastAccessed": 1776177972290,
+      "lastAccessed": 1776179216054,
       "type": "file"
     },
     {
@@ -270,21 +282,9 @@
       "type": "file"
     },
     {
-      "path": "src/lib/hooks.ts",
-      "accessCount": 4,
-      "lastAccessed": 1776153567527,
-      "type": "file"
-    },
-    {
       "path": ".env.example",
       "accessCount": 4,
       "lastAccessed": 1776177968973,
-      "type": "file"
-    },
-    {
-      "path": "src/types/index.ts",
-      "accessCount": 4,
-      "lastAccessed": 1776177972037,
       "type": "file"
     },
     {
@@ -339,6 +339,12 @@
       "path": "index.html",
       "accessCount": 2,
       "lastAccessed": 1776178183346,
+      "type": "file"
+    },
+    {
+      "path": "sample_data/positions.json",
+      "accessCount": 2,
+      "lastAccessed": 1776178958850,
       "type": "file"
     },
     {
@@ -417,6 +423,12 @@
       "path": "src/components/theme-provider.tsx",
       "accessCount": 1,
       "lastAccessed": 1776178308034,
+      "type": "file"
+    },
+    {
+      "path": "src/components/ui/tooltip.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1776178912692,
       "type": "file"
     }
   ],

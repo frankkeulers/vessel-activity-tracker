@@ -88,6 +88,9 @@ export interface AISPosition {
   mmsi: string | null
   imo_number: string | null
   name: string | null
+  destination: string | null
+  draught: number | null
+  eta: string | null
 }
 
 export interface PositionsResponse {

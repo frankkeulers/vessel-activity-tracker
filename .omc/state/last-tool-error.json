@@ -1,0 +1,7 @@
+{
+  "tool_name": "Read",
+  "tool_input_preview": "{\"file_path\":\"/Users/frankkeulers/Code/work/PS\\\\ Labs/vessel-activity-tracker/src/lib/replay.ts\",\"limit\":150}",
+  "error": "File does not exist. Note: your current working directory is /Users/frankkeulers/Code/work/PS Labs/vessel-activity-tracker.",
+  "timestamp": "2026-04-14T15:01:55.721Z",
+  "retry_count": 2
+}

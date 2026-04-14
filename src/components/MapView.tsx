@@ -13,7 +13,7 @@ import L from "leaflet"
 import "leaflet/dist/leaflet.css"
 import { useTheme } from "@/components/theme-provider"
 import { useAppStore } from "@/store/useAppStore"
-import { useAISPositions } from "@/lib/hooks"
+import { useAISPositions, useVesselCharacteristics } from "@/lib/hooks"
 import { useDataStatus } from "@/components/DataOrchestrator"
 import type { ActivityEvent, AISGapEvent, EventCategory } from "@/types"
 import { EVENT_COLOURS, CATEGORY_LABELS, REPLAY_GHOST_OPACITY, REPLAY_VESSEL_COLOR } from "@/config/constants"
@@ -53,6 +53,44 @@ function navStatusColour(status: string | null | undefined): string {
   if (s.includes("moored") || s.includes("anchor")) return "#FAAF89"
   if (s.includes("underway") || s.includes("way")) return "#2B969C"
   return "#81E4E3"
+}
+
+export type TrackColorMode = "nav_status" | "speed" | "draught"
+
+function speedColour(speed: number | null): string {
+  if (speed === null) return "#81E4E3"
+  if (speed < 0.1) return "#FAAF89"   // stopped
+  if (speed < 5)   return "#F5C842"   // slow
+  if (speed < 15)  return "#2B969C"   // medium
+  return "#1E6FA5"                     // fast
+}
+
+function draughtColour(draught: number | null, maxDraught: number | null): string {
+  if (draught === null) return "#81E4E3"
+  if (maxDraught !== null && maxDraught > 0) {
+    const pct = draught / maxDraught
+    if (pct < 0.4) return "#81E4E3"
+    if (pct < 0.7) return "#2B969C"
+    if (pct < 0.9) return "#F5A623"
+    return "#E05A3A"
+  }
+  // Absolute fallback
+  if (draught < 4)  return "#81E4E3"
+  if (draught < 8)  return "#2B969C"
+  if (draught < 12) return "#F5A623"
+  return "#E05A3A"
+}
+
+function getPositionColour(
+  pos: { speed: number | null; draught: number | null; navigational_status: { status: string; code: number } | null },
+  mode: TrackColorMode,
+  maxDraught: number | null,
+): string {
+  switch (mode) {
+    case "speed":   return speedColour(pos.speed)
+    case "draught": return draughtColour(pos.draught, maxDraught)
+    default:        return navStatusColour(pos.navigational_status?.status)
+  }
 }
 
 // Calculate bearing between two lat/lng points in degrees (0-360)
@@ -152,6 +190,12 @@ function fmtUtc(iso: string | null | undefined): string {
   return isNaN(d.getTime()) ? iso : d.toISOString().replace("T", " ").slice(0, 16) + " UTC"
 }
 
+function fmtEta(iso: string | null | undefined): string {
+  if (!iso) return "N/A"
+  const d = new Date(iso)
+  if (isNaN(d.getTime()) || d.getFullYear() < 2000) return "N/A"
+  return d.toISOString().replace("T", " ").slice(0, 16) + " UTC"
+}
 
 // ─── Resize handler ───────────────────────────────────────────────────────────
 
@@ -208,7 +252,16 @@ function ReplayVesselMarker({ posArrays }: { posArrays: PositionArrays }) {
   )
 }
 
-function AISTrack({ imo, from, to, fetchKey }: { imo: number; from: Date; to: Date; fetchKey: number }) {
+function AISTrack({
+  imo, from, to, fetchKey, colorMode, maxDraught,
+}: {
+  imo: number
+  from: Date
+  to: Date
+  fetchKey: number
+  colorMode: TrackColorMode
+  maxDraught: number | null
+}) {
   const { data } = useAISPositions(imo, from, to, fetchKey)
   const positions = data ?? []
   const posArrays = React.useMemo(() => buildPositionArrays(positions), [positions])
@@ -244,7 +297,7 @@ function AISTrack({ imo, from, to, fetchKey }: { imo: number; from: Date; to: Da
       let cur: { pts: [number, number][]; col: string } | null = null
       for (let i = start; i <= clampedEnd; i++) {
         const p = positions[i]
-        const col = navStatusColour(p.navigational_status?.status)
+        const col = getPositionColour(p, colorMode, maxDraught)
         if (!cur || cur.col !== col) {
           if (cur) out.push(cur)
           cur = { pts: [[p.latitude, p.longitude]], col }
@@ -259,7 +312,7 @@ function AISTrack({ imo, from, to, fetchKey }: { imo: number; from: Date; to: Da
     // Ghost overlaps by one point for visual continuity at the split boundary
     const ghost = inReplay ? mergeLines(Math.max(0, splitIdx), positions.length - 1) : []
     return { pastLines: past, ghostLines: ghost }
-  }, [positions, splitIdx, inReplay])
+  }, [positions, splitIdx, inReplay, colorMode, maxDraught])
 
   const arrows = React.useMemo(() => {
     const out: { position: [number, number]; bearing: number; colour: string }[] = []
@@ -271,11 +324,11 @@ function AISTrack({ imo, from, to, fetchKey }: { imo: number; from: Date; to: Da
       out.push({
         position: [(a.latitude + b.latitude) / 2, (a.longitude + b.longitude) / 2],
         bearing: calculateBearing(a.latitude, a.longitude, b.latitude, b.longitude),
-        colour: navStatusColour(a.navigational_status?.status),
+        colour: getPositionColour(a, colorMode, maxDraught),
       })
     }
     return out
-  }, [positions, splitIdx])
+  }, [positions, splitIdx, colorMode, maxDraught])
 
   const allLatLngs = React.useMemo(
     () => positions.map((p) => [p.latitude, p.longitude] as [number, number]),
@@ -322,7 +375,7 @@ function AISTrack({ imo, from, to, fetchKey }: { imo: number; from: Date; to: Da
       {/* Position dots — past: full opacity; ghost: faint */}
       {positions.map((pos, i) => {
         const isPast = !inReplay || i <= splitIdx
-        const col = navStatusColour(pos.navigational_status?.status)
+        const col = getPositionColour(pos, colorMode, maxDraught)
         return (
           <CircleMarker
             key={i}
@@ -339,10 +392,18 @@ function AISTrack({ imo, from, to, fetchKey }: { imo: number; from: Date; to: Da
           >
             {isPast && (
               <Popup>
-                <div className="text-xs">
+                <div className="text-xs space-y-0.5 min-w-[170px]">
+                  {pos.name && <div className="font-semibold">{pos.name}</div>}
                   <div className="font-medium">{pos.navigational_status?.status ?? "Unknown"}</div>
-                  <div className="text-muted-foreground">{fmtUtc(pos.timestamp)}</div>
-                  {pos.speed != null && <div>Speed: {pos.speed} kn</div>}
+                  <div className="text-muted-foreground pb-1">{fmtUtc(pos.timestamp)}</div>
+                  {pos.speed != null && <div><span className="text-muted-foreground">Speed: </span>{pos.speed} kn</div>}
+                  {pos.course != null && <div><span className="text-muted-foreground">Course: </span>{pos.course}°</div>}
+                  {pos.heading != null && <div><span className="text-muted-foreground">Heading: </span>{pos.heading}°</div>}
+                  {pos.destination != null && pos.destination.trim() !== "" && (
+                    <div><span className="text-muted-foreground">Destination: </span>{pos.destination}</div>
+                  )}
+                  {pos.draught != null && <div><span className="text-muted-foreground">Draught: </span>{pos.draught} m</div>}
+                  <div><span className="text-muted-foreground">ETA: </span>{fmtEta(pos.eta)}</div>
                 </div>
               </Popup>
             )}
@@ -585,45 +646,112 @@ function PaneSetup() {
 
 // ─── Legend ───────────────────────────────────────────────────────────────────
 
-function MapLegend({ filters }: { filters: Record<EventCategory, boolean> }) {
+function MapLegend({
+  filters,
+  colorMode,
+  onColorModeChange,
+  maxDraught,
+  hasTrack,
+}: {
+  filters: Record<EventCategory, boolean>
+  colorMode: TrackColorMode
+  onColorModeChange: (mode: TrackColorMode) => void
+  maxDraught: number | null
+  hasTrack: boolean
+}) {
   const activeCategories = CATEGORY_ORDER.filter((c) => filters[c])
-  if (activeCategories.length === 0) return null
+  if (activeCategories.length === 0 && !hasTrack) return null
+
+  const trackLegendItems = (() => {
+    switch (colorMode) {
+      case "speed":
+        return [
+          { label: "Stopped (< 0.1 kn)", colour: "#FAAF89" },
+          { label: "Slow (0.1–5 kn)",     colour: "#F5C842" },
+          { label: "Medium (5–15 kn)",    colour: "#2B969C" },
+          { label: "Fast (≥ 15 kn)",      colour: "#1E6FA5" },
+        ]
+      case "draught":
+        if (maxDraught !== null && maxDraught > 0) {
+          return [
+            { label: `< 40% (< ${(maxDraught * 0.4).toFixed(1)} m)`,                                               colour: "#81E4E3" },
+            { label: `40–70% (${(maxDraught * 0.4).toFixed(1)}–${(maxDraught * 0.7).toFixed(1)} m)`, colour: "#2B969C" },
+            { label: `70–90% (${(maxDraught * 0.7).toFixed(1)}–${(maxDraught * 0.9).toFixed(1)} m)`, colour: "#F5A623" },
+            { label: `≥ 90% (≥ ${(maxDraught * 0.9).toFixed(1)} m)`,                                               colour: "#E05A3A" },
+          ]
+        }
+        return [
+          { label: "Light (< 4 m)",       colour: "#81E4E3" },
+          { label: "Medium (4–8 m)",      colour: "#2B969C" },
+          { label: "Heavy (8–12 m)",      colour: "#F5A623" },
+          { label: "Very heavy (≥ 12 m)", colour: "#E05A3A" },
+        ]
+      default:
+        return [
+          { label: "Underway",           colour: "#2B969C" },
+          { label: "Moored / Anchored",  colour: "#FAAF89" },
+          { label: "Other",              colour: "#81E4E3" },
+        ]
+    }
+  })()
 
   return (
     <div className="absolute bottom-6 right-3 z-1000 rounded-lg border border-border bg-card/90 px-3 py-2 shadow-md backdrop-blur-sm">
-      <div className="mb-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-        Events
-      </div>
-      <div className="flex flex-col gap-1">
-        {activeCategories.map((cat) => {
-          const Icon = CATEGORY_ICONS[cat]
-          const colour = EVENT_COLOURS[cat]
-          return (
-            <div key={cat} className="flex items-center gap-1.5">
-              <div
-                className="flex size-4 items-center justify-center rounded-full"
-                style={{ background: colour }}
-              >
-                <Icon className="size-2.5 text-white" strokeWidth={2.5} />
+      {activeCategories.length > 0 && (
+        <>
+          <div className="mb-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+            Events
+          </div>
+          <div className="flex flex-col gap-1">
+            {activeCategories.map((cat) => {
+              const Icon = CATEGORY_ICONS[cat]
+              const colour = EVENT_COLOURS[cat]
+              return (
+                <div key={cat} className="flex items-center gap-1.5">
+                  <div
+                    className="flex size-4 items-center justify-center rounded-full"
+                    style={{ background: colour }}
+                  >
+                    <Icon className="size-2.5 text-white" strokeWidth={2.5} />
+                  </div>
+                  <span className="text-[10px] text-foreground">{CATEGORY_LABELS[cat]}</span>
+                </div>
+              )
+            })}
+          </div>
+        </>
+      )}
+      {hasTrack && (
+        <div className={activeCategories.length > 0 ? "mt-1 border-t border-border pt-1" : ""}>
+          <div className="mb-1 text-[10px] font-medium text-muted-foreground">AIS Track</div>
+          <div className="mb-1.5 flex overflow-hidden rounded border border-border">
+            {(["nav_status", "speed", "draught"] as TrackColorMode[]).map((mode) => {
+              const label = mode === "nav_status" ? "Nav" : mode === "speed" ? "Speed" : "Draught"
+              return (
+                <button
+                  key={mode}
+                  onClick={() => onColorModeChange(mode)}
+                  className={`flex-1 px-1.5 py-0.5 text-[9px] font-medium transition-colors ${
+                    colorMode === mode
+                      ? "bg-primary text-primary-foreground"
+                      : "text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  {label}
+                </button>
+              )
+            })}
+          </div>
+          <div className="flex flex-col gap-1">
+            {trackLegendItems.map(({ label, colour }) => (
+              <div key={label} className="flex items-center gap-1.5">
+                <div className="h-0.5 w-3 rounded-full" style={{ background: colour }} />
+                <span className="text-[10px] text-foreground">{label}</span>
               </div>
-              <span className="text-[10px] text-foreground">{CATEGORY_LABELS[cat]}</span>
-            </div>
-          )
-        })}
-        <div className="mt-1 border-t border-border pt-1">
-          <div className="mb-0.5 text-[10px] font-medium text-muted-foreground">AIS Track</div>
-          {[
-            { label: "Underway", colour: "#2B969C" },
-            { label: "Moored / Anchored", colour: "#FAAF89" },
-            { label: "Other", colour: "#81E4E3" },
-          ].map(({ label, colour }) => (
-            <div key={label} className="flex items-center gap-1.5">
-              <div className="h-0.5 w-3 rounded-full" style={{ background: colour }} />
-              <span className="text-[10px] text-foreground">{label}</span>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
-      </div>
+      )}
     </div>
   )
 }
@@ -676,10 +804,13 @@ export function MapView() {
     (theme === "system" && window.matchMedia("(prefers-color-scheme: dark)").matches)
 
   const [mapStyle, setMapStyle] = React.useState<MapStyle>("street")
+  const [trackColorMode, setTrackColorMode] = React.useState<TrackColorMode>("nav_status")
 
   const { selectedVessel, dateRange, fetchKey, events, filters } = useAppStore()
   const { isLoading } = useDataStatus()
   const imo = selectedVessel ? parseInt(selectedVessel.imo, 10) : null
+  const { data: vesselChars } = useVesselCharacteristics(imo)
+  const maxDraught = vesselChars?.data.draught ?? null
 
   // Street tiles (CartoDB) - light/dark variants
   const streetTileUrl = isDark
@@ -743,7 +874,14 @@ export function MapView() {
         )}
 
         {imo !== null && fetchKey > 0 && (
-          <AISTrack imo={imo} from={dateRange.from} to={dateRange.to} fetchKey={fetchKey} />
+          <AISTrack
+            imo={imo}
+            from={dateRange.from}
+            to={dateRange.to}
+            fetchKey={fetchKey}
+            colorMode={trackColorMode}
+            maxDraught={maxDraught}
+          />
         )}
 
         <AISGapLayer events={events} enabled={filters["ais_gap"]} />
@@ -751,7 +889,13 @@ export function MapView() {
       </MapContainer>
 
       <MapStyleToggle style={mapStyle} onChange={setMapStyle} />
-      <MapLegend filters={filters} />
+      <MapLegend
+        filters={filters}
+        colorMode={trackColorMode}
+        onColorModeChange={setTrackColorMode}
+        maxDraught={maxDraught}
+        hasTrack={imo !== null && fetchKey > 0}
+      />
     </div>
   )
 }
