@@ -193,8 +193,56 @@
   "hotPaths": [
     {
       "path": "src/components/GanttTimeline.tsx",
-      "accessCount": 9,
-      "lastAccessed": 1776151974773,
+      "accessCount": 10,
+      "lastAccessed": 1776152055699,
+      "type": "file"
+    },
+    {
+      "path": "src/App.tsx",
+      "accessCount": 5,
+      "lastAccessed": 1776152115139,
+      "type": "file"
+    },
+    {
+      "path": "src",
+      "accessCount": 3,
+      "lastAccessed": 1776152049874,
+      "type": "directory"
+    },
+    {
+      "path": "src/components/DataOrchestrator.tsx",
+      "accessCount": 3,
+      "lastAccessed": 1776152094855,
+      "type": "file"
+    },
+    {
+      "path": "docs/PRD.md",
+      "accessCount": 3,
+      "lastAccessed": 1776152165809,
+      "type": "file"
+    },
+    {
+      "path": "src/lib/hooks.ts",
+      "accessCount": 1,
+      "lastAccessed": 1776152051624,
+      "type": "file"
+    },
+    {
+      "path": "src/lib/api.ts",
+      "accessCount": 1,
+      "lastAccessed": 1776152051896,
+      "type": "file"
+    },
+    {
+      "path": "src/store/useAppStore.ts",
+      "accessCount": 1,
+      "lastAccessed": 1776152055476,
+      "type": "file"
+    },
+    {
+      "path": "src/components/MapView.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1776152055657,
       "type": "file"
     }
   ],

@@ -191,6 +191,51 @@ A vertical timeline component displaying all non-position events in chronologica
 
 ---
 
+### 5.6 Vessel Replay
+
+A playback mode that lets the user scrub through the selected date range and progressively reveal the vessel track and events as time advances. The scrubber drives the map, Gantt timeline, and Events Timeline simultaneously, giving a unified time-travel view of vessel activity.
+
+**Replay Bar Layout:**
+
+- Persistent horizontal bar docked between the map panel and the Gantt panel
+- Contains: **Play/Pause** button, **scrubber slider**, **current replay timestamp** (UTC), **speed selector** (0.5×, 1×, 2×, 5×, 10×), and a **Reset** button
+- Timestamp label updates continuously as the scrubber moves
+- Disabled / hidden when no vessel data has been loaded
+
+**Scrubber Behaviour:**
+
+- Range spans exactly the user-selected start → end datetime
+- Dragging or clicking the slider sets the replay cursor to that point in time
+- During playback, the cursor advances automatically at the selected speed multiplier (1× = real-time compressed to the viewport; actual wall-clock rate is configurable via speed selector)
+- Playback stops automatically when the cursor reaches the end of the range
+
+**Map Integration:**
+
+- AIS track polyline is clipped to positions with a timestamp ≤ replay cursor; the "future" portion of the track is hidden or rendered as a faint ghost line
+- A **vessel position marker** (distinct from event markers) shows the interpolated position on the track at the exact cursor time
+- Event markers appear on the map only when the replay cursor has passed their `startTime`; markers for span events disappear again after their `endTime`
+
+**Gantt Timeline Integration:**
+
+- A **vertical playhead line** is drawn across all Gantt lanes at the position corresponding to the replay cursor
+- The Gantt time axis auto-scrolls to keep the playhead visible when it would otherwise leave the viewport
+- Gantt bars for events that have not yet started remain visually dimmed; bars for events that have fully ended return to normal opacity
+
+**Events Timeline Integration:**
+
+- Events with a `startTime` > replay cursor are hidden or visually suppressed (e.g., reduced opacity, italic text)
+- The sidepanel auto-scrolls to keep the most recently revealed event in view during playback
+- Active span events (started but not yet ended) are highlighted with a pulsing indicator
+
+**State & Interactions:**
+
+- Replay mode is toggled on/off; when off, all views revert to their normal full-range display
+- All existing cross-links (click Gantt bar → fly-to map, click event card → Gantt scroll) remain active during replay
+- Filter chips continue to affect which event categories are visible during replay
+- Replay cursor state is stored in the global Zustand store (`replayAt: Date | null`) so all panels subscribe to a single source of truth
+
+---
+
 ## 6. Internal Event Data Model
 
 ```ts
@@ -279,3 +324,11 @@ Port events grouped by visit: PORT_AREA span → PORT span → BERTH span.
     - Duration indicators between consecutive events
     - Cross-linking with map and Gantt (click to highlight/fly-to)
     - In-panel search/filter capability
+
+### Phase 6 — Vessel Replay
+
+21. Replay bar component (Play/Pause, scrubber slider, timestamp label, speed selector, Reset)
+22. `replayAt: Date | null` added to Zustand store; all panels subscribe
+23. Map: clip AIS track polyline to cursor time, interpolated position marker, event marker visibility gating
+24. Gantt: vertical playhead line, auto-scroll to keep playhead in view, dim future/past bars
+25. Events Timeline: suppress future events, auto-scroll to latest revealed event, highlight active spans

@@ -122,7 +122,7 @@ const EVENT_BREAKDOWN_ROWS: { key: keyof ReturnType<typeof useDataStatus>["count
 ]
 
 function DataStatusBar() {
-  const { isLoading, errors, fetchKey, counts } = useDataStatus()
+  const { isLoading, errors, fetchKey, counts, fetching } = useDataStatus()
   const { toast } = useToast()
   const reportedErrors = React.useRef<Set<string>>(new Set())
 
@@ -142,9 +142,28 @@ function DataStatusBar() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-        <LoaderCircleIcon className="size-3.5 animate-spin" />
-        Loading data…
+      <div className="flex flex-col gap-1">
+        <div className="flex items-center gap-1.5 text-xs text-muted-foreground mb-0.5">
+          <LoaderCircleIcon className="size-3.5 animate-spin" />
+          <span className="font-semibold">Loading data…</span>
+        </div>
+        <div className="flex flex-col gap-0.5 pl-5">
+          {EVENT_BREAKDOWN_ROWS.map(({ key, label }) => (
+            <div key={key} className="flex items-center justify-between text-xs text-muted-foreground">
+              <div className="flex items-center gap-1.5">
+                {fetching[key] ? (
+                  <LoaderCircleIcon className="size-3 animate-spin shrink-0" />
+                ) : (
+                  <CheckCircleIcon className="size-3 shrink-0 text-primary" />
+                )}
+                <span>{label}</span>
+              </div>
+              {!fetching[key] && (
+                <span className="tabular-nums font-medium text-foreground">{counts[key].toLocaleString()}</span>
+              )}
+            </div>
+          ))}
+        </div>
       </div>
     )
   }

@@ -344,5 +344,15 @@ export function useDataStatus() {
     positions: positions.data?.length ?? 0,
   }
 
-  return { isLoading, errors, fetchKey, counts }
+  const fetching = {
+    port: portCalls.isFetching,
+    zone: zones.isFetching,
+    ais_gap: gaps.isFetching,
+    sts: sts.isFetching,
+    discrepancy: discrepancies.isFetching,
+    psc: psc.isFetching,
+    positions: positions.isFetching,
+  }
+
+  return { isLoading, errors, fetchKey, counts, fetching }
 }
