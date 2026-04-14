@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "lastScanned": 1776059104996,
+  "lastScanned": 1776151836172,
   "projectRoot": "/Users/frankkeulers/Code/work/PS Labs/vessel-activity-tracker",
   "techStack": {
     "languages": [
@@ -74,7 +74,7 @@
       "path": "dist",
       "purpose": "Distribution/build output",
       "fileCount": 1,
-      "lastAccessed": 1776059104985,
+      "lastAccessed": 1776151836165,
       "keyFiles": [
         "index.html"
       ]
@@ -83,7 +83,7 @@
       "path": "docs",
       "purpose": "Documentation",
       "fileCount": 5,
-      "lastAccessed": 1776059104986,
+      "lastAccessed": 1776151836167,
       "keyFiles": [
         "AGENTS.md",
         "DESIGN_SPEC.md",
@@ -96,7 +96,7 @@
       "path": "proxy",
       "purpose": null,
       "fileCount": 5,
-      "lastAccessed": 1776059104986,
+      "lastAccessed": 1776151836167,
       "keyFiles": [
         "AGENTS.md",
         "index.js",
@@ -108,7 +108,7 @@
       "path": "sample_data",
       "purpose": null,
       "fileCount": 9,
-      "lastAccessed": 1776059104990,
+      "lastAccessed": 1776151836167,
       "keyFiles": [
         "AGENTS.md",
         "ais_gaps.json",
@@ -121,7 +121,7 @@
       "path": "src",
       "purpose": "Source code",
       "fileCount": 4,
-      "lastAccessed": 1776059104990,
+      "lastAccessed": 1776151836167,
       "keyFiles": [
         "AGENTS.md",
         "App.tsx",
@@ -133,7 +133,7 @@
       "path": "dist/assets",
       "purpose": "Static assets",
       "fileCount": 13,
-      "lastAccessed": 1776059104991,
+      "lastAccessed": 1776151836167,
       "keyFiles": [
         "index-7A1F_Y5Q.css",
         "index-ryVxjkAq.js",
@@ -144,14 +144,14 @@
       "path": "proxy/node_modules",
       "purpose": "Dependencies",
       "fileCount": 1,
-      "lastAccessed": 1776059104991,
+      "lastAccessed": 1776151836167,
       "keyFiles": []
     },
     "src/components": {
       "path": "src/components",
       "purpose": "UI components",
       "fileCount": 11,
-      "lastAccessed": 1776059104991,
+      "lastAccessed": 1776151836168,
       "keyFiles": [
         "AGENTS.md",
         "DataOrchestrator.tsx",
@@ -162,7 +162,7 @@
       "path": "src/config",
       "purpose": "Configuration files",
       "fileCount": 2,
-      "lastAccessed": 1776059104991,
+      "lastAccessed": 1776151836168,
       "keyFiles": [
         "AGENTS.md",
         "constants.ts"
@@ -172,7 +172,7 @@
       "path": "src/lib",
       "purpose": "Library code",
       "fileCount": 4,
-      "lastAccessed": 1776059104992,
+      "lastAccessed": 1776151836168,
       "keyFiles": [
         "AGENTS.md",
         "api.ts",
@@ -183,7 +183,7 @@
       "path": "src/types",
       "purpose": "Type definitions",
       "fileCount": 2,
-      "lastAccessed": 1776059104992,
+      "lastAccessed": 1776151836168,
       "keyFiles": [
         "AGENTS.md",
         "index.ts"
@@ -192,177 +192,9 @@
   },
   "hotPaths": [
     {
-      "path": "src/components/EventsTimelineSidepanel.tsx",
-      "accessCount": 21,
-      "lastAccessed": 1776065202105,
-      "type": "file"
-    },
-    {
-      "path": "src",
-      "accessCount": 19,
-      "lastAccessed": 1776067190401,
-      "type": "directory"
-    },
-    {
-      "path": "src/App.tsx",
-      "accessCount": 17,
-      "lastAccessed": 1776060710511,
-      "type": "file"
-    },
-    {
-      "path": "src/lib/hooks.ts",
-      "accessCount": 16,
-      "lastAccessed": 1776070482995,
-      "type": "directory"
-    },
-    {
-      "path": "src/components/VesselCard.tsx",
-      "accessCount": 14,
-      "lastAccessed": 1776059710703,
-      "type": "file"
-    },
-    {
-      "path": "",
-      "accessCount": 13,
-      "lastAccessed": 1776067191027,
-      "type": "directory"
-    },
-    {
-      "path": "src/store/useAppStore.ts",
-      "accessCount": 11,
-      "lastAccessed": 1776060948995,
-      "type": "file"
-    },
-    {
       "path": "src/components/GanttTimeline.tsx",
-      "accessCount": 11,
-      "lastAccessed": 1776065126867,
-      "type": "file"
-    },
-    {
-      "path": "src/types/index.ts",
-      "accessCount": 11,
-      "lastAccessed": 1776067546298,
-      "type": "file"
-    },
-    {
-      "path": "src/components/DateRangePicker.tsx",
       "accessCount": 9,
-      "lastAccessed": 1776060897662,
-      "type": "file"
-    },
-    {
-      "path": "src/components/DataOrchestrator.tsx",
-      "accessCount": 7,
-      "lastAccessed": 1776067145930,
-      "type": "file"
-    },
-    {
-      "path": "src/config/constants.ts",
-      "accessCount": 6,
-      "lastAccessed": 1776067143698,
-      "type": "file"
-    },
-    {
-      "path": "src/components/VesselSearch.tsx",
-      "accessCount": 5,
-      "lastAccessed": 1776060795763,
-      "type": "file"
-    },
-    {
-      "path": "src/index.css",
-      "accessCount": 4,
-      "lastAccessed": 1776065184088,
-      "type": "file"
-    },
-    {
-      "path": "src/components/ui/button.tsx",
-      "accessCount": 3,
-      "lastAccessed": 1776060806864,
-      "type": "file"
-    },
-    {
-      "path": "src/components/MapView.tsx",
-      "accessCount": 3,
-      "lastAccessed": 1776065098273,
-      "type": "file"
-    },
-    {
-      "path": "src/lib/api.ts",
-      "accessCount": 3,
-      "lastAccessed": 1776067717910,
-      "type": "file"
-    },
-    {
-      "path": "src/lib",
-      "accessCount": 2,
-      "lastAccessed": 1776060648022,
-      "type": "directory"
-    },
-    {
-      "path": "src/components",
-      "accessCount": 2,
-      "lastAccessed": 1776064709927,
-      "type": "directory"
-    },
-    {
-      "path": "src/components/ui/tooltip.tsx",
-      "accessCount": 2,
-      "lastAccessed": 1776065127267,
-      "type": "file"
-    },
-    {
-      "path": "sample_data/vessel_zone_and_port_events.json",
-      "accessCount": 1,
-      "lastAccessed": 1776060348987,
-      "type": "file"
-    },
-    {
-      "path": "sample_data/ais_gaps.json",
-      "accessCount": 1,
-      "lastAccessed": 1776060349268,
-      "type": "file"
-    },
-    {
-      "path": "sample_data/sts_pairings.json",
-      "accessCount": 1,
-      "lastAccessed": 1776060349299,
-      "type": "file"
-    },
-    {
-      "path": "sample_data/positional_discrepancies.json",
-      "accessCount": 1,
-      "lastAccessed": 1776060351945,
-      "type": "file"
-    },
-    {
-      "path": "sample_data/vessel_port_calls.json",
-      "accessCount": 1,
-      "lastAccessed": 1776060352021,
-      "type": "file"
-    },
-    {
-      "path": "sample_data/port_state_control.json",
-      "accessCount": 1,
-      "lastAccessed": 1776060352113,
-      "type": "file"
-    },
-    {
-      "path": "src/components/ui/input.tsx",
-      "accessCount": 1,
-      "lastAccessed": 1776060698112,
-      "type": "file"
-    },
-    {
-      "path": "docs/Pole Star Global - Insights APIs Copy.postman_collection.json",
-      "accessCount": 1,
-      "lastAccessed": 1776067195630,
-      "type": "directory"
-    },
-    {
-      "path": "sample_data/positions.json",
-      "accessCount": 1,
-      "lastAccessed": 1776067700556,
+      "lastAccessed": 1776151974773,
       "type": "file"
     }
   ],

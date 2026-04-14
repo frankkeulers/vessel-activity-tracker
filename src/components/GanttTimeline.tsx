@@ -521,13 +521,13 @@ export function GanttTimeline() {
         </div>
       </div>
 
-      {/* Body */}
-      <div
-        className="flex flex-1 overflow-hidden"
-        style={{ display: "grid", gridTemplateColumns: `${SIDEBAR_W}px 1fr` }}
-      >
+      {/* Body — single scroll container so sidebar + canvas move together */}
+      <div className="flex-1 overflow-y-auto overflow-x-hidden">
+        <div
+          style={{ display: "grid", gridTemplateColumns: `${SIDEBAR_W}px 1fr`, minHeight: totalH }}
+        >
         {/* Sidebar */}
-        <div className="border-r border-border overflow-y-auto" style={{ minHeight: totalH }}>
+        <div className="border-r border-border" style={{ height: totalH }}>
           {rows.map((row) => {
             if (row.isGroupHeader) {
               return (
@@ -581,7 +581,7 @@ export function GanttTimeline() {
         </div>
 
         {/* Canvas */}
-        <div ref={canvasRef} className="relative overflow-y-auto" style={{ minHeight: totalH }}>
+        <div ref={canvasRef} className="relative" style={{ height: totalH }}>
           {/* Grid lines */}
           {ticks.map(({ ms }) => {
             const x = xOf(ms)
@@ -747,6 +747,7 @@ export function GanttTimeline() {
               </Tooltip>
             )
           })}
+        </div>
         </div>
       </div>
     </div>
