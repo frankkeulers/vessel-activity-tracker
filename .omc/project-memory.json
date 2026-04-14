@@ -199,8 +199,8 @@
     },
     {
       "path": "src/App.tsx",
-      "accessCount": 22,
-      "lastAccessed": 1776177617658,
+      "accessCount": 23,
+      "lastAccessed": 1776177965026,
       "type": "file"
     },
     {
@@ -228,27 +228,33 @@
       "type": "directory"
     },
     {
+      "path": "",
+      "accessCount": 8,
+      "lastAccessed": 1776177957180,
+      "type": "directory"
+    },
+    {
       "path": "src/components/VesselSearch.tsx",
       "accessCount": 7,
       "lastAccessed": 1776177642452,
       "type": "file"
     },
     {
-      "path": "",
-      "accessCount": 6,
-      "lastAccessed": 1776170408278,
-      "type": "directory"
-    },
-    {
       "path": "docs/PRD.md",
-      "accessCount": 5,
-      "lastAccessed": 1776153553885,
+      "accessCount": 7,
+      "lastAccessed": 1776177965670,
       "type": "file"
     },
     {
       "path": "src/config/constants.ts",
       "accessCount": 5,
       "lastAccessed": 1776153565569,
+      "type": "file"
+    },
+    {
+      "path": "src/lib/api.ts",
+      "accessCount": 5,
+      "lastAccessed": 1776177972290,
       "type": "file"
     },
     {
@@ -264,15 +270,15 @@
       "type": "file"
     },
     {
-      "path": "src/lib/api.ts",
+      "path": ".env.example",
       "accessCount": 4,
-      "lastAccessed": 1776177514890,
+      "lastAccessed": 1776177968973,
       "type": "file"
     },
     {
       "path": "src/types/index.ts",
-      "accessCount": 3,
-      "lastAccessed": 1776153379859,
+      "accessCount": 4,
+      "lastAccessed": 1776177972037,
       "type": "file"
     },
     {
@@ -294,12 +300,6 @@
       "type": "file"
     },
     {
-      "path": ".env.example",
-      "accessCount": 3,
-      "lastAccessed": 1776177558764,
-      "type": "file"
-    },
-    {
       "path": "proxy/.env.example",
       "accessCount": 2,
       "lastAccessed": 1776153570815,
@@ -312,6 +312,30 @@
       "type": "file"
     },
     {
+      "path": "package.json",
+      "accessCount": 2,
+      "lastAccessed": 1776177956480,
+      "type": "file"
+    },
+    {
+      "path": "docs/DESIGN_SPEC.md",
+      "accessCount": 2,
+      "lastAccessed": 1776177962072,
+      "type": "file"
+    },
+    {
+      "path": "vite.config.ts",
+      "accessCount": 2,
+      "lastAccessed": 1776177969127,
+      "type": "file"
+    },
+    {
+      "path": "README.md",
+      "accessCount": 2,
+      "lastAccessed": 1776178019998,
+      "type": "file"
+    },
+    {
       "path": "src/lib/replay.ts",
       "accessCount": 1,
       "lastAccessed": 1776153434337,
@@ -321,12 +345,6 @@
       "path": "docs/AGENTS.md",
       "accessCount": 1,
       "lastAccessed": 1776153553974,
-      "type": "file"
-    },
-    {
-      "path": "docs/DESIGN_SPEC.md",
-      "accessCount": 1,
-      "lastAccessed": 1776153554031,
       "type": "file"
     },
     {
@@ -345,18 +363,6 @@
       "path": "proxy/package.json",
       "accessCount": 1,
       "lastAccessed": 1776153558794,
-      "type": "file"
-    },
-    {
-      "path": "package.json",
-      "accessCount": 1,
-      "lastAccessed": 1776153558987,
-      "type": "file"
-    },
-    {
-      "path": "vite.config.ts",
-      "accessCount": 1,
-      "lastAccessed": 1776153559611,
       "type": "file"
     },
     {
@@ -388,6 +394,18 @@
       "accessCount": 1,
       "lastAccessed": 1776177312559,
       "type": "directory"
+    },
+    {
+      "path": "src/main.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1776177965284,
+      "type": "file"
+    },
+    {
+      "path": "tsconfig.json",
+      "accessCount": 1,
+      "lastAccessed": 1776177969368,
+      "type": "file"
     }
   ],
   "userDirectives": []

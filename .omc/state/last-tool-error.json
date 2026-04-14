@@ -1,7 +1,7 @@
 {
   "tool_name": "Read",
-  "tool_input_preview": "{\"file_path\":\"/Users/frankkeulers/Code/work/PS Labs/vessel-activity-tracker/src/components/GanttTimeline.tsx\"}",
-  "error": "File content (11047 tokens) exceeds maximum allowed tokens (10000). Use offset and limit parameters to read specific portions of the file, or search for specific content instead of reading the whole file.",
-  "timestamp": "2026-04-14T08:04:30.943Z",
+  "tool_input_preview": "{\"file_path\":\"/Users/frankkeulers/Code/work/PS Labs/vessel-activity-tracker\"}",
+  "error": "EISDIR: illegal operation on a directory, read '/Users/frankkeulers/Code/work/PS Labs/vessel-activity-tracker'",
+  "timestamp": "2026-04-14T14:45:56.333Z",
   "retry_count": 1
 }
