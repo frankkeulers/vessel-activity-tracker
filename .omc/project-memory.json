@@ -228,6 +228,12 @@
       "type": "directory"
     },
     {
+      "path": "",
+      "accessCount": 6,
+      "lastAccessed": 1776170408278,
+      "type": "directory"
+    },
+    {
       "path": "docs/PRD.md",
       "accessCount": 5,
       "lastAccessed": 1776153553885,
@@ -238,12 +244,6 @@
       "accessCount": 5,
       "lastAccessed": 1776153565569,
       "type": "file"
-    },
-    {
-      "path": "",
-      "accessCount": 5,
-      "lastAccessed": 1776153570892,
-      "type": "directory"
     },
     {
       "path": "src/components/DataOrchestrator.tsx",
@@ -363,6 +363,12 @@
       "path": "src/components/ReplayBar.tsx",
       "accessCount": 1,
       "lastAccessed": 1776153608939,
+      "type": "file"
+    },
+    {
+      "path": "docs/supabase-edge-function-migration.md",
+      "accessCount": 1,
+      "lastAccessed": 1776170462727,
       "type": "file"
     }
   ],
